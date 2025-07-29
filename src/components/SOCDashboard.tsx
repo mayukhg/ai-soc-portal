@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AlertTriangle, Shield, Users, BarChart3, Bell, Search, Filter } from 'lucide-react';
+import { AlertTriangle, Shield, Users, BarChart3, Bell, Search, Filter, MessageSquare, FileText, Bot } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,9 @@ import { Input } from '@/components/ui/input';
 import { AlertFeed } from './AlertFeed';
 import { KPIMetrics } from './KPIMetrics';
 import { ThreatMap } from './ThreatMap';
+import { AIAssistant } from './AIAssistant';
+import { CollaborationPanel } from './CollaborationPanel';
+import { IncidentManagement } from './IncidentManagement';
 
 export function SOCDashboard() {
   const [activeView, setActiveView] = useState('alerts');
@@ -86,6 +89,39 @@ export function SOCDashboard() {
             </Button>
 
             <Button
+              variant={activeView === 'incidents' ? 'secondary' : 'ghost'}
+              className="w-full justify-start"
+              onClick={() => setActiveView('incidents')}
+            >
+              <FileText className="mr-3 h-4 w-4" />
+              Incidents
+              <Badge variant="outline" className="ml-auto">
+                4
+              </Badge>
+            </Button>
+
+            <Button
+              variant={activeView === 'ai-assistant' ? 'secondary' : 'ghost'}
+              className="w-full justify-start"
+              onClick={() => setActiveView('ai-assistant')}
+            >
+              <Bot className="mr-3 h-4 w-4" />
+              AI Assistant
+              <div className="ml-auto h-2 w-2 bg-success rounded-full animate-pulse-glow" />
+            </Button>
+
+            <Button
+              variant={activeView === 'collaboration' ? 'secondary' : 'ghost'}
+              className="w-full justify-start"
+              onClick={() => setActiveView('collaboration')}
+            >
+              <MessageSquare className="mr-3 h-4 w-4" />
+              Collaboration
+            </Button>
+
+            <div className="border-t border-border my-3"></div>
+
+            <Button
               variant={activeView === 'metrics' ? 'secondary' : 'ghost'}
               className="w-full justify-start"
               onClick={() => setActiveView('metrics')}
@@ -136,6 +172,9 @@ export function SOCDashboard() {
         <main className="flex-1 p-6">
           <div className="animate-fade-in">
             {activeView === 'alerts' && <AlertFeed />}
+            {activeView === 'incidents' && <IncidentManagement />}
+            {activeView === 'ai-assistant' && <AIAssistant />}
+            {activeView === 'collaboration' && <CollaborationPanel />}
             {activeView === 'metrics' && <KPIMetrics />}
             {activeView === 'threats' && <ThreatMap />}
           </div>
