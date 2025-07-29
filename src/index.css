@@ -8,35 +8,58 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* SOC Dark Theme - Professional Security Operations */
+    --background: 220 15% 8%;
+    --foreground: 210 20% 95%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 220 15% 10%;
+    --card-foreground: 210 20% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 220 15% 10%;
+    --popover-foreground: 210 20% 95%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 200 100% 45%;
+    --primary-foreground: 220 15% 8%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 220 15% 15%;
+    --secondary-foreground: 210 20% 90%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 220 15% 12%;
+    --muted-foreground: 210 10% 65%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 190 80% 50%;
+    --accent-foreground: 220 15% 8%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 210 20% 95%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 220 15% 20%;
+    --input: 220 15% 15%;
+    --ring: 200 100% 45%;
 
-    --radius: 0.5rem;
+    /* SOC-specific colors */
+    --critical: 0 85% 60%;
+    --high: 25 90% 55%;
+    --medium: 45 90% 55%;
+    --low: 120 50% 50%;
+    --info: 200 100% 45%;
+    
+    /* Status colors */
+    --success: 120 60% 50%;
+    --warning: 45 90% 55%;
+    --error: 0 75% 55%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(200 100% 45%), hsl(190 80% 50%));
+    --gradient-alert: linear-gradient(135deg, hsl(0 85% 60%), hsl(25 90% 55%));
+    --gradient-subtle: linear-gradient(180deg, hsl(220 15% 10%), hsl(220 15% 8%));
+    
+    /* Shadows */
+    --shadow-glow: 0 0 20px hsl(200 100% 45% / 0.2);
+    --shadow-card: 0 4px 20px hsl(220 15% 5% / 0.4);
+    --shadow-alert: 0 0 15px hsl(0 85% 60% / 0.3);
+
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
 
