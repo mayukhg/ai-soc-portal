@@ -14,6 +14,176 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_interactions: {
+        Row: {
+          content: string
+          context_id: string | null
+          context_type: string | null
+          created_at: string
+          id: string
+          message_type: string
+          metadata: Json | null
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          context_id?: string | null
+          context_type?: string | null
+          created_at?: string
+          id?: string
+          message_type: string
+          metadata?: Json | null
+          session_id?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          context_id?: string | null
+          context_type?: string | null
+          created_at?: string
+          id?: string
+          message_type?: string
+          metadata?: Json | null
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_interactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      alerts: {
+        Row: {
+          affected_systems: string[] | null
+          alert_type: string
+          assigned_to: string | null
+          created_at: string
+          description: string | null
+          destination_ip: unknown | null
+          embedding: string | null
+          id: string
+          indicators: string[] | null
+          metadata: Json | null
+          resolved_at: string | null
+          severity: string
+          source: string
+          source_ip: unknown | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          affected_systems?: string[] | null
+          alert_type: string
+          assigned_to?: string | null
+          created_at?: string
+          description?: string | null
+          destination_ip?: unknown | null
+          embedding?: string | null
+          id?: string
+          indicators?: string[] | null
+          metadata?: Json | null
+          resolved_at?: string | null
+          severity: string
+          source: string
+          source_ip?: unknown | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          affected_systems?: string[] | null
+          alert_type?: string
+          assigned_to?: string | null
+          created_at?: string
+          description?: string | null
+          destination_ip?: unknown | null
+          embedding?: string | null
+          id?: string
+          indicators?: string[] | null
+          metadata?: Json | null
+          resolved_at?: string | null
+          severity?: string
+          source?: string
+          source_ip?: unknown | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alerts_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      comments: {
+        Row: {
+          alert_id: string | null
+          comment_type: string | null
+          content: string
+          created_at: string
+          id: string
+          incident_id: string | null
+          is_internal: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alert_id?: string | null
+          comment_type?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          incident_id?: string | null
+          is_internal?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alert_id?: string | null
+          comment_type?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          incident_id?: string | null
+          is_internal?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_alert_id_fkey"
+            columns: ["alert_id"]
+            isOneToOne: false
+            referencedRelation: "alerts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       incidents: {
         Row: {
           alert_count: number | null
@@ -52,6 +222,203 @@ export type Database = {
           status?: string
           tags?: string[] | null
           title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      kpi_metrics: {
+        Row: {
+          calculated_at: string
+          current_value: number
+          id: string
+          metadata: Json | null
+          metric_category: string
+          metric_name: string
+          period_end: string
+          period_start: string
+          previous_value: number | null
+          target_value: number | null
+          trend: string | null
+          unit: string | null
+        }
+        Insert: {
+          calculated_at?: string
+          current_value: number
+          id?: string
+          metadata?: Json | null
+          metric_category: string
+          metric_name: string
+          period_end: string
+          period_start: string
+          previous_value?: number | null
+          target_value?: number | null
+          trend?: string | null
+          unit?: string | null
+        }
+        Update: {
+          calculated_at?: string
+          current_value?: number
+          id?: string
+          metadata?: Json | null
+          metric_category?: string
+          metric_name?: string
+          period_end?: string
+          period_start?: string
+          previous_value?: number | null
+          target_value?: number | null
+          trend?: string | null
+          unit?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          department: string | null
+          full_name: string | null
+          id: string
+          role: string
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          department?: string | null
+          full_name?: string | null
+          id?: string
+          role?: string
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          department?: string | null
+          full_name?: string | null
+          id?: string
+          role?: string
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          content: Json
+          created_at: string
+          file_url: string | null
+          generated_by: string
+          generated_for: string[] | null
+          id: string
+          is_recurring: boolean | null
+          recurrence_pattern: string | null
+          report_type: string
+          scheduled_for: string | null
+          status: string | null
+          template_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content?: Json
+          created_at?: string
+          file_url?: string | null
+          generated_by: string
+          generated_for?: string[] | null
+          id?: string
+          is_recurring?: boolean | null
+          recurrence_pattern?: string | null
+          report_type: string
+          scheduled_for?: string | null
+          status?: string | null
+          template_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          file_url?: string | null
+          generated_by?: string
+          generated_for?: string[] | null
+          id?: string
+          is_recurring?: boolean | null
+          recurrence_pattern?: string | null
+          report_type?: string
+          scheduled_for?: string | null
+          status?: string | null
+          template_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_generated_by_fkey"
+            columns: ["generated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      threat_intelligence: {
+        Row: {
+          confidence_score: number | null
+          country_code: string | null
+          created_at: string
+          first_seen: string | null
+          id: string
+          indicator_type: string
+          indicator_value: string
+          is_active: boolean | null
+          last_seen: string | null
+          latitude: number | null
+          longitude: number | null
+          metadata: Json | null
+          source: string
+          tags: string[] | null
+          threat_type: string
+          updated_at: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          country_code?: string | null
+          created_at?: string
+          first_seen?: string | null
+          id?: string
+          indicator_type: string
+          indicator_value: string
+          is_active?: boolean | null
+          last_seen?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          metadata?: Json | null
+          source: string
+          tags?: string[] | null
+          threat_type: string
+          updated_at?: string
+        }
+        Update: {
+          confidence_score?: number | null
+          country_code?: string | null
+          created_at?: string
+          first_seen?: string | null
+          id?: string
+          indicator_type?: string
+          indicator_value?: string
+          is_active?: boolean | null
+          last_seen?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          metadata?: Json | null
+          source?: string
+          tags?: string[] | null
+          threat_type?: string
           updated_at?: string
         }
         Relationships: []

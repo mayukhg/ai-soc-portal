@@ -5,3 +5,12 @@ verify_jwt = false
 
 [functions.semantic-search]
 verify_jwt = false
+
+[functions.get-alerts]
+verify_jwt = false
+
+[functions.ai-assistant]
+verify_jwt = false
+
+[functions.calculate-kpis]
+verify_jwt = false
