@@ -10,6 +10,9 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ReportTemplate {
   id: string;
@@ -94,6 +97,8 @@ const scheduledReports: ScheduledReport[] = [
 ];
 
 export function ReportGenerator() {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [selectedRole, setSelectedRole] = useState<'tier3' | 'management'>('management');
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [customSections, setCustomSections] = useState<string[]>([]);
@@ -101,6 +106,7 @@ export function ReportGenerator() {
   const [reportDescription, setReportDescription] = useState('');
   const [generating, setGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [generatedReport, setGeneratedReport] = useState<string | null>(null);
 
   const getRoleColor = (role: string) => {
     return role === 'tier3' ? 'bg-primary/10 text-primary border-primary/20' : 'bg-accent/10 text-accent border-accent/20';
@@ -115,20 +121,79 @@ export function ReportGenerator() {
     }
   };
 
-  const handleGenerateReport = async () => {
+  const handleGenerateReport = async (templateId?: string, reportType?: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to generate reports.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setGenerating(true);
     setProgress(0);
+    setGeneratedReport(null);
     
-    // Simulate report generation
-    const steps = ['Collecting data...', 'Analyzing metrics...', 'Generating visualizations...', 'Compiling report...', 'Finalizing...'];
-    
-    for (let i = 0; i < steps.length; i++) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setProgress(((i + 1) / steps.length) * 100);
+    try {
+      // Simulate progress updates
+      const progressInterval = setInterval(() => {
+        setProgress(prev => Math.min(prev + 10, 90));
+      }, 500);
+
+      const requestBody = {
+        reportType: reportType || (templateId ? getReportTypeFromTemplate(templateId) : 'custom'),
+        templateId: templateId,
+        customSections: customSections,
+        title: reportTitle || 'Generated Report',
+        description: reportDescription,
+        generatedBy: user.id,
+        generatedFor: selectedRole === 'management' ? ['management'] : ['analyst_tier3'],
+        timeRange: '7d'
+      };
+
+      console.log('Generating report with:', requestBody);
+
+      const { data, error } = await supabase.functions.invoke('generate-report', {
+        body: requestBody
+      });
+
+      clearInterval(progressInterval);
+      setProgress(100);
+
+      if (error) {
+        console.error('Report generation error:', error);
+        throw error;
+      }
+
+      if (data?.success) {
+        setGeneratedReport(data.content);
+        toast({
+          title: "Report Generated Successfully",
+          description: `Report created with ${data.summary?.incidents || 0} incidents and ${data.summary?.alerts || 0} alerts analyzed.`,
+        });
+      } else {
+        throw new Error(data?.error || 'Failed to generate report');
+      }
+    } catch (err: any) {
+      console.error('Report generation failed:', err);
+      toast({
+        title: "Report Generation Failed",
+        description: err.message || "An error occurred while generating the report.",
+        variant: "destructive",
+      });
+    } finally {
+      setGenerating(false);
+      setTimeout(() => setProgress(0), 2000);
     }
-    
-    setGenerating(false);
-    setProgress(0);
+  };
+
+  const getReportTypeFromTemplate = (templateId: string): string => {
+    if (templateId.includes('executive')) return 'executive_summary';
+    if (templateId.includes('incident')) return 'incident_summary';
+    if (templateId.includes('threat')) return 'threat_analysis';
+    if (templateId.includes('kpi') || templateId.includes('performance')) return 'performance_metrics';
+    return 'custom';
   };
 
   const filteredTemplates = reportTemplates.filter(template => template.role === selectedRole);
@@ -145,7 +210,7 @@ export function ReportGenerator() {
             <Clock className="h-3 w-3 mr-1" />
             Auto-Generated
           </Badge>
-          <Button onClick={handleGenerateReport} disabled={generating}>
+          <Button onClick={() => handleGenerateReport()} disabled={generating}>
             <FileText className="h-4 w-4 mr-2" />
             {generating ? 'Generating...' : 'Generate Report'}
           </Button>
@@ -164,6 +229,34 @@ export function ReportGenerator() {
               <p className="text-xs text-muted-foreground">
                 This may take a few moments while we analyze your security data
               </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {generatedReport && (
+        <Card className="border-success/20 bg-success/5">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-success" />
+              Generated Report
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="prose prose-sm max-w-none dark:prose-invert">
+              <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
+                {generatedReport}
+              </pre>
+            </div>
+            <div className="flex gap-2 mt-4 pt-4 border-t">
+              <Button size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                Download PDF
+              </Button>
+              <Button size="sm" variant="outline">
+                <Send className="h-4 w-4 mr-2" />
+                Share Report
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -231,7 +324,12 @@ export function ReportGenerator() {
                   </div>
                   
                   <div className="flex gap-2">
-                    <Button size="sm" className="flex-1">
+                    <Button 
+                      size="sm" 
+                      className="flex-1" 
+                      onClick={() => handleGenerateReport(template.id)}
+                      disabled={generating}
+                    >
                       <FileText className="h-3 w-3 mr-1" />
                       Generate
                     </Button>
@@ -333,7 +431,7 @@ export function ReportGenerator() {
                     ))}
                   </div>
                   
-                  <Button className="w-full" onClick={handleGenerateReport} disabled={!reportTitle || customSections.length === 0}>
+                  <Button className="w-full" onClick={() => handleGenerateReport()} disabled={!reportTitle || customSections.length === 0 || generating}>
                     <FileText className="h-4 w-4 mr-2" />
                     Generate Custom Report
                   </Button>
