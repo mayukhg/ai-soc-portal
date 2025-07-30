@@ -24,10 +24,7 @@ serve(async (req) => {
 
     let query = supabase
       .from('alerts')
-      .select(`
-        *,
-        assigned_profile:assigned_to(username, full_name, role)
-      `)
+      .select('*')
       .order('created_at', { ascending: false });
 
     // Apply filters
