@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { AlertTriangle, Shield, Users, BarChart3, Bell, Search, Filter, MessageSquare, FileText, Bot } from 'lucide-react';
+import { AlertTriangle, Shield, Users, BarChart3, Bell, Search, Filter, MessageSquare, FileText, Bot, LogOut, User } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/contexts/AuthContext';
 import { AlertFeed } from './AlertFeed';
 import { KPIMetrics } from './KPIMetrics';
 import { ThreatMap } from './ThreatMap';
@@ -13,6 +14,7 @@ import { IncidentManagement } from './IncidentManagement';
 import { ReportGenerator } from './ReportGenerator';
 
 export function SOCDashboard() {
+  const { user, userProfile, signOut } = useAuth();
   const [activeView, setActiveView] = useState('alerts');
   const [alertCount] = useState({
     critical: 3,
@@ -21,6 +23,10 @@ export function SOCDashboard() {
     low: 18,
     total: 78
   });
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -61,12 +67,21 @@ export function SOCDashboard() {
 
             <div className="flex items-center space-x-2 pl-4 border-l border-border">
               <div className="h-8 w-8 rounded-full bg-gradient-to-r from-primary to-accent flex items-center justify-center">
-                <Users className="h-4 w-4 text-primary-foreground" />
+                <User className="h-4 w-4 text-primary-foreground" />
               </div>
               <div className="text-sm">
-                <div className="font-medium">Analyst T1</div>
-                <div className="text-muted-foreground">John Doe</div>
+                <div className="font-medium">
+                  {userProfile?.role ? 
+                    userProfile.role.replace('analyst_', 'Analyst T').replace('_', ' ').toUpperCase() : 
+                    'Analyst'}
+                </div>
+                <div className="text-muted-foreground">
+                  {userProfile?.full_name || user?.email?.split('@')[0] || 'User'}
+                </div>
               </div>
+              <Button variant="ghost" size="icon" onClick={handleSignOut} title="Sign Out">
+                <LogOut className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         </div>
