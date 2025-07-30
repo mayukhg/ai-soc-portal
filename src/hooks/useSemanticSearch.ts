@@ -29,40 +29,33 @@ export function useSemanticSearch() {
 
     setIsSearching(true);
     try {
-      const { data, error } = await supabase.functions.invoke('semantic-search', {
-        body: {
-          query,
-          matchThreshold,
-          matchCount
-        }
+      // TODO: Move endpoint to environment variable
+      const endpoint = process.env.REACT_APP_SEMANTIC_SEARCH_API || 'https://<API_GATEWAY_ID>.execute-api.<REGION>.amazonaws.com/prod/semantic-search';
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query, matchThreshold, matchCount }),
       });
+      const data = await response.json();
 
-      if (error) {
-        console.error('Semantic search error:', error);
+      if (!response.ok || !data.success) {
+        console.error('Semantic search error:', data?.error);
         toast({
           title: "Search Error",
-          description: "Failed to perform semantic search. Please try again.",
+          description: data?.error || "Failed to perform semantic search. Please try again.",
           variant: "destructive",
         });
         setSearchResults([]);
         return;
       }
 
-      if (data?.success) {
-        setSearchResults(data.results || []);
-        toast({
-          title: "Search Complete",
-          description: `Found ${data.results?.length || 0} semantic matches`,
-        });
-      } else {
-        console.error('Search failed:', data?.error);
-        toast({
-          title: "Search Failed",
-          description: data?.error || "Unknown error occurred",
-          variant: "destructive",
-        });
-        setSearchResults([]);
-      }
+      setSearchResults(data.results || []);
+      toast({
+        title: "Search Complete",
+        description: `Found ${data.results?.length || 0} semantic matches`,
+      });
     } catch (err) {
       console.error('Search error:', err);
       toast({

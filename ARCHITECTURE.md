@@ -1,44 +1,98 @@
-# SOC-AI Portal Architecture Documentation
+# Migration Notice
 
-## 🏗️ Architecture Overview
+The backend is being re-implemented using AWS Lambda (Python), Pinecone (vector database), Aurora Serverless (Postgres), and Redis (ElastiCache). The following documentation will be updated to reflect the new architecture after implementation.
 
-The SOC-AI Portal is a modern, full-stack Security Operations Center dashboard designed to support multi-tier analyst workflows. Built with React/TypeScript frontend and Supabase backend, it follows a modular architecture pattern optimized for real-time security operations.
+---
 
-### High-Level Architecture
+# SOC-AI Portal Architecture (Serverless Backend)
 
+## Overview
+The backend is implemented using AWS Lambda (Python), Pinecone (vector database), Aurora Serverless (Postgres), Redis (ElastiCache), and API Gateway. This architecture provides scalable, cost-effective, and high-performance semantic search and incident management.
+
+---
+
+## High-Level Architecture Diagram
+
+```mermaid
+graph TD
+  A["Frontend (React)"] -->|HTTP Request| B["API Gateway"]
+  B --> C["AWS Lambda (Python)"]
+  C -->|Get Embedding| D["OpenAI API"]
+  C -->|Vector Search| E["Pinecone"]
+  C -->|Metadata Lookup| F["Aurora Serverless (Postgres)"]
+  C -->|Cache| G["Redis (ElastiCache)"]
+  E -->|IDs| C
+  F -->|Incident Metadata| C
+  C -->|Results| A
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    SOC-AI Portal Frontend                   │
-├─────────────────────────────────────────────────────────────┤
-│  ┌───────────────┐  ┌──────────────┐  ┌─────────────────┐   │
-│  │   Dashboard   │  │  Navigation  │  │   Components    │   │
-│  │   Container   │  │   Sidebar    │  │     Layer       │   │
-│  └───────────────┘  └──────────────┘  └─────────────────┘   │
-├─────────────────────────────────────────────────────────────┤
-│  ┌───────────────┐  ┌──────────────┐  ┌─────────────────┐   │
-│  │   Custom      │  │   State      │  │   UI Library    │   │
-│  │   Hooks       │  │ Management   │  │   (shadcn/ui)   │   │
-│  └───────────────┘  └──────────────┘  └─────────────────┘   │
-├─────────────────────────────────────────────────────────────┤
-│  ┌───────────────┐  ┌──────────────┐  ┌─────────────────┐   │
-│  │   React 18    │  │ TypeScript   │  │  Tailwind CSS   │   │
-│  │   + Hooks     │  │   + Vite     │  │   + Animations  │   │
-│  └───────────────┘  └──────────────┘  └─────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
-┌─────────────────────────────────────────────────────────────┐
-│                    Supabase Backend                         │
-├─────────────────────────────────────────────────────────────┤
-│  ┌───────────────┐  ┌──────────────┐  ┌─────────────────┐   │
-│  │   PostgreSQL  │  │ Edge         │  │   Real-time     │   │
-│  │   Database    │  │ Functions    │  │   Updates       │   │
-│  └───────────────┘  └──────────────┘  └─────────────────┘   │
-├─────────────────────────────────────────────────────────────┤
-│  ┌───────────────┐  ┌──────────────┐  ┌─────────────────┐   │
-│  │   Row Level   │  │ OpenAI       │  │   Vector        │   │
-│  │   Security    │  │ Integration  │  │   Embeddings    │   │
-│  └───────────────┘  └──────────────┘  └─────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
-```
+
+---
+
+## Component Responsibilities
+
+- **Frontend (React):** Sends search queries and displays results.
+- **API Gateway:** Exposes RESTful endpoints to the frontend.
+- **AWS Lambda (Python):**
+  - Receives search queries.
+  - Checks Redis for cached embeddings/results.
+  - Calls OpenAI API for embeddings if not cached.
+  - Queries Pinecone for vector similarity search.
+  - Fetches incident metadata from Aurora Serverless.
+  - Returns results to the frontend.
+- **Pinecone:** Stores and searches vector embeddings for semantic similarity.
+- **Aurora Serverless (Postgres):** Stores incident metadata.
+- **Redis (ElastiCache):** Caches embeddings and search results for performance.
+- **OpenAI API:** Generates embeddings for queries and incidents.
+
+---
+
+## Semantic Search Flow
+
+1. **User enters a query** in the frontend.
+2. **Frontend** sends the query to the API Gateway endpoint.
+3. **API Gateway** routes the request to the Lambda function.
+4. **Lambda**:
+   - Checks Redis for a cached embedding/result.
+   - If not cached, calls OpenAI API to generate the embedding and caches it.
+   - Queries Pinecone for similar vectors (incident IDs).
+   - Fetches incident metadata from Aurora for those IDs.
+   - Returns the results to the frontend.
+5. **Frontend** displays the results to the user.
+
+---
+
+## Infrastructure (CloudFormation)
+- All resources are provisioned via `backend/cloudformation.yaml`:
+  - VPC, subnets, security groups
+  - Aurora Serverless (Postgres)
+  - ElastiCache (Redis)
+  - API Gateway
+  - AWS Lambda (Python)
+  - IAM roles
+  - Parameters for secrets and API keys
+
+---
+
+## Data Ingestion Pipeline
+- Use `backend/scripts/ingest_to_pinecone.py` to:
+  - Connect to Aurora and fetch all incidents.
+  - Generate embeddings for each incident using OpenAI.
+  - Upsert embeddings into Pinecone.
+- Use `backend/scripts/aurora_schema.sql` to create the incidents table in Aurora.
+
+---
+
+## Environment Variables
+- All secrets and connection info are passed as environment variables to Lambda and scripts.
+- See CloudFormation template for details.
+
+---
+
+## Migration Notes
+- The previous Supabase-based backend is deprecated and replaced by this serverless architecture.
+- All API calls from the frontend now go through API Gateway to Lambda.
+
+---
 
 ## 📁 Project Structure
 

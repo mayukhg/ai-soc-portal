@@ -1,3 +1,9 @@
+# Notice: Backend Migration in Progress
+
+The backend is being migrated to a new architecture using AWS Lambda (Python), Pinecone, Aurora Serverless (Postgres), and Redis (ElastiCache). The previous Supabase-based backend (in the `supabase/` directory) is now deprecated and will be removed.
+
+---
+
 # Welcome to your Lovable project
 
 ## Project info

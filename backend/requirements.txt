@@ -1,0 +1,6 @@
+pinecone-client
+openai
+psycopg2-binary
+redis
+boto3
+requests
