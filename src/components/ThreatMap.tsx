@@ -2,6 +2,7 @@ import { Globe, MapPin, Activity, Shield, Zap, Eye } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { ThreatCorrelationGraph } from './ThreatCorrelationGraph';
 
 interface ThreatLocation {
   country: string;
@@ -266,22 +267,19 @@ export function ThreatMap() {
         </Card>
       </div>
 
-      {/* Threat Correlation Graph Placeholder */}
+      {/* Threat Correlation Graph */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Activity className="h-5 w-5 text-primary" />
             <span>Threat Correlation Graph</span>
           </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Interactive visualization showing relationships between threats, IPs, domains, and malware
+          </p>
         </CardHeader>
         <CardContent>
-          <div className="h-64 bg-muted/20 rounded-lg flex items-center justify-center border-2 border-dashed border-border">
-            <div className="text-center">
-              <Activity className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">Interactive threat correlation visualization</p>
-              <p className="text-sm text-muted-foreground mt-1">Coming soon with real-time data integration</p>
-            </div>
-          </div>
+          <ThreatCorrelationGraph />
         </CardContent>
       </Card>
     </div>
