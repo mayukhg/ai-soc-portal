@@ -1,265 +1,229 @@
-import { Globe, MapPin, Activity, Shield, Zap, Eye } from 'lucide-react';
+import { useState } from 'react';
+import { Globe, MapPin, Activity, Shield, Zap, Eye, Filter, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ThreatCorrelationGraph } from './ThreatCorrelationGraph';
+import { useThreatIntelligence } from '@/hooks/useThreatIntelligence';
 
 interface ThreatLocation {
   country: string;
-  attackCount: number;
-  severity: 'critical' | 'high' | 'medium' | 'low';
-  attackTypes: string[];
-  lastActivity: string;
+  count: number;
+  types: string[];
+  latestActivity: string;
+  indicators: any[];
 }
-
-interface ThreatIntel {
-  indicator: string;
-  type: 'ip' | 'domain' | 'hash' | 'url';
-  confidence: number;
-  source: string;
-  firstSeen: string;
-  threatLevel: 'critical' | 'high' | 'medium' | 'low';
-}
-
-const threatLocations: ThreatLocation[] = [
-  {
-    country: 'Russia',
-    attackCount: 45,
-    severity: 'critical',
-    attackTypes: ['APT', 'Ransomware', 'Credential Harvesting'],
-    lastActivity: '2 minutes ago'
-  },
-  {
-    country: 'China',
-    attackCount: 32,
-    severity: 'high',
-    attackTypes: ['Data Exfiltration', 'Supply Chain'],
-    lastActivity: '8 minutes ago'
-  },
-  {
-    country: 'North Korea',
-    attackCount: 18,
-    severity: 'high',
-    attackTypes: ['Cryptocurrency', 'Financial'],
-    lastActivity: '15 minutes ago'
-  },
-  {
-    country: 'Iran',
-    attackCount: 12,
-    severity: 'medium',
-    attackTypes: ['Phishing', 'Social Engineering'],
-    lastActivity: '23 minutes ago'
-  }
-];
-
-const threatIntelligence: ThreatIntel[] = [
-  {
-    indicator: '192.168.1.100',
-    type: 'ip',
-    confidence: 95,
-    source: 'CrowdStrike',
-    firstSeen: '1 hour ago',
-    threatLevel: 'critical'
-  },
-  {
-    indicator: 'malicious-domain.evil',
-    type: 'domain',
-    confidence: 88,
-    source: 'VirusTotal',
-    firstSeen: '3 hours ago',
-    threatLevel: 'high'
-  },
-  {
-    indicator: 'a1b2c3d4e5f6...',
-    type: 'hash',
-    confidence: 92,
-    source: 'Microsoft Defender',
-    firstSeen: '5 hours ago',
-    threatLevel: 'high'
-  }
-];
 
 export function ThreatMap() {
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case 'critical': return 'text-critical';
-      case 'high': return 'text-high';
-      case 'medium': return 'text-medium';
-      case 'low': return 'text-low';
-      default: return 'text-muted-foreground';
-    }
+  const { threatIntel, loading, error, getThreatsByCountry } = useThreatIntelligence();
+  const [selectedType, setSelectedType] = useState<string>('all');
+  const [selectedCountry, setSelectedCountry] = useState<string>('all');
+
+  const threatLocations = getThreatsByCountry();
+  
+  const filteredThreats = threatIntel.filter(threat => {
+    const typeMatch = selectedType === 'all' || threat.indicator_type === selectedType;
+    const countryMatch = selectedCountry === 'all' || threat.country_code === selectedCountry;
+    return typeMatch && countryMatch;
+  });
+
+  const getConfidenceColor = (confidence: number) => {
+    if (confidence >= 90) return 'bg-critical text-critical-foreground';
+    if (confidence >= 70) return 'bg-high text-high-foreground';
+    if (confidence >= 50) return 'bg-medium text-medium-foreground';
+    return 'bg-low text-low-foreground';
   };
 
-  const getSeverityBadge = (severity: string) => {
-    switch (severity) {
-      case 'critical': return 'bg-critical text-primary-foreground';
-      case 'high': return 'bg-high text-primary-foreground';
-      case 'medium': return 'bg-medium text-primary-foreground';
-      case 'low': return 'bg-low text-primary-foreground';
-      default: return 'bg-muted text-muted-foreground';
+  const getSeverityFromConfidence = (confidence: number): 'critical' | 'high' | 'medium' | 'low' => {
+    if (confidence >= 90) return 'critical';
+    if (confidence >= 70) return 'high';
+    if (confidence >= 50) return 'medium';
+    return 'low';
+  };
+
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 24) {
+      return `${diffInHours} hours ago`;
+    } else {
+      return `${Math.floor(diffInHours / 24)} days ago`;
     }
   };
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'ip': return <MapPin className="h-3 w-3" />;
-      case 'domain': return <Globe className="h-3 w-3" />;
-      case 'hash': return <Shield className="h-3 w-3" />;
-      case 'url': return <Eye className="h-3 w-3" />;
-      default: return <Activity className="h-3 w-3" />;
+      case 'ip': return <Globe className="h-4 w-4" />;
+      case 'domain': return <Activity className="h-4 w-4" />;
+      case 'url': return <Eye className="h-4 w-4" />;
+      case 'hash': return <Shield className="h-4 w-4" />;
+      case 'email': return <MapPin className="h-4 w-4" />;
+      default: return <Zap className="h-4 w-4" />;
     }
   };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Threat Map</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="border-destructive">
+        <CardHeader>
+          <CardTitle>Threat Map</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-destructive">Error loading threat intelligence: {error}</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold">Global Threat Intelligence</h2>
+        <div>
+          <h2 className="text-3xl font-bold">Global Threat Intelligence</h2>
+          <p className="text-muted-foreground">Real-time threat indicators and geographical distribution</p>
+        </div>
         <div className="flex items-center space-x-3">
           <Badge variant="outline" className="animate-pulse-glow">
             <Activity className="h-3 w-3 mr-1" />
-            Live Feed
+            {threatIntel.length} Active Indicators
           </Badge>
-          <Badge variant="secondary">Global Coverage</Badge>
+          <Button variant="outline" size="sm">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh Feed
+          </Button>
         </div>
       </div>
 
-      {/* Threat Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="border-l-4 border-l-critical">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Active Threats</p>
-                <p className="text-2xl font-bold text-critical">107</p>
-              </div>
-              <Zap className="h-8 w-8 text-critical opacity-70" />
-            </div>
-          </CardContent>
-        </Card>
+      {/* Filters */}
+      <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
+          <Filter className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium">Filters:</span>
+        </div>
+        
+        <Select value={selectedType} onValueChange={setSelectedType}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="Filter by type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Types</SelectItem>
+            <SelectItem value="ip">IP Address</SelectItem>
+            <SelectItem value="domain">Domain</SelectItem>
+            <SelectItem value="url">URL</SelectItem>
+            <SelectItem value="hash">File Hash</SelectItem>
+            <SelectItem value="email">Email</SelectItem>
+          </SelectContent>
+        </Select>
 
-        <Card className="border-l-4 border-l-warning">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Countries Affected</p>
-                <p className="text-2xl font-bold text-warning">23</p>
-              </div>
-              <Globe className="h-8 w-8 text-warning opacity-70" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-primary">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">IOCs Detected</p>
-                <p className="text-2xl font-bold text-primary">1,847</p>
-              </div>
-              <Eye className="h-8 w-8 text-primary opacity-70" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-accent">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Blocked Attacks</p>
-                <p className="text-2xl font-bold text-accent">342</p>
-              </div>
-              <Shield className="h-8 w-8 text-accent opacity-70" />
-            </div>
-          </CardContent>
-        </Card>
+        <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="Filter by country" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Countries</SelectItem>
+            {Array.from(new Set(threatIntel.map(t => t.country_code).filter(Boolean))).map(country => (
+              <SelectItem key={country} value={country!}>{country}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Geographic Threat Distribution */}
+        {/* Threat Locations */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <MapPin className="h-5 w-5 text-primary" />
-              <span>Geographic Threat Distribution</span>
+              <MapPin className="h-5 w-5" />
+              <span>Threat Origins</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {threatLocations.map((location, index) => (
+            {threatLocations.slice(0, 8).map((location, index) => (
               <div 
                 key={location.country}
-                className="animate-fade-in border border-border/50 rounded-lg p-4 hover:border-border transition-colors"
+                className="flex items-center justify-between p-3 rounded-lg bg-accent/5 border animate-slide-in"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center space-x-3">
-                    <div className={`h-3 w-3 rounded-full ${
-                      location.severity === 'critical' ? 'bg-critical animate-pulse-glow' :
-                      location.severity === 'high' ? 'bg-high' :
-                      location.severity === 'medium' ? 'bg-medium' : 'bg-low'
-                    }`} />
-                    <span className="font-medium">{location.country}</span>
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10">
+                    <span className="text-xs font-bold">{location.country}</span>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Badge className={getSeverityBadge(location.severity)} variant="outline">
-                      {location.attackCount} attacks
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">{location.lastActivity}</span>
+                  <div>
+                    <div className="font-medium">{location.country}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {formatTimeAgo(location.latestActivity)}
+                    </div>
                   </div>
                 </div>
                 
-                <div className="flex flex-wrap gap-1 mb-2">
-                  {location.attackTypes.map((type) => (
-                    <Badge key={type} variant="outline" className="text-xs">
-                      {type}
-                    </Badge>
-                  ))}
+                <div className="flex items-center space-x-3">
+                  <div className="text-right">
+                    <div className="font-bold text-sm">{location.count}</div>
+                    <div className="text-xs text-muted-foreground">indicators</div>
+                  </div>
+                  <Badge className={getConfidenceColor(85)} variant="outline">
+                    {getSeverityFromConfidence(85).toUpperCase()}
+                  </Badge>
                 </div>
-                
-                <Progress 
-                  value={(location.attackCount / 50) * 100} 
-                  className="h-1"
-                />
               </div>
             ))}
           </CardContent>
         </Card>
 
-        {/* Latest Threat Intelligence */}
+        {/* Threat Intelligence Feed */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <Eye className="h-5 w-5 text-primary" />
-              <span>Latest Threat Intelligence</span>
+              <Activity className="h-5 w-5" />
+              <span>Latest Indicators</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {threatIntelligence.map((intel, index) => (
+          <CardContent className="space-y-4 max-h-96 overflow-y-auto">
+            {filteredThreats.slice(0, 10).map((threat, index) => (
               <div 
-                key={intel.indicator}
-                className="animate-fade-in border border-border/50 rounded-lg p-4 hover:border-border transition-colors"
-                style={{ animationDelay: `${index * 150}ms` }}
+                key={threat.id}
+                className="flex items-center justify-between p-3 rounded-lg bg-accent/5 border animate-slide-in"
+                style={{ animationDelay: `${index * 50}ms` }}
               >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center space-x-2">
-                    {getTypeIcon(intel.type)}
-                    <span className="font-mono text-sm">{intel.indicator}</span>
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10">
+                    {getTypeIcon(threat.indicator_type)}
                   </div>
-                  <Badge className={getSeverityBadge(intel.threatLevel)}>
-                    {intel.threatLevel.toUpperCase()}
-                  </Badge>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium truncate">{threat.indicator_value}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {threat.threat_type} • {threat.source}
+                    </div>
+                  </div>
                 </div>
                 
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Confidence</span>
-                    <span className="font-medium">{intel.confidence}%</span>
+                <div className="flex items-center space-x-2">
+                  <div className="text-right">
+                    <div className="text-xs text-muted-foreground">Confidence</div>
+                    <div className="font-bold text-sm">{threat.confidence_score}%</div>
                   </div>
-                  <Progress value={intel.confidence} className="h-1" />
-                  
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>Source: {intel.source}</span>
-                    <span>First seen: {intel.firstSeen}</span>
-                  </div>
+                  <Badge className={getConfidenceColor(threat.confidence_score)} variant="outline">
+                    {getSeverityFromConfidence(threat.confidence_score).toUpperCase()}
+                  </Badge>
                 </div>
               </div>
             ))}
@@ -271,17 +235,23 @@ export function ThreatMap() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <Activity className="h-5 w-5 text-primary" />
-            <span>Threat Correlation Graph</span>
+            <Zap className="h-5 w-5" />
+            <span>Threat Correlation Analysis</span>
           </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Interactive visualization showing relationships between threats, IPs, domains, and malware
-          </p>
         </CardHeader>
         <CardContent>
           <ThreatCorrelationGraph />
         </CardContent>
       </Card>
+
+      {filteredThreats.length === 0 && (
+        <Card>
+          <CardContent className="py-8 text-center">
+            <Shield className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+            <p className="text-muted-foreground">No threat indicators found matching your criteria.</p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

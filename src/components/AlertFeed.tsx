@@ -4,60 +4,31 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { useAlerts } from '@/hooks/useAlerts';
 
 interface Alert {
   id: string;
   title: string;
   severity: 'critical' | 'high' | 'medium' | 'low';
   source: string;
-  timestamp: string;
-  status: 'new' | 'investigating' | 'resolved';
-  assignee?: string;
-  description: string;
-  aiSummary: string;
-  tags: string[];
+  created_at: string;
+  status: 'open' | 'acknowledged' | 'investigating' | 'resolved' | 'false_positive';
+  assigned_to?: string;
+  description?: string;
+  alert_type: string;
+  source_ip?: string;
+  affected_systems?: string[];
+  indicators?: string[];
 }
 
-const mockAlerts: Alert[] = [
-  {
-    id: '1',
-    title: 'Suspicious PowerShell Execution',
-    severity: 'critical',
-    source: 'EDR',
-    timestamp: '2 minutes ago',
-    status: 'new',
-    description: 'Unusual PowerShell command detected with potential credential dumping',
-    aiSummary: 'AI detected potential credential harvesting attempt using PowerShell. High confidence malicious activity.',
-    tags: ['powershell', 'credential-dump', 'lateral-movement']
-  },
-  {
-    id: '2',
-    title: 'Multiple Failed Login Attempts',
-    severity: 'high',
-    source: 'SIEM',
-    timestamp: '5 minutes ago',
-    status: 'investigating',
-    assignee: 'Sarah Chen',
-    description: 'Brute force attack detected against domain controller',
-    aiSummary: 'Coordinated brute force attack from multiple IPs. Recommend immediate account lockdown.',
-    tags: ['brute-force', 'authentication', 'domain-controller']
-  },
-  {
-    id: '3',
-    title: 'Outbound DNS Query to Suspicious Domain',
-    severity: 'medium',
-    source: 'Network',
-    timestamp: '12 minutes ago',
-    status: 'new',
-    description: 'DNS query to known C2 domain detected',
-    aiSummary: 'Potential C2 communication detected. Domain matches known threat intelligence feeds.',
-    tags: ['dns', 'c2', 'network-anomaly']
-  }
-];
-
 export function AlertFeed() {
-  const [alerts] = useState<Alert[]>(mockAlerts);
-  
+  const { alerts, loading, error, updateAlertStatus } = useAlerts();
+  const [selectedSeverity, setSelectedSeverity] = useState<string>('all');
+
+  const filteredAlerts = alerts.filter(alert => 
+    selectedSeverity === 'all' || alert.severity === selectedSeverity
+  );
+
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'critical': return 'text-critical border-critical';
@@ -78,6 +49,45 @@ export function AlertFeed() {
     }
   };
 
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 60) {
+      return `${diffInMinutes} minutes ago`;
+    } else if (diffInMinutes < 1440) {
+      return `${Math.floor(diffInMinutes / 60)} hours ago`;
+    } else {
+      return `${Math.floor(diffInMinutes / 1440)} days ago`;
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'open': return <AlertTriangle className="h-4 w-4" />;
+      case 'investigating': return <Clock className="h-4 w-4" />;
+      case 'resolved': return <CheckCircle className="h-4 w-4" />;
+      case 'acknowledged': return <User className="h-4 w-4" />;
+      default: return <AlertTriangle className="h-4 w-4" />;
+    }
+  };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Alert Feed</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -90,8 +100,31 @@ export function AlertFeed() {
         </div>
       </div>
 
+      {/* Severity Filter */}
+      <div className="flex items-center space-x-2">
+        <span className="text-sm font-medium">Filter by severity:</span>
+        {['all', 'critical', 'high', 'medium', 'low'].map((severity) => (
+          <Button
+            key={severity}
+            variant={selectedSeverity === severity ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setSelectedSeverity(severity)}
+          >
+            {severity.charAt(0).toUpperCase() + severity.slice(1)}
+          </Button>
+        ))}
+      </div>
+
+      {error && (
+        <Card className="border-destructive">
+          <CardContent className="py-4">
+            <p className="text-destructive">Error loading alerts: {error}</p>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid gap-4">
-        {alerts.map((alert, index) => (
+        {filteredAlerts.map((alert, index) => (
           <Card 
             key={alert.id} 
             className={`transition-all duration-300 hover:shadow-lg border-l-4 ${getSeverityColor(alert.severity)} animate-slide-in`}
@@ -100,16 +133,17 @@ export function AlertFeed() {
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div className="flex items-start space-x-3">
-                  <AlertTriangle className={`h-5 w-5 mt-1 ${getSeverityColor(alert.severity)}`} />
+                  {getStatusIcon(alert.status)}
                   <div className="space-y-1">
                     <CardTitle className="text-lg">{alert.title}</CardTitle>
-                    <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                      <span className="flex items-center">
-                        <Clock className="h-3 w-3 mr-1" />
-                        {alert.timestamp}
-                      </span>
-                      <span>Source: {alert.source}</span>
+                    <div className="text-sm text-muted-foreground">
+                      {formatTimeAgo(alert.created_at)} • {alert.source}
                     </div>
+                    {alert.assigned_to && (
+                      <div className="text-sm text-muted-foreground">
+                        Assigned to: {alert.assigned_to}
+                      </div>
+                    )}
                   </div>
                 </div>
                 
@@ -117,67 +151,66 @@ export function AlertFeed() {
                   <Badge className={getSeverityBadge(alert.severity)}>
                     {alert.severity.toUpperCase()}
                   </Badge>
-                  {alert.status === 'investigating' && (
-                    <Badge variant="secondary">Investigating</Badge>
-                  )}
-                  {alert.status === 'resolved' && (
-                    <Badge className="bg-success text-primary-foreground">
-                      <CheckCircle className="h-3 w-3 mr-1" />
-                      Resolved
-                    </Badge>
-                  )}
+                  <Badge variant="outline">
+                    {alert.status.toUpperCase()}
+                  </Badge>
                 </div>
               </div>
             </CardHeader>
 
             <CardContent className="space-y-4">
-              <p className="text-foreground">{alert.description}</p>
-              
-              {/* AI Summary */}
-              <div className="bg-accent/10 border border-accent/20 rounded-lg p-3">
-                <div className="flex items-center space-x-2 mb-2">
-                  <div className="h-2 w-2 bg-accent rounded-full animate-pulse-glow" />
-                  <span className="text-sm font-medium text-accent">AI Analysis</span>
-                </div>
-                <p className="text-sm text-foreground">{alert.aiSummary}</p>
-              </div>
-
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2">
-                {alert.tags.map((tag) => (
-                  <Badge key={tag} variant="outline" className="text-xs">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center justify-between pt-2">
-                <div className="flex items-center space-x-3">
-                  {alert.assignee && (
-                    <div className="flex items-center space-x-2 text-sm">
-                      <Avatar className="h-6 w-6">
-                        <AvatarFallback className="text-xs bg-primary text-primary-foreground">
-                          {alert.assignee.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-muted-foreground">Assigned to {alert.assignee}</span>
-                    </div>
-                  )}
-                </div>
+              <div className="space-y-3">
+                {alert.description && (
+                  <p className="text-sm text-foreground">{alert.description}</p>
+                )}
                 
+                {alert.indicators && alert.indicators.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {alert.indicators.map((indicator, idx) => (
+                      <Badge key={idx} variant="outline" className="text-xs">
+                        {indicator}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+
+                {alert.affected_systems && alert.affected_systems.length > 0 && (
+                  <div className="text-xs text-muted-foreground">
+                    Affected systems: {alert.affected_systems.join(', ')}
+                  </div>
+                )}
+
+                {alert.source_ip && (
+                  <div className="text-xs text-muted-foreground">
+                    Source IP: {alert.source_ip}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between pt-3 border-t">
                 <div className="flex items-center space-x-2">
-                  <Button variant="outline" size="sm">
-                    <MessageSquare className="h-3 w-3 mr-1" />
-                    Comment
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => updateAlertStatus(alert.id, 'acknowledged')}
+                    disabled={alert.status === 'acknowledged'}
+                  >
+                    Acknowledge
                   </Button>
-                  <Button variant="outline" size="sm">
-                    <User className="h-3 w-3 mr-1" />
-                    Assign
-                  </Button>
-                  <Button variant="secondary" size="sm">
-                    <ExternalLink className="h-3 w-3 mr-1" />
+                  <Button 
+                    size="sm" 
+                    onClick={() => updateAlertStatus(alert.id, 'investigating')}
+                    disabled={alert.status === 'investigating'}
+                  >
                     Investigate
+                  </Button>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Button size="sm" variant="ghost">
+                    <MessageSquare className="h-4 w-4" />
+                  </Button>
+                  <Button size="sm" variant="ghost">
+                    <ExternalLink className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -185,6 +218,15 @@ export function AlertFeed() {
           </Card>
         ))}
       </div>
+
+      {filteredAlerts.length === 0 && !loading && (
+        <Card>
+          <CardContent className="py-8 text-center">
+            <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+            <p className="text-muted-foreground">No alerts found matching your criteria.</p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

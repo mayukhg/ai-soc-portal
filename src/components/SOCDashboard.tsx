@@ -199,7 +199,7 @@ export function SOCDashboard() {
             {activeView === 'alerts' && <AlertFeed />}
             {activeView === 'incidents' && <IncidentManagement />}
             {activeView === 'ai-assistant' && <AIAssistant />}
-            {activeView === 'collaboration' && <CollaborationPanel />}
+            {activeView === 'collaboration' && <CollaborationPanel targetId="demo-alert-001" targetType="alert" title="Demo Alert Discussion" />}
             {activeView === 'metrics' && <KPIMetrics />}
             {activeView === 'threats' && <ThreatMap />}
             {activeView === 'reports' && <ReportGenerator />}
