@@ -105,7 +105,7 @@ export function AuthPage() {
     }
 
     try {
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = `${window.location.origin}/intro`;
       
       const { error } = await supabase.auth.signUp({
         email,
