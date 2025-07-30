@@ -10,6 +10,7 @@ import { ThreatMap } from './ThreatMap';
 import { AIAssistant } from './AIAssistant';
 import { CollaborationPanel } from './CollaborationPanel';
 import { IncidentManagement } from './IncidentManagement';
+import { ReportGenerator } from './ReportGenerator';
 
 export function SOCDashboard() {
   const [activeView, setActiveView] = useState('alerts');
@@ -138,6 +139,15 @@ export function SOCDashboard() {
               <Shield className="mr-3 h-4 w-4" />
               Threat Map
             </Button>
+
+            <Button
+              variant={activeView === 'reports' ? 'secondary' : 'ghost'}
+              className="w-full justify-start"
+              onClick={() => setActiveView('reports')}
+            >
+              <FileText className="mr-3 h-4 w-4" />
+              Reports
+            </Button>
           </nav>
 
           {/* Quick Stats */}
@@ -177,6 +187,7 @@ export function SOCDashboard() {
             {activeView === 'collaboration' && <CollaborationPanel />}
             {activeView === 'metrics' && <KPIMetrics />}
             {activeView === 'threats' && <ThreatMap />}
+            {activeView === 'reports' && <ReportGenerator />}
           </div>
         </main>
       </div>
