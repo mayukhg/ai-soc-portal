@@ -1,27 +1,51 @@
 import { useState } from 'react';
-import { MessageSquare, User, Clock, Tag, AlertTriangle, CheckCircle, ArrowRight, Send, Edit2, Trash2 } from 'lucide-react';
+import { MessageSquare, Send, ArrowRight, CheckCircle, AlertTriangle, User, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useCollaboration } from '@/hooks/useCollaboration';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCollaboration } from '@/hooks/useCollaboration';
 
+/**
+ * Props interface for the CollaborationPanel component
+ * Defines the configuration for the collaboration system
+ */
 interface CollaborationPanelProps {
-  targetId: string;
-  targetType: 'incident' | 'alert';
-  title?: string;
+  targetId: string;                    // ID of the incident or alert being discussed
+  targetType: 'incident' | 'alert';   // Type of target (incident or alert)
+  title?: string;                      // Optional title for the panel
 }
 
+/**
+ * CollaborationPanel Component
+ * 
+ * Provides a comprehensive collaboration interface for team communication
+ * around incidents and alerts. Features include:
+ * - Real-time comment display
+ * - Comment categorization (note, escalation, resolution, question)
+ * - User role-based styling
+ * - Quick action buttons for common comment types
+ * - Time-based formatting for comments
+ * 
+ * @param targetId - The ID of the incident or alert being discussed
+ * @param targetType - Whether the target is an 'incident' or 'alert'
+ * @param title - Optional title for the collaboration panel
+ */
 export function CollaborationPanel({ targetId, targetType, title }: CollaborationPanelProps) {
-  const { user } = useAuth();
-  const { comments, loading, addComment } = useCollaboration(targetId, targetType);
-  const [newComment, setNewComment] = useState('');
-  const [commentType, setCommentType] = useState<'note' | 'escalation' | 'resolution' | 'question'>('note');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useAuth();  // Get current authenticated user
+  const { comments, loading, addComment } = useCollaboration(targetId, targetType);  // Collaboration hook
+  
+  // Local state for comment form
+  const [newComment, setNewComment] = useState('');  // New comment text
+  const [commentType, setCommentType] = useState<'note' | 'escalation' | 'resolution' | 'question'>('note');  // Comment type
+  const [isSubmitting, setIsSubmitting] = useState(false);  // Form submission state
 
+  /**
+   * Handle comment form submission
+   * Prevents empty submissions and handles loading state
+   */
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newComment.trim() || isSubmitting) return;
@@ -29,13 +53,19 @@ export function CollaborationPanel({ targetId, targetType, title }: Collaboratio
     setIsSubmitting(true);
     try {
       await addComment(newComment, commentType);
-      setNewComment('');
-      setCommentType('note');
+      setNewComment('');  // Clear form after successful submission
+      setCommentType('note');  // Reset to default comment type
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  /**
+   * Format timestamp to relative time (e.g., "2 hours ago")
+   * 
+   * @param dateString - ISO date string to format
+   * @returns Formatted relative time string
+   */
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -50,6 +80,13 @@ export function CollaborationPanel({ targetId, targetType, title }: Collaboratio
     }
   };
 
+  /**
+   * Get CSS classes for comment type styling
+   * Different comment types have different color schemes
+   * 
+   * @param type - Comment type
+   * @returns CSS classes for styling
+   */
   const getCommentTypeColor = (type: string) => {
     switch (type) {
       case 'escalation': return 'bg-critical/10 text-critical border-critical/20';
@@ -59,6 +96,12 @@ export function CollaborationPanel({ targetId, targetType, title }: Collaboratio
     }
   };
 
+  /**
+   * Get appropriate icon for comment type
+   * 
+   * @param type - Comment type
+   * @returns React component for the icon
+   */
   const getCommentTypeIcon = (type: string) => {
     switch (type) {
       case 'escalation': return <ArrowRight className="h-3 w-3" />;
@@ -68,77 +111,73 @@ export function CollaborationPanel({ targetId, targetType, title }: Collaboratio
     }
   };
 
+  /**
+   * Get CSS classes for user role styling
+   * Different roles have different color schemes
+   * 
+   * @param role - User role
+   * @returns CSS classes for role styling
+   */
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'analyst_tier3': return 'text-primary';
-      case 'management': return 'text-accent';
-      case 'admin': return 'text-critical';
-      default: return 'text-muted-foreground';
+      case 'analyst_tier3': return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'analyst_tier2': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'analyst_tier1': return 'bg-green-100 text-green-800 border-green-200';
+      case 'management': return 'bg-orange-100 text-orange-800 border-orange-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
+  /**
+   * Format user role for display
+   * Converts role strings to user-friendly display names
+   * 
+   * @param role - User role string
+   * @returns Formatted role display name
+   */
   const formatRole = (role: string) => {
-    return role.replace('analyst_', 'T').replace('_', ' ').toUpperCase();
+    switch (role) {
+      case 'analyst_tier3': return 'Tier 3';
+      case 'analyst_tier2': return 'Tier 2';
+      case 'analyst_tier1': return 'Tier 1';
+      case 'management': return 'Management';
+      default: return role;
+    }
   };
-
-  if (loading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Collaboration</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold">Collaboration</h2>
-          <p className="text-muted-foreground">
-            {title ? `Discussion for: ${title}` : `${targetType} discussion thread`}
-          </p>
-        </div>
-        <div className="flex items-center space-x-3">
-          <Badge variant="outline">
-            <MessageSquare className="h-3 w-3 mr-1" />
-            {comments.length} Comments
-          </Badge>
-        </div>
-      </div>
-
+      {/* Main Comments Section */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Team Discussion</CardTitle>
+          <CardTitle className="text-lg">
+            {title || `${targetType === 'incident' ? 'Incident' : 'Alert'} Discussion`}
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Comments List */}
+          {/* Comments Display */}
           <div className="space-y-4 max-h-96 overflow-y-auto">
-            {comments.length === 0 ? (
+            {loading ? (
               <div className="text-center py-8">
-                <MessageSquare className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-muted-foreground">No comments yet. Start the discussion!</p>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                <p className="text-muted-foreground mt-2">Loading comments...</p>
               </div>
             ) : (
               comments.map((comment, index) => (
                 <div 
                   key={comment.id}
-                  className="flex items-start space-x-3 animate-slide-in"
-                  style={{ animationDelay: `${index * 100}ms` }}
+                  className="flex space-x-3"
                 >
-                  <Avatar className="w-8 h-8">
+                  {/* User Avatar */}
+                  <Avatar className="h-8 w-8">
                     <AvatarFallback className="text-xs">
-                      {comment.profile?.username?.charAt(0).toUpperCase() || 'U'}
+                      {comment.profile?.full_name?.charAt(0) || comment.profile?.username?.charAt(0) || 'U'}
                     </AvatarFallback>
                   </Avatar>
                   
+                  {/* Comment Content */}
                   <div className="flex-1 min-w-0">
+                    {/* Comment Header with User Info and Type */}
                     <div className="flex items-center space-x-2 mb-1">
                       <span className="font-medium text-sm">
                         {comment.profile?.full_name || comment.profile?.username || 'Unknown User'}
@@ -160,6 +199,7 @@ export function CollaborationPanel({ targetId, targetType, title }: Collaboratio
                       </span>
                     </div>
                     
+                    {/* Comment Text */}
                     <div className="bg-accent/5 rounded-lg p-3 border">
                       <p className="text-sm whitespace-pre-wrap">{comment.content}</p>
                     </div>
@@ -171,74 +211,32 @@ export function CollaborationPanel({ targetId, targetType, title }: Collaboratio
 
           {/* Add Comment Form */}
           {user && (
-            <form onSubmit={handleSubmitComment} className="space-y-4 pt-4 border-t">
-              <div className="flex items-center space-x-4">
-                <Select value={commentType} onValueChange={(value: any) => setCommentType(value)}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="note">Note</SelectItem>
-                    <SelectItem value="question">Question</SelectItem>
-                    <SelectItem value="escalation">Escalation</SelectItem>
-                    <SelectItem value="resolution">Resolution</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="flex items-start space-x-3">
-                <Avatar className="w-8 h-8">
-                  <AvatarFallback className="text-xs">
-                    {user.email?.charAt(0).toUpperCase() || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                
-                <div className="flex-1 space-y-2">
-                  <Textarea
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    placeholder="Add your comment or analysis..."
-                    className="min-h-[80px] resize-none"
-                    disabled={isSubmitting}
-                  />
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="text-xs text-muted-foreground">
-                      Tip: Use @username to mention team members
-                    </div>
-                    <Button 
-                      type="submit" 
-                      size="sm"
-                      disabled={!newComment.trim() || isSubmitting}
-                    >
-                      {isSubmitting ? (
-                        <div className="animate-spin rounded-full h-3 w-3 border-b border-current mr-2"></div>
-                      ) : (
-                        <Send className="h-3 w-3 mr-2" />
-                      )}
-                      {isSubmitting ? 'Posting...' : 'Post Comment'}
-                    </Button>
-                  </div>
-                </div>
+            <form onSubmit={handleSubmitComment} className="space-y-3">
+              <div className="flex space-x-2">
+                <Input
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Add a comment..."
+                  disabled={isSubmitting}
+                  className="flex-1"
+                />
+                <Button type="submit" disabled={!newComment.trim() || isSubmitting}>
+                  <Send className="h-4 w-4" />
+                </Button>
               </div>
             </form>
-          )}
-
-          {!user && (
-            <div className="text-center py-4 border-t">
-              <p className="text-muted-foreground">Please log in to participate in the discussion.</p>
-            </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Quick Actions */}
+      {/* Quick Actions Section */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Quick Actions</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {/* Escalate Button */}
             <Button 
               variant="outline" 
               size="sm"
@@ -251,6 +249,7 @@ export function CollaborationPanel({ targetId, targetType, title }: Collaboratio
               Escalate
             </Button>
             
+            {/* Ask Question Button */}
             <Button 
               variant="outline" 
               size="sm"
@@ -263,6 +262,7 @@ export function CollaborationPanel({ targetId, targetType, title }: Collaboratio
               Ask Question
             </Button>
             
+            {/* Mark Resolved Button */}
             <Button 
               variant="outline" 
               size="sm"
@@ -275,6 +275,7 @@ export function CollaborationPanel({ targetId, targetType, title }: Collaboratio
               Mark Resolved
             </Button>
             
+            {/* Add Note Button */}
             <Button 
               variant="outline" 
               size="sm"

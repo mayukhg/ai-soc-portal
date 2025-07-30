@@ -9,77 +9,76 @@ import { useSemanticSearch } from '@/hooks/useSemanticSearch';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 
+/**
+ * Interface for incident data structure
+ * Represents a security incident in the system
+ */
 interface Incident {
-  id: string;
-  title: string;
-  severity: 'critical' | 'high' | 'medium' | 'low';
-  status: 'open' | 'investigating' | 'resolved' | 'closed';
-  assignee: string;
-  createdAt: string;
-  lastUpdate: string;
-  alertCount: number;
-  description: string;
-  tags: string[];
+  id: string;                                    // Unique incident identifier
+  title: string;                                 // Incident title/name
+  severity: 'critical' | 'high' | 'medium' | 'low';  // Severity level
+  status: 'open' | 'investigating' | 'resolved' | 'closed';  // Current status
+  assignee: string;                              // Assigned analyst
+  createdAt: string;                             // Creation date
+  lastUpdate: string;                            // Last update date
+  alertCount: number;                            // Number of associated alerts
+  description: string;                           // Incident description
+  tags: string[];                                // Associated tags
 }
 
+/**
+ * Mock incident data for demonstration purposes
+ * In production, this would come from the backend API
+ */
 const mockIncidents: Incident[] = [
   {
     id: 'INC-2024-001',
-    title: 'Advanced Persistent Threat Campaign',
-    severity: 'critical',
+    title: 'Suspicious PowerShell Execution Detected',
+    severity: 'high',
     status: 'investigating',
-    assignee: 'Dr. Emma Thompson',
+    assignee: 'John Smith',
     createdAt: '2024-01-15',
-    lastUpdate: '2 hours ago',
-    alertCount: 15,
-    description: 'Coordinated attack campaign with multiple attack vectors including spear phishing, lateral movement, and data exfiltration attempts.',
-    tags: ['apt', 'lateral-movement', 'data-exfiltration', 'coordinated-attack']
+    lastUpdate: '2024-01-16',
+    alertCount: 3,
+    description: 'Multiple PowerShell scripts executed from unusual locations with suspicious parameters.',
+    tags: ['powershell', 'malware', 'lateral-movement']
   },
   {
     id: 'INC-2024-002',
-    title: 'Ransomware Detection and Response',
+    title: 'Data Exfiltration Attempt',
     severity: 'critical',
-    status: 'resolved',
-    assignee: 'Sarah Chen',
+    status: 'open',
+    assignee: 'Sarah Johnson',
     createdAt: '2024-01-14',
-    lastUpdate: '1 day ago',
-    alertCount: 8,
-    description: 'Ransomware deployment attempt blocked by EDR. All affected systems isolated and cleaned.',
-    tags: ['ransomware', 'malware', 'edr-detection', 'containment']
-  },
-  {
-    id: 'INC-2024-003',
-    title: 'Credential Stuffing Attack',
-    severity: 'high',
-    status: 'resolved',
-    assignee: 'Mike Wilson',
-    createdAt: '2024-01-13',
-    lastUpdate: '2 days ago',
-    alertCount: 23,
-    description: 'Large-scale credential stuffing attack against user login portal. Account lockouts triggered, threat blocked.',
-    tags: ['credential-stuffing', 'brute-force', 'authentication', 'blocked']
-  },
-  {
-    id: 'INC-2024-004',
-    title: 'Suspicious Network Traffic Analysis',
-    severity: 'medium',
-    status: 'investigating',
-    assignee: 'John Doe',
-    createdAt: '2024-01-12',
-    lastUpdate: '3 hours ago',
+    lastUpdate: '2024-01-15',
     alertCount: 5,
-    description: 'Unusual outbound network traffic patterns detected. Investigating potential data exfiltration.',
-    tags: ['network-anomaly', 'data-exfiltration', 'traffic-analysis']
+    description: 'Large data transfers detected to external IP addresses during off-hours.',
+    tags: ['data-exfiltration', 'network-anomaly', 'traffic-analysis']
   }
 ];
 
+/**
+ * IncidentManagement Component
+ * 
+ * Provides a comprehensive interface for managing security incidents.
+ * Features include:
+ * - Incident listing and filtering
+ * - Semantic search using AI
+ * - Status and severity filtering
+ * - Real-time search with debouncing
+ * - Integration with backend semantic search API
+ * 
+ * @returns JSX component for incident management
+ */
 export function IncidentManagement() {
-  const [incidents] = useState<Incident[]>(mockIncidents);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [severityFilter, setSeverityFilter] = useState('all');
-  const [isSemanticMode, setIsSemanticMode] = useState(false);
+  // State management for incidents and UI
+  const [incidents] = useState<Incident[]>(mockIncidents);  // Mock incident data
+  const [searchTerm, setSearchTerm] = useState('');         // Search input value
+  const [statusFilter, setStatusFilter] = useState('all');  // Status filter selection
+  const [severityFilter, setSeverityFilter] = useState('all');  // Severity filter selection
+  const [isSemanticMode, setIsSemanticMode] = useState(false);  // AI semantic search toggle
   
+  // Semantic search hook for AI-powered incident search
   const { 
     isSearching, 
     searchResults, 
@@ -87,9 +86,13 @@ export function IncidentManagement() {
     clearResults 
   } = useSemanticSearch();
 
-  // Handle search term changes for semantic search
+  /**
+   * Handle search term changes for semantic search
+   * Implements debouncing to avoid excessive API calls
+   */
   useEffect(() => {
     if (isSemanticMode && searchTerm.trim()) {
+      // Debounce search requests by 500ms
       const debounceTimer = setTimeout(() => {
         performSemanticSearch(searchTerm);
       }, 500);
@@ -99,7 +102,10 @@ export function IncidentManagement() {
     }
   }, [searchTerm, isSemanticMode, performSemanticSearch, clearResults]);
 
-  // Convert search results to incident format for display
+  /**
+   * Convert semantic search results to incident format for display
+   * Maps backend response format to frontend incident interface
+   */
   const semanticIncidents = searchResults.map(result => ({
     id: result.id,
     title: result.title,
@@ -114,140 +120,83 @@ export function IncidentManagement() {
     similarity: result.similarity
   }));
 
+  /**
+   * Filter incidents based on search term, status, and severity
+   * Applies traditional text-based filtering when not in semantic mode
+   */
   const filteredIncidents = incidents.filter(incident => {
-    const matchesSearch = incident.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         incident.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         incident.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    
+    // Text search filtering
+    const matchesSearch = !searchTerm || 
+      incident.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      incident.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      incident.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    // Status filtering
     const matchesStatus = statusFilter === 'all' || incident.status === statusFilter;
+
+    // Severity filtering
     const matchesSeverity = severityFilter === 'all' || incident.severity === severityFilter;
-    
+
     return matchesSearch && matchesStatus && matchesSeverity;
   });
 
+  /**
+   * Get CSS classes for severity badge styling
+   * Different severity levels have different color schemes
+   * 
+   * @param severity - Incident severity level
+   * @returns CSS classes for severity badge
+   */
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical': return 'text-critical border-critical';
-      case 'high': return 'text-high border-high';
-      case 'medium': return 'text-medium border-medium';
-      case 'low': return 'text-low border-low';
-      default: return 'text-muted-foreground border-border';
+      case 'critical': return 'bg-red-100 text-red-800 border-red-200';
+      case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'low': return 'bg-green-100 text-green-800 border-green-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
-  const getSeverityBadge = (severity: string) => {
-    switch (severity) {
-      case 'critical': return 'bg-critical text-primary-foreground';
-      case 'high': return 'bg-high text-primary-foreground';
-      case 'medium': return 'bg-medium text-primary-foreground';
-      case 'low': return 'bg-low text-primary-foreground';
-      default: return 'bg-muted text-muted-foreground';
-    }
-  };
-
-  const getStatusBadge = (status: string) => {
+  /**
+   * Get CSS classes for status badge styling
+   * Different status levels have different color schemes
+   * 
+   * @param status - Incident status
+   * @returns CSS classes for status badge
+   */
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case 'open': return 'bg-info text-primary-foreground';
-      case 'investigating': return 'bg-warning text-primary-foreground';
-      case 'resolved': return 'bg-success text-primary-foreground';
-      case 'closed': return 'bg-muted text-muted-foreground';
-      default: return 'bg-secondary text-secondary-foreground';
+      case 'open': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'investigating': return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'resolved': return 'bg-green-100 text-green-800 border-green-200';
+      case 'closed': return 'bg-gray-100 text-gray-800 border-gray-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
-
-  const getIncidentStats = () => {
-    const stats = {
-      total: incidents.length,
-      open: incidents.filter(i => i.status === 'open').length,
-      investigating: incidents.filter(i => i.status === 'investigating').length,
-      critical: incidents.filter(i => i.severity === 'critical').length,
-      avgResolutionTime: '4.2 hours'
-    };
-    return stats;
-  };
-
-  const stats = getIncidentStats();
 
   return (
     <div className="space-y-6">
+      {/* Header Section */}
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold">Incident Management</h2>
+        <div>
+          <h2 className="text-3xl font-bold">Incident Management</h2>
+          <p className="text-muted-foreground">
+            Monitor and manage security incidents across your infrastructure
+          </p>
+        </div>
         <div className="flex items-center space-x-3">
           <Button variant="outline">
             <Download className="h-4 w-4 mr-2" />
-            Export Report
+            Export
           </Button>
           <Button>
             <FileText className="h-4 w-4 mr-2" />
-            Create Incident
+            New Incident
           </Button>
         </div>
       </div>
 
-      {/* Statistics Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <Card className="border-l-4 border-l-primary">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Incidents</p>
-                <p className="text-2xl font-bold text-primary">{stats.total}</p>
-              </div>
-              <FileText className="h-8 w-8 text-primary opacity-70" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-info">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Open</p>
-                <p className="text-2xl font-bold text-info">{stats.open}</p>
-              </div>
-              <AlertTriangle className="h-8 w-8 text-info opacity-70" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-warning">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Investigating</p>
-                <p className="text-2xl font-bold text-warning">{stats.investigating}</p>
-              </div>
-              <Search className="h-8 w-8 text-warning opacity-70" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-critical">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Critical</p>
-                <p className="text-2xl font-bold text-critical">{stats.critical}</p>
-              </div>
-              <AlertTriangle className="h-8 w-8 text-critical opacity-70" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-accent">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Avg Resolution</p>
-                <p className="text-2xl font-bold text-accent">{stats.avgResolutionTime}</p>
-              </div>
-              <Clock className="h-8 w-8 text-accent opacity-70" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filters */}
+      {/* Filters Section */}
       <Card>
         <CardContent className="p-4">
           <div className="flex flex-col gap-4">
@@ -274,7 +223,9 @@ export function IncidentManagement() {
               )}
             </div>
 
+            {/* Search and Filter Controls */}
             <div className="flex flex-col md:flex-row gap-4">
+              {/* Search Input */}
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -286,35 +237,38 @@ export function IncidentManagement() {
                 />
               </div>
             
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="open">Open</SelectItem>
-                <SelectItem value="investigating">Investigating</SelectItem>
-                <SelectItem value="resolved">Resolved</SelectItem>
-                <SelectItem value="closed">Closed</SelectItem>
-              </SelectContent>
-            </Select>
+              {/* Status Filter */}
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full md:w-48">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="open">Open</SelectItem>
+                  <SelectItem value="investigating">Investigating</SelectItem>
+                  <SelectItem value="resolved">Resolved</SelectItem>
+                  <SelectItem value="closed">Closed</SelectItem>
+                </SelectContent>
+              </Select>
 
-            <Select value={severityFilter} onValueChange={setSeverityFilter}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="Filter by severity" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Severities</SelectItem>
-                <SelectItem value="critical">Critical</SelectItem>
-                <SelectItem value="high">High</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="low">Low</SelectItem>
-              </SelectContent>
-            </Select>
+              {/* Severity Filter */}
+              <Select value={severityFilter} onValueChange={setSeverityFilter}>
+                <SelectTrigger className="w-full md:w-48">
+                  <SelectValue placeholder="Filter by severity" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Severities</SelectItem>
+                  <SelectItem value="critical">Critical</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="low">Low</SelectItem>
+                </SelectContent>
+              </Select>
 
+              {/* Clear Filters Button */}
               <Button variant="outline" disabled={isSemanticMode}>
                 <Filter className="h-4 w-4 mr-2" />
-                More Filters
+                Clear Filters
               </Button>
             </div>
           </div>
@@ -326,77 +280,69 @@ export function IncidentManagement() {
         {(isSemanticMode ? semanticIncidents : filteredIncidents).map((incident, index) => (
           <Card 
             key={incident.id}
-            className={`transition-all duration-300 hover:shadow-lg border-l-4 ${getSeverityColor(incident.severity)} animate-slide-in cursor-pointer`}
-            style={{ animationDelay: `${index * 100}ms` }}
+            className="hover:shadow-md transition-shadow cursor-pointer"
           >
-            <CardHeader className="pb-3">
+            <CardContent className="p-6">
               <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-3">
-                    <CardTitle className="text-lg">{incident.title}</CardTitle>
-                    <Badge variant="outline" className="text-xs">
-                      {incident.id}
+                <div className="flex-1">
+                  {/* Incident Header */}
+                  <div className="flex items-center space-x-3 mb-2">
+                    <h3 className="font-semibold text-lg">{incident.title}</h3>
+                    <Badge className={`${getSeverityColor(incident.severity)}`}>
+                      {incident.severity.toUpperCase()}
                     </Badge>
+                    <Badge className={`${getStatusColor(incident.status)}`}>
+                      {incident.status.toUpperCase()}
+                    </Badge>
+                    {isSemanticMode && 'similarity' in incident && (
+                      <Badge variant="outline" className="text-xs">
+                        {(incident as any).similarity?.toFixed(2) || 'N/A'} match
+                      </Badge>
+                    )}
                   </div>
+
+                  {/* Incident Details */}
+                  <p className="text-muted-foreground mb-3">{incident.description}</p>
                   
-                  <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                    <span className="flex items-center">
-                      <Calendar className="h-3 w-3 mr-1" />
-                      Created {incident.createdAt}
-                    </span>
-                    <span className="flex items-center">
-                      <Clock className="h-3 w-3 mr-1" />
-                      Updated {incident.lastUpdate}
-                    </span>
-                    <span className="flex items-center">
-                      <AlertTriangle className="h-3 w-3 mr-1" />
-                      {incident.alertCount} alerts
-                    </span>
+                  {/* Metadata Row */}
+                  <div className="flex items-center space-x-6 text-sm text-muted-foreground">
+                    <div className="flex items-center space-x-1">
+                      <User className="h-4 w-4" />
+                      <span>{incident.assignee}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <AlertTriangle className="h-4 w-4" />
+                      <span>{incident.alertCount} alerts</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Calendar className="h-4 w-4" />
+                      <span>Created: {incident.createdAt}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Clock className="h-4 w-4" />
+                      <span>Updated: {incident.lastUpdate}</span>
+                    </div>
                   </div>
-                </div>
-                
-                 <div className="flex items-center space-x-2">
-                   {isSemanticMode && 'similarity' in incident && (
-                     <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
-                       {Math.round((incident as any).similarity * 100)}% match
-                     </Badge>
-                   )}
-                   <Badge className={getSeverityBadge(incident.severity)}>
-                     {incident.severity.toUpperCase()}
-                   </Badge>
-                   <Badge className={getStatusBadge(incident.status)}>
-                     {incident.status.toUpperCase()}
-                   </Badge>
-                 </div>
-              </div>
-            </CardHeader>
 
-            <CardContent className="space-y-4">
-              <p className="text-foreground">{incident.description}</p>
-              
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2">
-                {incident.tags.map((tag) => (
-                  <Badge key={tag} variant="outline" className="text-xs">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-
-              {/* Footer */}
-              <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                <div className="flex items-center space-x-2 text-sm">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Assigned to:</span>
-                  <span className="font-medium">{incident.assignee}</span>
+                  {/* Tags */}
+                  {incident.tags.length > 0 && (
+                    <div className="flex items-center space-x-2 mt-3">
+                      {incident.tags.map(tag => (
+                        <Badge key={tag} variant="outline" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                
+
+                {/* Action Buttons */}
                 <div className="flex items-center space-x-2">
                   <Button variant="outline" size="sm">
                     View Details
                   </Button>
-                  <Button variant="secondary" size="sm">
-                    Update Status
+                  <Button variant="outline" size="sm">
+                    Assign
                   </Button>
                 </div>
               </div>
@@ -405,6 +351,7 @@ export function IncidentManagement() {
         ))}
       </div>
 
+      {/* Empty State */}
       {(isSemanticMode ? semanticIncidents : filteredIncidents).length === 0 && (
         <Card>
           <CardContent className="p-8 text-center">
