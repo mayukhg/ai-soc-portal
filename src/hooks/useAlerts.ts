@@ -61,6 +61,8 @@ export function useAlerts() {
 
   const updateAlertStatus = async (alertId: string, status: string, assignedTo?: string) => {
     try {
+      console.log('Updating alert status:', { alertId, status, assignedTo });
+      
       const updateData: any = { status };
       if (assignedTo) updateData.assigned_to = assignedTo;
 
@@ -74,6 +76,8 @@ export function useAlerts() {
         throw error;
       }
 
+      console.log('Alert status updated successfully, refreshing alerts...');
+      
       // Refresh alerts
       await fetchAlerts();
       
