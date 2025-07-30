@@ -153,14 +153,14 @@ const IntroPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 text-foreground">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-4">
               <Shield className="w-8 h-8 text-primary" />
-              <h1 className="text-2xl font-bold">SOC AI Portal</h1>
+              <h1 className="text-2xl font-bold text-foreground">SOC AI Portal</h1>
             </div>
             
             {/* Progress indicator */}
@@ -179,7 +179,7 @@ const IntroPage = () => {
           {/* Content */}
           <div className="bg-card border rounded-xl shadow-lg p-8 min-h-[600px] flex flex-col">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold mb-2">{slides[currentSlide].title}</h2>
+              <h2 className="text-3xl font-bold mb-2 text-card-foreground">{slides[currentSlide].title}</h2>
               <p className="text-xl text-muted-foreground">{slides[currentSlide].subtitle}</p>
             </div>
 
