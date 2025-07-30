@@ -1,10 +1,13 @@
-import { useState } from 'react';
-import { Search, Filter, Calendar, Download, FileText, AlertTriangle, Clock, User } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Filter, Calendar, Download, FileText, AlertTriangle, Clock, User, Sparkles, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useSemanticSearch } from '@/hooks/useSemanticSearch';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 interface Incident {
   id: string;
@@ -75,6 +78,41 @@ export function IncidentManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [severityFilter, setSeverityFilter] = useState('all');
+  const [isSemanticMode, setIsSemanticMode] = useState(false);
+  
+  const { 
+    isSearching, 
+    searchResults, 
+    performSemanticSearch, 
+    clearResults 
+  } = useSemanticSearch();
+
+  // Handle search term changes for semantic search
+  useEffect(() => {
+    if (isSemanticMode && searchTerm.trim()) {
+      const debounceTimer = setTimeout(() => {
+        performSemanticSearch(searchTerm);
+      }, 500);
+      return () => clearTimeout(debounceTimer);
+    } else if (isSemanticMode && !searchTerm.trim()) {
+      clearResults();
+    }
+  }, [searchTerm, isSemanticMode, performSemanticSearch, clearResults]);
+
+  // Convert search results to incident format for display
+  const semanticIncidents = searchResults.map(result => ({
+    id: result.id,
+    title: result.title,
+    severity: result.severity as 'critical' | 'high' | 'medium' | 'low',
+    status: result.status as 'open' | 'investigating' | 'resolved' | 'closed',
+    assignee: result.assignee || 'Unassigned',
+    createdAt: new Date(result.created_at).toLocaleDateString(),
+    lastUpdate: new Date(result.updated_at).toLocaleDateString(),
+    alertCount: result.alert_count,
+    description: result.description || '',
+    tags: result.tags || [],
+    similarity: result.similarity
+  }));
 
   const filteredIncidents = incidents.filter(incident => {
     const matchesSearch = incident.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -212,16 +250,41 @@ export function IncidentManagement() {
       {/* Filters */}
       <Card>
         <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search incidents, descriptions, tags..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+          <div className="flex flex-col gap-4">
+            {/* Semantic Search Toggle */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Switch
+                  id="semantic-mode"
+                  checked={isSemanticMode}
+                  onCheckedChange={setIsSemanticMode}
+                />
+                <Label htmlFor="semantic-mode" className="flex items-center space-x-2">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  <span>AI Semantic Search</span>
+                </Label>
+                {isSemanticMode && isSearching && (
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                )}
+              </div>
+              {isSemanticMode && searchResults.length > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  {searchResults.length} semantic matches
+                </Badge>
+              )}
             </div>
+
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder={isSemanticMode ? "Describe what you're looking for..." : "Search incidents, descriptions, tags..."}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                  disabled={isSearching}
+                />
+              </div>
             
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-full md:w-48">
@@ -249,17 +312,18 @@ export function IncidentManagement() {
               </SelectContent>
             </Select>
 
-            <Button variant="outline">
-              <Filter className="h-4 w-4 mr-2" />
-              More Filters
-            </Button>
+              <Button variant="outline" disabled={isSemanticMode}>
+                <Filter className="h-4 w-4 mr-2" />
+                More Filters
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Incidents List */}
       <div className="grid gap-4">
-        {filteredIncidents.map((incident, index) => (
+        {(isSemanticMode ? semanticIncidents : filteredIncidents).map((incident, index) => (
           <Card 
             key={incident.id}
             className={`transition-all duration-300 hover:shadow-lg border-l-4 ${getSeverityColor(incident.severity)} animate-slide-in cursor-pointer`}
@@ -291,14 +355,19 @@ export function IncidentManagement() {
                   </div>
                 </div>
                 
-                <div className="flex items-center space-x-2">
-                  <Badge className={getSeverityBadge(incident.severity)}>
-                    {incident.severity.toUpperCase()}
-                  </Badge>
-                  <Badge className={getStatusBadge(incident.status)}>
-                    {incident.status.toUpperCase()}
-                  </Badge>
-                </div>
+                 <div className="flex items-center space-x-2">
+                   {isSemanticMode && 'similarity' in incident && (
+                     <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
+                       {Math.round((incident as any).similarity * 100)}% match
+                     </Badge>
+                   )}
+                   <Badge className={getSeverityBadge(incident.severity)}>
+                     {incident.severity.toUpperCase()}
+                   </Badge>
+                   <Badge className={getStatusBadge(incident.status)}>
+                     {incident.status.toUpperCase()}
+                   </Badge>
+                 </div>
               </div>
             </CardHeader>
 
@@ -336,11 +405,15 @@ export function IncidentManagement() {
         ))}
       </div>
 
-      {filteredIncidents.length === 0 && (
+      {(isSemanticMode ? semanticIncidents : filteredIncidents).length === 0 && (
         <Card>
           <CardContent className="p-8 text-center">
             <Search className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">No incidents found matching your criteria.</p>
+            <p className="text-muted-foreground">
+              {isSemanticMode && searchTerm ? 
+                "No semantic matches found. Try rephrasing your search." : 
+                "No incidents found matching your criteria."}
+            </p>
           </CardContent>
         </Card>
       )}

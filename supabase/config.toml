@@ -1,1 +1,7 @@
 project_id = "jnjtnphtrvqtnqgxihmx"
+
+[functions.generate-embeddings]
+verify_jwt = false
+
+[functions.semantic-search]
+verify_jwt = false
