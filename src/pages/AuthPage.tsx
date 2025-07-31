@@ -1,14 +1,16 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
-import { Shield, Mail, Lock, User as UserIcon } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+import { Shield, Building2, Key, AlertTriangle } from 'lucide-react';
 
 export function AuthPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -18,14 +20,14 @@ export function AuthPage() {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   
-  // Form states
+  // Supabase auth state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [fullName, setFullName] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
   const [username, setUsername] = useState('');
   
   const navigate = useNavigate();
+  const { signIn: azureSignIn, isAzureADEnabled } = useAuth();
 
   useEffect(() => {
     // Set up auth state listener
@@ -55,6 +57,21 @@ export function AuthPage() {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  const handleAzureADSignIn = async () => {
+    setAuthLoading(true);
+    setError(null);
+    setMessage(null);
+
+    try {
+      await azureSignIn();
+      setMessage('Successfully signed in with Azure AD! Redirecting...');
+    } catch (err: any) {
+      setError(err.message || 'Failed to sign in with Azure AD');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
 
   const signIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,41 +109,21 @@ export function AuthPage() {
     setError(null);
     setMessage(null);
 
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      setAuthLoading(false);
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long');
-      setAuthLoading(false);
-      return;
-    }
-
     try {
-      const redirectUrl = `${window.location.origin}/intro`;
-      
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: redirectUrl,
           data: {
-            full_name: fullName,
-            username: username
-          }
-        }
+            username: username,
+          },
+        },
       });
 
       if (error) {
-        if (error.message.includes('User already registered')) {
-          setError('An account with this email already exists. Please sign in instead.');
-        } else {
-          setError(error.message);
-        }
+        setError(error.message);
       } else {
-        setMessage('Account created successfully! Please check your email for a confirmation link.');
+        setMessage('Please check your email for the confirmation link.');
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
@@ -137,179 +134,149 @@ export function AuthPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-2 text-muted-foreground">Loading...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
-      <Card className="w-full max-w-md mx-auto">
-        <CardHeader className="text-center space-y-4">
-          <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
             <Shield className="h-6 w-6 text-primary" />
           </div>
-          <div>
-            <CardTitle className="text-2xl font-bold">SOC Dashboard</CardTitle>
-            <p className="text-muted-foreground">Security Operations Center</p>
-          </div>
+          <CardTitle className="text-2xl">SOC Nexus</CardTitle>
+          <CardDescription>
+            Sign in to access your Security Operations Center dashboard
+          </CardDescription>
         </CardHeader>
-
-        <CardContent>
-          <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
-
-            {error && (
-              <Alert variant="destructive" className="mt-4">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-
-            {message && (
-              <Alert className="mt-4">
-                <AlertDescription>{message}</AlertDescription>
-              </Alert>
-            )}
-
-            <TabsContent value="signin" className="space-y-4 mt-6">
-              <form onSubmit={signIn} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signin-email">Email</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="signin-email"
-                      type="email"
-                      placeholder="analyst@company.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10"
-                      required
-                      disabled={authLoading}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="signin-password">Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="signin-password"
-                      type="password"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10"
-                      required
-                      disabled={authLoading}
-                    />
-                  </div>
-                </div>
-
-                <Button type="submit" className="w-full" disabled={authLoading}>
-                  {authLoading ? 'Signing in...' : 'Sign In'}
+        
+        <CardContent className="space-y-6">
+          {/* Azure AD Sign In */}
+          {isAzureADEnabled && (
+            <>
+              <div className="space-y-2">
+                <Button 
+                  onClick={handleAzureADSignIn}
+                  disabled={authLoading}
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                >
+                  <Building2 className="mr-2 h-4 w-4" />
+                  {authLoading ? 'Signing in...' : 'Sign in with Azure AD'}
                 </Button>
-              </form>
-            </TabsContent>
-
-            <TabsContent value="signup" className="space-y-4 mt-6">
-              <form onSubmit={signUp} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-fullname">Full Name</Label>
-                    <div className="relative">
-                      <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="signup-fullname"
-                        type="text"
-                        placeholder="John Doe"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        className="pl-10"
-                        required
-                        disabled={authLoading}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-username">Username</Label>
-                    <Input
-                      id="signup-username"
-                      type="text"
-                      placeholder="j.doe"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      required
-                      disabled={authLoading}
-                    />
-                  </div>
+                <p className="text-xs text-muted-foreground text-center">
+                  Recommended for enterprise users
+                </p>
+              </div>
+              
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <Separator className="w-full" />
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      placeholder="analyst@company.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10"
-                      required
-                      disabled={authLoading}
-                    />
-                  </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    Or continue with
+                  </span>
                 </div>
+              </div>
+            </>
+          )}
 
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password">Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10"
-                      required
-                      disabled={authLoading}
-                      minLength={6}
-                    />
-                  </div>
-                </div>
+          {/* Error/Message Display */}
+          {error && (
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          
+          {message && (
+            <Alert>
+              <AlertDescription>{message}</AlertDescription>
+            </Alert>
+          )}
 
-                <div className="space-y-2">
-                  <Label htmlFor="signup-confirm">Confirm Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="signup-confirm"
-                      type="password"
-                      placeholder="••••••••"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="pl-10"
-                      required
-                      disabled={authLoading}
-                      minLength={6}
-                    />
-                  </div>
-                </div>
+          {/* Supabase Auth Form */}
+          <form onSubmit={isSignUp ? signUp : signIn} className="space-y-4">
+            {isSignUp && (
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Enter your username"
+                  required={isSignUp}
+                />
+              </div>
+            )}
+            
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                required
+              />
+            </div>
+            
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={authLoading}
+            >
+              <Key className="mr-2 h-4 w-4" />
+              {authLoading ? 'Signing in...' : (isSignUp ? 'Sign Up' : 'Sign In')}
+            </Button>
+          </form>
 
-                <Button type="submit" className="w-full" disabled={authLoading}>
-                  {authLoading ? 'Creating account...' : 'Create Account'}
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
+          {/* Toggle Sign Up/Sign In */}
+          <div className="text-center">
+            <Button
+              variant="link"
+              onClick={() => setIsSignUp(!isSignUp)}
+              className="text-sm"
+            >
+              {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
+            </Button>
+          </div>
+
+          {/* Authentication Method Info */}
+          <div className="rounded-lg border bg-muted/50 p-3">
+            <div className="flex items-center gap-2 text-sm">
+              <Shield className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">Authentication Method:</span>
+              <Badge variant="secondary">
+                {isAzureADEnabled ? 'Azure AD + Supabase' : 'Supabase Only'}
+              </Badge>
+            </div>
+            {isAzureADEnabled && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Azure AD provides enterprise-grade authentication with role-based access control.
+              </p>
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>
