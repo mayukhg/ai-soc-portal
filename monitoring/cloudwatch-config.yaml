@@ -1,0 +1,326 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'SOC Nexus Monitoring Configuration'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: production
+    Description: Environment name
+  
+  TeamsWebhookURL:
+    Type: String
+    Description: Microsoft Teams webhook URL for notifications
+
+Resources:
+  # CloudWatch Dashboard
+  SOCNexusDashboard:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardName: !Sub 'SOC-Nexus-Monitoring-${Environment}'
+      DashboardBody: !Sub |
+        {
+          "widgets": [
+            {
+              "type": "metric",
+              "properties": {
+                "metrics": [
+                  ["AWS/ApplicationELB", "HealthyHostCount", "LoadBalancer", "soc-nexus-alb"],
+                  [".", "UnHealthyHostCount", ".", "."]
+                ],
+                "period": 60,
+                "stat": "Average",
+                "region": "${AWS::Region}",
+                "title": "Load Balancer Health"
+              }
+            },
+            {
+              "type": "metric",
+              "properties": {
+                "metrics": [
+                  ["AWS/Lambda", "Duration", "FunctionName", "soc-nexus-api"],
+                  [".", "Errors", ".", "."]
+                ],
+                "period": 300,
+                "stat": "Average",
+                "region": "${AWS::Region}",
+                "title": "Lambda Performance"
+              }
+            },
+            {
+              "type": "metric",
+              "properties": {
+                "metrics": [
+                  ["AWS/RDS", "DatabaseConnections", "DBInstanceIdentifier", "soc-nexus-db"],
+                  [".", "CPUUtilization", ".", "."]
+                ],
+                "period": 300,
+                "stat": "Average",
+                "region": "${AWS::Region}",
+                "title": "Database Health"
+              }
+            },
+            {
+              "type": "metric",
+              "properties": {
+                "metrics": [
+                  ["SOC-Nexus/Health", "OverallHealth"],
+                  [".", "DatabaseHealth"],
+                  [".", "AuthHealth"],
+                  [".", "AiHealth"]
+                ],
+                "period": 60,
+                "stat": "Average",
+                "region": "${AWS::Region}",
+                "title": "Service Health Status"
+              }
+            }
+          ]
+        }
+
+  # Frontend Health Alarm
+  FrontendHealthAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub 'SOC-Nexus-Frontend-Health-${Environment}'
+      AlarmDescription: 'Frontend application health check'
+      MetricName: HealthyHostCount
+      Namespace: AWS/ApplicationELB
+      Statistic: Average
+      Period: 60
+      EvaluationPeriods: 2
+      Threshold: 1
+      ComparisonOperator: LessThanThreshold
+      TreatMissingData: breaching
+      AlarmActions:
+        - !Ref TeamsAlertTopic
+
+  # Database Health Alarm
+  DatabaseHealthAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub 'SOC-Nexus-Database-Health-${Environment}'
+      AlarmDescription: 'Database connection health check'
+      MetricName: DatabaseConnections
+      Namespace: AWS/RDS
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 1
+      ComparisonOperator: LessThanThreshold
+      TreatMissingData: breaching
+      AlarmActions:
+        - !Ref TeamsAlertTopic
+
+  # Lambda Error Alarm
+  LambdaErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub 'SOC-Nexus-Lambda-Errors-${Environment}'
+      AlarmDescription: 'Lambda function errors'
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 1
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref TeamsAlertTopic
+
+  # API Response Time Alarm
+  APIResponseTimeAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub 'SOC-Nexus-API-Response-Time-${Environment}'
+      AlarmDescription: 'API response time threshold exceeded'
+      MetricName: Duration
+      Namespace: AWS/Lambda
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 3
+      Threshold: 5000
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref TeamsAlertTopic
+
+  # Custom Health Metrics Alarm
+  CustomHealthAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub 'SOC-Nexus-Custom-Health-${Environment}'
+      AlarmDescription: 'Custom health check metrics'
+      MetricName: OverallHealth
+      Namespace: SOC-Nexus/Health
+      Statistic: Average
+      Period: 60
+      EvaluationPeriods: 2
+      Threshold: 0.5
+      ComparisonOperator: LessThanThreshold
+      TreatMissingData: breaching
+      AlarmActions:
+        - !Ref TeamsAlertTopic
+
+  # SNS Topic for Teams Notifications
+  TeamsAlertTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub 'SOC-Nexus-Teams-Alerts-${Environment}'
+      DisplayName: !Sub 'SOC Nexus Teams Alerts - ${Environment}'
+
+  # SNS Subscription to Lambda
+  TeamsAlertSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref TeamsAlertTopic
+      Protocol: lambda
+      Endpoint: !GetAtt TeamsAlertHandler.Arn
+
+  # Lambda Permission for SNS
+  LambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref TeamsAlertHandler
+      Principal: sns.amazonaws.com
+      SourceArn: !Ref TeamsAlertTopic
+
+  # Teams Alert Handler Lambda
+  TeamsAlertHandler:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'SOC-Nexus-Teams-Alert-Handler-${Environment}'
+      Runtime: python3.9
+      Handler: teams_alert_handler.lambda_handler
+      Code:
+        ZipFile: |
+          import json
+          import os
+          import requests
+          from datetime import datetime
+          
+          def lambda_handler(event, context):
+              teams_webhook_url = os.environ.get('TEAMS_WEBHOOK_URL')
+              if not teams_webhook_url:
+                  return {'statusCode': 200, 'body': 'Teams webhook not configured'}
+              
+              # Process SNS message
+              for record in event.get('Records', []):
+                  if record.get('EventSource') == 'aws:sns':
+                      sns_message = json.loads(record['Sns']['Message'])
+                      # Process CloudWatch alarm
+                      process_alarm(sns_message, teams_webhook_url)
+              
+              return {'statusCode': 200, 'body': 'Processed'}
+          
+          def process_alarm(alarm_data, webhook_url):
+              # Implementation would be similar to teams_alert_handler.py
+              pass
+      Environment:
+        Variables:
+          TEAMS_WEBHOOK_URL: !Ref TeamsWebhookURL
+      Timeout: 30
+      MemorySize: 128
+      Role: !GetAtt LambdaExecutionRole.Arn
+
+  # Lambda Execution Role
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub 'SOC-Nexus-Monitoring-Lambda-Role-${Environment}'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: CloudWatchMetrics
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cloudwatch:PutMetricData
+                Resource: '*'
+
+  # Synthetic Monitoring Canary
+  FrontendSyntheticTest:
+    Type: AWS::Synthetics::Canary
+    Properties:
+      Name: !Sub 'SOC-Nexus-Frontend-Test-${Environment}'
+      ArtifactS3Location: !Sub 's3://soc-nexus-monitoring-${Environment}/canaries/'
+      RuntimeVersion: syn-nodejs-puppeteer-3.9
+      ExecutionRoleArn: !GetAtt CanaryExecutionRole.Arn
+      Schedule:
+        Expression: rate(1 minute)
+      RunConfig:
+        TimeoutInSeconds: 300
+      Code:
+        Handler: index.handler
+        Script: |
+          const synthetics = require('Synthetics');
+          const configuration = synthetics.getConfiguration();
+          
+          const pageLoadBlueprint = async function () {
+            const url = 'https://dashboard.soc-nexus.com';
+            
+            const page = await synthetics.getPage();
+            const response = await page.goto(url, {waitUntil: 'networkidle0'});
+            
+            if (response.status() !== 200) {
+              throw new Error('Failed to load page');
+            }
+            
+            // Check for critical elements
+            await page.waitForSelector('#root', {timeout: 10000});
+            
+            console.log('Page loaded successfully');
+          };
+          
+          exports.handler = async () => {
+            return await pageLoadBlueprint();
+          };
+
+  # Canary Execution Role
+  CanaryExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub 'SOC-Nexus-Canary-Role-${Environment}'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: CanaryPermissions
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:DeleteObject
+                Resource: !Sub 'arn:aws:s3:::soc-nexus-monitoring-${Environment}/*'
+              - Effect: Allow
+                Action:
+                  - cloudwatch:PutMetricData
+                Resource: '*'
+
+Outputs:
+  DashboardURL:
+    Description: CloudWatch Dashboard URL
+    Value: !Sub 'https://console.aws.amazon.com/cloudwatch/home?region=${AWS::Region}#dashboards:name=SOC-Nexus-Monitoring-${Environment}'
+  
+  TeamsAlertTopicArn:
+    Description: SNS Topic ARN for Teams alerts
+    Value: !Ref TeamsAlertTopic 
