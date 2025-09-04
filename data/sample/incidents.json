@@ -1,0 +1,178 @@
+[
+  {
+    "id": "inc_001",
+    "title": "SQL Injection Attack on Web Application",
+    "description": "Multiple SQL injection attempts detected on the company's main web application",
+    "status": "investigating",
+    "severity": "high",
+    "priority": "urgent",
+    "created_at": "2024-01-15T08:32:45Z",
+    "updated_at": "2024-01-15T10:15:30Z",
+    "assigned_to": "security_team_alpha",
+    "affected_systems": ["web_server_01", "database_server"],
+    "source_ips": ["203.0.113.45", "198.51.100.25"],
+    "tags": ["sql_injection", "web_attack", "database"],
+    "timeline": [
+      {
+        "timestamp": "2024-01-15T08:32:45Z",
+        "event": "Initial detection",
+        "description": "SQL injection attempt detected by IDS",
+        "agent": "threat_detection"
+      },
+      {
+        "timestamp": "2024-01-15T08:35:00Z",
+        "event": "Incident created",
+        "description": "Incident automatically created by system",
+        "agent": "orchestrator"
+      },
+      {
+        "timestamp": "2024-01-15T08:40:15Z",
+        "event": "Analysis started",
+        "description": "Incident analysis initiated",
+        "agent": "incident_analysis"
+      }
+    ],
+    "indicators": ["ti_001", "ti_002"],
+    "related_events": ["evt_002", "evt_005"],
+    "resolution": null
+  },
+  {
+    "id": "inc_002",
+    "title": "Malware Detection in Email System",
+    "description": "Trojan horse detected in email attachment, multiple users affected",
+    "status": "contained",
+    "severity": "critical",
+    "priority": "critical",
+    "created_at": "2024-01-15T08:35:12Z",
+    "updated_at": "2024-01-15T09:45:20Z",
+    "assigned_to": "security_team_bravo",
+    "affected_systems": ["mail_server", "workstation_23", "workstation_42"],
+    "source_ips": ["10.0.0.200"],
+    "tags": ["malware", "email", "trojan", "quarantine"],
+    "timeline": [
+      {
+        "timestamp": "2024-01-15T08:35:12Z",
+        "event": "Malware detected",
+        "description": "Trojan horse detected in email attachment",
+        "agent": "threat_detection"
+      },
+      {
+        "timestamp": "2024-01-15T08:36:00Z",
+        "event": "Quarantine initiated",
+        "description": "Email quarantined automatically",
+        "agent": "antivirus"
+      },
+      {
+        "timestamp": "2024-01-15T08:40:00Z",
+        "event": "Incident created",
+        "description": "Critical incident created",
+        "agent": "orchestrator"
+      },
+      {
+        "timestamp": "2024-01-15T09:00:00Z",
+        "event": "Containment complete",
+        "description": "All affected systems isolated",
+        "agent": "response_planning"
+      }
+    ],
+    "indicators": ["ti_003", "ti_008"],
+    "related_events": ["evt_003", "evt_008"],
+    "resolution": {
+      "status": "contained",
+      "description": "All affected systems quarantined, no further spread detected",
+      "resolved_at": "2024-01-15T09:45:20Z",
+      "resolved_by": "security_team_bravo"
+    }
+  },
+  {
+    "id": "inc_003",
+    "title": "Privilege Escalation Attempt in Database",
+    "description": "Unauthorized attempt to escalate privileges in production database",
+    "status": "resolved",
+    "severity": "critical",
+    "priority": "critical",
+    "created_at": "2024-01-15T10:25:33Z",
+    "updated_at": "2024-01-15T11:30:45Z",
+    "assigned_to": "security_team_charlie",
+    "affected_systems": ["database_server", "domain_controller"],
+    "source_ips": ["10.0.0.200"],
+    "tags": ["privilege_escalation", "database", "unauthorized_access"],
+    "timeline": [
+      {
+        "timestamp": "2024-01-15T10:25:33Z",
+        "event": "Privilege escalation detected",
+        "description": "Attempted privilege escalation in database",
+        "agent": "database_monitor"
+      },
+      {
+        "timestamp": "2024-01-15T10:26:00Z",
+        "event": "Access blocked",
+        "description": "Database access blocked immediately",
+        "agent": "database_monitor"
+      },
+      {
+        "timestamp": "2024-01-15T10:30:00Z",
+        "event": "Incident created",
+        "description": "Critical incident created",
+        "agent": "orchestrator"
+      },
+      {
+        "timestamp": "2024-01-15T11:00:00Z",
+        "event": "Investigation complete",
+        "description": "Root cause identified and mitigated",
+        "agent": "incident_analysis"
+      },
+      {
+        "timestamp": "2024-01-15T11:30:45Z",
+        "event": "Incident resolved",
+        "description": "All security measures implemented",
+        "agent": "response_planning"
+      }
+    ],
+    "indicators": ["ti_009"],
+    "related_events": ["evt_009"],
+    "resolution": {
+      "status": "resolved",
+      "description": "Database access controls updated, user account disabled",
+      "resolved_at": "2024-01-15T11:30:45Z",
+      "resolved_by": "security_team_charlie"
+    }
+  },
+  {
+    "id": "inc_004",
+    "title": "Suspicious Network Traffic Pattern",
+    "description": "Unusual network traffic pattern detected, possible data exfiltration",
+    "status": "investigating",
+    "severity": "medium",
+    "priority": "normal",
+    "created_at": "2024-01-15T08:40:33Z",
+    "updated_at": "2024-01-15T10:20:15Z",
+    "assigned_to": "security_team_alpha",
+    "affected_systems": ["workstation_15", "network_switch_01"],
+    "source_ips": ["10.0.0.75"],
+    "tags": ["network_anomaly", "data_exfiltration", "monitoring"],
+    "timeline": [
+      {
+        "timestamp": "2024-01-15T08:40:33Z",
+        "event": "Anomaly detected",
+        "description": "Unusual network traffic pattern detected",
+        "agent": "network_monitor"
+      },
+      {
+        "timestamp": "2024-01-15T08:45:00Z",
+        "event": "Incident created",
+        "description": "Medium priority incident created",
+        "agent": "orchestrator"
+      },
+      {
+        "timestamp": "2024-01-15T09:00:00Z",
+        "event": "Analysis started",
+        "description": "Network traffic analysis initiated",
+        "agent": "incident_analysis"
+      }
+    ],
+    "indicators": ["ti_010"],
+    "related_events": ["evt_004"],
+    "resolution": null
+  }
+]

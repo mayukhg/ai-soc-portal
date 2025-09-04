@@ -21,6 +21,7 @@ import {
   ThreatIndicator,
   LogLevel
 } from '../types/agent';
+import { sampleDataService, SecurityEvent } from '../services/sampleDataService';
 
 interface DetectionRule {
   id: string;
@@ -106,16 +107,25 @@ export class ThreatDetectionAgent extends BaseAgent {
     const startTime = Date.now();
 
     try {
+      // If no data provided, use sample data
+      let eventsToAnalyze: SecurityEvent[];
+      if (!data || Object.keys(data).length === 0) {
+        eventsToAnalyze = sampleDataService.getSecurityEvents();
+        this.log(LogLevel.INFO, `Using sample data: ${eventsToAnalyze.length} events`);
+      } else {
+        eventsToAnalyze = Array.isArray(data) ? data : [data];
+      }
+
       // Apply detection rules
-      const ruleBasedThreats = await this.applyDetectionRules(data, source);
+      const ruleBasedThreats = await this.applyDetectionRules(eventsToAnalyze, source);
       threats.push(...ruleBasedThreats);
 
       // Perform anomaly detection
-      const anomalyThreats = await this.detectAnomalies(data, source);
+      const anomalyThreats = await this.detectAnomalies(eventsToAnalyze, source);
       threats.push(...anomalyThreats);
 
       // Correlate events
-      const correlatedThreats = await this.correlateEvents(threats, data);
+      const correlatedThreats = await this.correlateEvents(threats, eventsToAnalyze);
       threats.push(...correlatedThreats);
 
       // Update detection statistics

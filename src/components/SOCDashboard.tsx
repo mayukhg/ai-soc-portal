@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { useAgentSystem, useSystemMonitoring, useWorkflow } from '../contexts/AgentContext';
 import { MessageType, AgentType, ThreatSeverity } from '../types/agent';
+import { sampleDataService } from '../services/sampleDataService';
 
 interface DashboardMetrics {
   totalAgents: number;
@@ -71,6 +72,7 @@ export const SOCDashboard: React.FC = () => {
   
   const [selectedAgent, setSelectedAgent] = useState<string>('');
   const [workflowResults, setWorkflowResults] = useState<any[]>([]);
+  const [sampleDataStats, setSampleDataStats] = useState<any>(null);
 
   // Update metrics when system status changes
   useEffect(() => {
@@ -80,12 +82,16 @@ export const SOCDashboard: React.FC = () => {
         agent.status === 'active'
       ).length;
       
+      // Get sample data statistics
+      const stats = sampleDataService.getStatistics();
+      setSampleDataStats(stats);
+      
       setMetrics({
         totalAgents: Object.keys(agents).length,
         activeAgents,
         systemHealth: systemStatus.orchestrator?.identity?.status || 'unknown',
-        activeThreats: 0, // Would be calculated from threat detection agent
-        pendingIncidents: 0, // Would be calculated from incident analysis agent
+        activeThreats: stats.openIncidents,
+        pendingIncidents: stats.openIncidents,
         responseTime: systemStatus.orchestrator?.performance?.responseTime || 0,
         uptime: systemStatus.orchestrator?.performance?.uptime || 0
       });
@@ -302,6 +308,7 @@ export const SOCDashboard: React.FC = () => {
           <TabsTrigger value="agents">Agent Management</TabsTrigger>
           <TabsTrigger value="workflows">Workflows</TabsTrigger>
           <TabsTrigger value="monitoring">System Monitoring</TabsTrigger>
+          <TabsTrigger value="sample-data">Sample Data</TabsTrigger>
           <TabsTrigger value="actions">Quick Actions</TabsTrigger>
         </TabsList>
 
@@ -442,6 +449,134 @@ export const SOCDashboard: React.FC = () => {
                 </div>
               ) : (
                 <p className="text-muted-foreground">No monitoring data available</p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="sample-data" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Sample Data Overview</CardTitle>
+              <CardDescription>
+                Real-time view of sample cybersecurity data for testing and demonstration
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {sampleDataStats ? (
+                <div className="space-y-6">
+                  {/* Statistics Overview */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="border rounded-lg p-4">
+                      <h3 className="font-medium text-sm text-muted-foreground">Security Events</h3>
+                      <p className="text-2xl font-bold">{sampleDataStats.totalEvents}</p>
+                      <div className="flex gap-2 mt-2">
+                        <Badge variant="destructive">{sampleDataStats.eventsBySeverity.critical || 0} Critical</Badge>
+                        <Badge variant="secondary">{sampleDataStats.eventsBySeverity.high || 0} High</Badge>
+                      </div>
+                    </div>
+                    
+                    <div className="border rounded-lg p-4">
+                      <h3 className="font-medium text-sm text-muted-foreground">Threat Indicators</h3>
+                      <p className="text-2xl font-bold">{sampleDataStats.activeIndicators}</p>
+                      <p className="text-sm text-muted-foreground">Active indicators</p>
+                    </div>
+                    
+                    <div className="border rounded-lg p-4">
+                      <h3 className="font-medium text-sm text-muted-foreground">Open Incidents</h3>
+                      <p className="text-2xl font-bold">{sampleDataStats.openIncidents}</p>
+                      <p className="text-sm text-muted-foreground">Requiring attention</p>
+                    </div>
+                    
+                    <div className="border rounded-lg p-4">
+                      <h3 className="font-medium text-sm text-muted-foreground">Total Incidents</h3>
+                      <p className="text-2xl font-bold">{sampleDataStats.totalIncidents}</p>
+                      <p className="text-sm text-muted-foreground">All time</p>
+                    </div>
+                  </div>
+
+                  {/* Recent Security Events */}
+                  <div>
+                    <h3 className="font-medium mb-4">Recent Security Events</h3>
+                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                      {sampleDataService.getSecurityEvents().slice(0, 5).map((event) => (
+                        <div key={event.id} className="border rounded p-3">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="font-medium text-sm">{event.description}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {event.source} • {event.source_ip} → {event.destination_ip}
+                              </p>
+                            </div>
+                            <Badge 
+                              variant={event.severity === 'critical' ? 'destructive' : 
+                                      event.severity === 'high' ? 'secondary' : 'outline'}
+                            >
+                              {event.severity}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Open Incidents */}
+                  <div>
+                    <h3 className="font-medium mb-4">Open Incidents</h3>
+                    <div className="space-y-2">
+                      {sampleDataService.getOpenIncidents().map((incident) => (
+                        <div key={incident.id} className="border rounded p-3">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="font-medium">{incident.title}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {incident.assigned_to} • {incident.affected_systems.length} systems
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <Badge 
+                                variant={incident.severity === 'critical' ? 'destructive' : 
+                                        incident.severity === 'high' ? 'secondary' : 'outline'}
+                              >
+                                {incident.severity}
+                              </Badge>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {incident.status}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Threat Indicators */}
+                  <div>
+                    <h3 className="font-medium mb-4">Active Threat Indicators</h3>
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {sampleDataService.getActiveThreatIndicators().slice(0, 5).map((indicator) => (
+                        <div key={indicator.id} className="border rounded p-3">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="font-medium text-sm">{indicator.value}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {indicator.type} • Confidence: {Math.round(indicator.confidence * 100)}%
+                              </p>
+                            </div>
+                            <Badge 
+                              variant={indicator.severity === 'critical' ? 'destructive' : 
+                                      indicator.severity === 'high' ? 'secondary' : 'outline'}
+                            >
+                              {indicator.severity}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-muted-foreground">Loading sample data...</p>
               )}
             </CardContent>
           </Card>

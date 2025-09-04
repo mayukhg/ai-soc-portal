@@ -265,10 +265,236 @@ const workflow = [
    - Review agent status and capabilities
    - Configure agent-specific settings as needed
 
-3. **Run First Workflow**
+3. **Explore Sample Data**
+   - Go to "Sample Data" tab
+   - View realistic cybersecurity events, incidents, and threat indicators
+   - This data is automatically loaded for testing and demonstration
+
+4. **Run First Workflow**
    - Go to "Workflows" tab
    - Click "Threat Detection" to run a sample workflow
    - Monitor the results in the workflow history
+
+## 📊 Sample Data Integration
+
+### Overview
+
+The SOC Nexus system includes comprehensive sample datasets that provide realistic cybersecurity data for testing, demonstration, and development purposes. These datasets are automatically integrated with the agent system and can be used immediately without any additional setup.
+
+### Sample Datasets
+
+#### 1. **Security Events** (`data/sample/security_events.json`)
+- **10 realistic security events** covering various threat types
+- **Event Types**: Blocked connections, intrusion attempts, malware detection, anomalies, failed logins, suspicious requests, file access, process anomalies, privilege escalation, API abuse
+- **Severity Levels**: Low, Medium, High, Critical
+- **Sources**: Firewall, IDS, Antivirus, Network Monitor, Auth Server, Web Proxy, File Monitor, Endpoint Detection, Database Monitor, Cloud Monitor
+- **Attributes**: Timestamps, IP addresses, ports, protocols, users, locations, tags
+
+#### 2. **Threat Indicators** (`data/sample/threat_indicators.json`)
+- **10 active threat indicators** with different types and confidence levels
+- **Indicator Types**: IP addresses, domains, file hashes, email addresses, URLs, user agents, certificates, process names, registry keys, network signatures
+- **Confidence Levels**: 0.76 to 0.99
+- **Sources**: Threat intelligence feeds, DNS sinkholes, antivirus vendors, email security gateways, web security scanners, certificate transparency logs, EDR systems, IDS
+- **Status**: All indicators are active and current
+
+#### 3. **Incidents** (`data/sample/incidents.json`)
+- **4 realistic security incidents** with complete lifecycle data
+- **Incident Types**: SQL injection attacks, malware detection, privilege escalation, network anomalies
+- **Statuses**: Investigating, Contained, Resolved
+- **Severity Levels**: Medium, High, Critical
+- **Timeline Data**: Complete incident timeline with agent actions
+- **Related Data**: Connected security events and threat indicators
+
+#### 4. **Network Flows** (`data/sample/network_flows.csv`)
+- **10 network flow records** with detailed connection information
+- **Protocols**: TCP, UDP, ICMP
+- **Services**: SSH, HTTP, SMTP, DNS, RDP, HTTPS, SMB, Ping, MSSQL
+- **Metrics**: Packets, bytes, duration, flags, state
+- **Time Range**: Events from 08:30 to 11:10 on 2024-01-15
+
+### Data Integration Features
+
+#### **Automatic Loading**
+- Sample data is automatically loaded when the system starts
+- No manual configuration or setup required
+- Data is immediately available to all agents
+
+#### **Real-time Statistics**
+- Dashboard displays live statistics from sample data
+- Event counts by severity level
+- Active threat indicators count
+- Open incidents requiring attention
+
+#### **Agent Integration**
+- **Threat Detection Agent**: Uses sample events for pattern analysis
+- **Incident Analysis Agent**: Analyzes sample incidents and timelines
+- **Response Planning Agent**: Plans responses based on sample incident data
+- **Intelligence Gathering Agent**: Processes sample threat indicators
+- **Monitoring Agent**: Tracks sample data statistics and health
+
+#### **Dashboard Visualization**
+- **Sample Data Tab**: Dedicated view of all sample datasets
+- **Real-time Updates**: Statistics update automatically
+- **Interactive Views**: Browse events, incidents, and indicators
+- **Severity Filtering**: Filter data by severity levels
+- **Search Capabilities**: Search through events and incidents
+
+### Using Sample Data
+
+#### **For Testing**
+```typescript
+import { sampleDataService } from './services/sampleDataService';
+
+// Get all security events
+const events = sampleDataService.getSecurityEvents();
+
+// Get events by severity
+const criticalEvents = sampleDataService.getSecurityEventsBySeverity('critical');
+
+// Get open incidents
+const openIncidents = sampleDataService.getOpenIncidents();
+
+// Get active threat indicators
+const activeIndicators = sampleDataService.getActiveThreatIndicators();
+```
+
+#### **For Agent Development**
+```typescript
+// Get data specific to agent type
+const threatDetectionData = sampleDataService.getDataForAgent('threat_detection');
+const incidentAnalysisData = sampleDataService.getDataForAgent('incident_analysis');
+```
+
+#### **For Dashboard Integration**
+```typescript
+// Get comprehensive statistics
+const stats = sampleDataService.getStatistics();
+
+// Get recent activity
+const recentActivity = sampleDataService.getRecentActivity(24); // Last 24 hours
+
+// Search functionality
+const searchResults = sampleDataService.searchSecurityEvents('malware');
+```
+
+### Data Structure
+
+#### **Security Event Schema**
+```typescript
+interface SecurityEvent {
+  id: string;
+  timestamp: string;
+  source: string;
+  type: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  description: string;
+  source_ip: string;
+  destination_ip: string;
+  port: number;
+  protocol: string;
+  action: string;
+  rule_id: string;
+  user: string;
+  location: string;
+  tags: string[];
+}
+```
+
+#### **Threat Indicator Schema**
+```typescript
+interface ThreatIndicator {
+  id: string;
+  type: string;
+  value: string;
+  description: string;
+  confidence: number;
+  source: string;
+  first_seen: string;
+  last_seen: string;
+  tags: string[];
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  status: 'active' | 'inactive' | 'expired';
+}
+```
+
+#### **Incident Schema**
+```typescript
+interface Incident {
+  id: string;
+  title: string;
+  description: string;
+  status: 'open' | 'investigating' | 'contained' | 'resolved' | 'closed';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  priority: 'low' | 'normal' | 'high' | 'urgent' | 'critical';
+  created_at: string;
+  updated_at: string;
+  assigned_to: string;
+  affected_systems: string[];
+  source_ips: string[];
+  tags: string[];
+  timeline: Array<{
+    timestamp: string;
+    event: string;
+    description: string;
+    agent: string;
+  }>;
+  indicators: string[];
+  related_events: string[];
+  resolution: ResolutionData | null;
+}
+```
+
+### Customizing Sample Data
+
+#### **Adding New Events**
+1. Edit `data/sample/security_events.json`
+2. Add new event objects following the schema
+3. Restart the application to load new data
+
+#### **Adding New Incidents**
+1. Edit `data/sample/incidents.json`
+2. Add new incident objects with complete timeline
+3. Link to existing events and indicators
+
+#### **Adding New Indicators**
+1. Edit `data/sample/threat_indicators.json`
+2. Add new indicator objects with appropriate metadata
+3. Ensure confidence and severity levels are realistic
+
+### Data Sources and References
+
+The sample data is inspired by real-world cybersecurity scenarios and common attack patterns:
+
+- **OWASP Top 10** for web application security issues
+- **MITRE ATT&CK Framework** for attack techniques and tactics
+- **NIST Cybersecurity Framework** for incident response procedures
+- **Common attack vectors** like SQL injection, malware, privilege escalation
+- **Realistic network topologies** and IP address ranges
+- **Common security tools** and their log formats
+
+### Performance Considerations
+
+- **Memory Usage**: Sample data is loaded once and cached in memory
+- **Query Performance**: Optimized data structures for fast lookups
+- **Scalability**: Designed to handle larger datasets if needed
+- **Caching**: Statistics are cached and updated only when needed
+
+### Troubleshooting
+
+#### **Data Not Loading**
+- Check that JSON files are valid
+- Verify file paths in `sampleDataService.ts`
+- Check browser console for errors
+
+#### **Missing Data in Dashboard**
+- Ensure sample data service is properly imported
+- Check that statistics are being calculated correctly
+- Verify agent integration is working
+
+#### **Performance Issues**
+- Consider reducing sample data size for development
+- Implement pagination for large datasets
+- Use search filters to limit displayed data
 
 ## 📊 Dashboard Features
 
