@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bot, Send, Mic, Paperclip, Lightbulb, Search, Code, RefreshCw } from 'lucide-react';
+import { Bot, Send, Mic, Paperclip, Lightbulb, Search, Code, RefreshCw, Shield, AlertTriangle, Target, Brain } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,7 +35,13 @@ export function AIAssistant() {
     'Check for lateral movement indicators',
     'Review recent failed logins',
     'Investigate suspicious network traffic',
-    'Create incident response playbook'
+    'Create incident response playbook',
+    'Perform vulnerability assessment',
+    'Analyze malware behavior patterns',
+    'Detect advanced persistent threats',
+    'Generate security recommendations',
+    'Investigate data exfiltration attempts',
+    'Assess security posture'
   ];
 
   const formatMessageTime = (dateString: string) => {
@@ -126,6 +132,65 @@ export function AIAssistant() {
                     <div className="whitespace-pre-wrap text-sm leading-relaxed">
                       {message.content}
                     </div>
+                    
+                    {/* Security Analysis Metadata */}
+                    {message.message_type === 'assistant' && message.metadata && (
+                      <div className="mt-3 space-y-2">
+                        {message.metadata.threat_level && (
+                          <div className="flex items-center space-x-2">
+                            <AlertTriangle className="h-3 w-3" />
+                            <Badge 
+                              variant={message.metadata.threat_level === 'critical' ? 'destructive' : 
+                                     message.metadata.threat_level === 'high' ? 'destructive' :
+                                     message.metadata.threat_level === 'medium' ? 'secondary' : 'outline'}
+                              className="text-xs"
+                            >
+                              Threat Level: {message.metadata.threat_level.toUpperCase()}
+                            </Badge>
+                          </div>
+                        )}
+                        
+                        {message.metadata.confidence_score && (
+                          <div className="flex items-center space-x-2">
+                            <Target className="h-3 w-3" />
+                            <span className="text-xs text-muted-foreground">
+                              Confidence: {Math.round(message.metadata.confidence_score * 100)}%
+                            </span>
+                          </div>
+                        )}
+                        
+                        {message.metadata.iocs && message.metadata.iocs.length > 0 && (
+                          <div className="space-y-1">
+                            <div className="flex items-center space-x-2">
+                              <Shield className="h-3 w-3" />
+                              <span className="text-xs font-medium">Indicators of Compromise:</span>
+                            </div>
+                            <div className="flex flex-wrap gap-1">
+                              {message.metadata.iocs.slice(0, 3).map((ioc, idx) => (
+                                <Badge key={idx} variant="outline" className="text-xs">
+                                  {ioc}
+                                </Badge>
+                              ))}
+                              {message.metadata.iocs.length > 3 && (
+                                <Badge variant="outline" className="text-xs">
+                                  +{message.metadata.iocs.length - 3} more
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {message.metadata.analysis_type && (
+                          <div className="flex items-center space-x-2">
+                            <Brain className="h-3 w-3" />
+                            <Badge variant="outline" className="text-xs">
+                              {message.metadata.analysis_type}
+                            </Badge>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
                     <div className="text-xs opacity-70 mt-2">
                       {formatMessageTime(message.created_at)}
                     </div>

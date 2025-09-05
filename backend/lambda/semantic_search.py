@@ -5,7 +5,10 @@ import pinecone
 import redis
 import psycopg2
 import boto3
-from typing import List
+import re
+import hashlib
+from typing import List, Dict, Any
+from datetime import datetime, timedelta
 
 # Environment variables (set in Lambda configuration)
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')  # OpenAI API key for embeddings
@@ -40,6 +43,104 @@ def get_aurora_connection():
         password=AURORA_PASSWORD,
         port=AURORA_PORT
     )
+
+def detect_threat_patterns(text: str) -> Dict[str, Any]:
+    """Detect common threat patterns and indicators in text."""
+    patterns = {
+        'malware_indicators': [
+            r'(?i)(malware|virus|trojan|ransomware|backdoor|rootkit)',
+            r'(?i)(payload|exploit|shellcode|injection)',
+            r'(?i)(keylogger|spyware|adware)'
+        ],
+        'network_indicators': [
+            r'(?i)(lateral movement|pivot|exfiltration)',
+            r'(?i)(command and control|c2|beacon)',
+            r'(?i)(data breach|leak|exfil)'
+        ],
+        'attack_vectors': [
+            r'(?i)(phishing|spear phishing|social engineering)',
+            r'(?i)(privilege escalation|escalation)',
+            r'(?i)(persistence|persistent)'
+        ],
+        'ioc_patterns': [
+            r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b',  # IP addresses
+            r'\b(?:[a-f0-9]{2}:){5}[a-f0-9]{2}\b',  # MAC addresses
+            r'\b[A-Za-z0-9+/]{40}={0,2}\b',  # SHA1 hashes
+            r'\b[A-Za-z0-9+/]{64}={0,2}\b',  # SHA256 hashes
+            r'\b[A-Za-z0-9+/]{32}={0,2}\b'   # MD5 hashes
+        ]
+    }
+    
+    detected = {
+        'threat_level': 'low',
+        'confidence_score': 0.0,
+        'indicators': [],
+        'risk_factors': []
+    }
+    
+    threat_count = 0
+    for category, pattern_list in patterns.items():
+        for pattern in pattern_list:
+            matches = re.findall(pattern, text)
+            if matches:
+                detected['indicators'].extend(matches)
+                threat_count += len(matches)
+    
+    # Calculate threat level based on indicators found
+    if threat_count >= 5:
+        detected['threat_level'] = 'critical'
+        detected['confidence_score'] = 0.9
+    elif threat_count >= 3:
+        detected['threat_level'] = 'high'
+        detected['confidence_score'] = 0.7
+    elif threat_count >= 1:
+        detected['threat_level'] = 'medium'
+        detected['confidence_score'] = 0.5
+    
+    # Add risk factors based on detected patterns
+    if any('malware' in indicator.lower() for indicator in detected['indicators']):
+        detected['risk_factors'].append('Malware detected')
+    if any('lateral' in indicator.lower() for indicator in detected['indicators']):
+        detected['risk_factors'].append('Lateral movement detected')
+    if any('exfil' in indicator.lower() for indicator in detected['indicators']):
+        detected['risk_factors'].append('Data exfiltration risk')
+    
+    return detected
+
+def generate_security_recommendations(threat_analysis: Dict[str, Any]) -> List[str]:
+    """Generate security recommendations based on threat analysis."""
+    recommendations = []
+    
+    if threat_analysis['threat_level'] in ['high', 'critical']:
+        recommendations.extend([
+            'Immediate incident response required',
+            'Isolate affected systems',
+            'Notify security team and management',
+            'Preserve evidence for forensic analysis'
+        ])
+    
+    if 'Malware detected' in threat_analysis['risk_factors']:
+        recommendations.extend([
+            'Run full antivirus scan on all systems',
+            'Check for persistence mechanisms',
+            'Review system logs for additional indicators'
+        ])
+    
+    if 'Lateral movement detected' in threat_analysis['risk_factors']:
+        recommendations.extend([
+            'Review network segmentation',
+            'Check for unauthorized access attempts',
+            'Monitor for additional lateral movement'
+        ])
+    
+    if 'Data exfiltration risk' in threat_analysis['risk_factors']:
+        recommendations.extend([
+            'Review data access logs',
+            'Check for unusual data transfers',
+            'Implement data loss prevention measures'
+        ])
+    
+    return recommendations[:5]  # Limit to top 5 recommendations
 
 def lambda_handler(event, context):
     """
@@ -97,6 +198,10 @@ def lambda_handler(event, context):
             cur.execute(sql, (ids,))
             rows = cur.fetchall()
             for row in rows:
+                # Perform threat analysis on incident description
+                threat_analysis = detect_threat_patterns(f"{row[1]} {row[2] or ''}")
+                security_recommendations = generate_security_recommendations(threat_analysis)
+                
                 incidents.append({
                     'id': row[0],
                     'title': row[1],
@@ -107,7 +212,14 @@ def lambda_handler(event, context):
                     'alert_count': row[6],
                     'tags': row[7],
                     'created_at': row[8].isoformat() if row[8] else None,
-                    'updated_at': row[9].isoformat() if row[9] else None
+                    'updated_at': row[9].isoformat() if row[9] else None,
+                    'threat_analysis': {
+                        'threat_level': threat_analysis['threat_level'],
+                        'confidence_score': threat_analysis['confidence_score'],
+                        'indicators': threat_analysis['indicators'][:10],  # Limit to top 10
+                        'risk_factors': threat_analysis['risk_factors'],
+                        'recommendations': security_recommendations
+                    }
                 })
             cur.close()
             conn.close()

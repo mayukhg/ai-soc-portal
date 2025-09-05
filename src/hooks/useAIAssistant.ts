@@ -9,9 +9,16 @@ interface AIMessage {
   session_id: string;
   message_type: 'user' | 'assistant';
   content: string;
-  context_type?: 'general' | 'incident' | 'alert' | 'threat_hunting';
+  context_type?: 'general' | 'incident' | 'alert' | 'threat_hunting' | 'vulnerability_analysis' | 'threat_intelligence' | 'forensic_analysis';
   context_id?: string;
-  metadata?: any;
+  metadata?: {
+    confidence_score?: number;
+    threat_level?: 'low' | 'medium' | 'high' | 'critical';
+    analysis_type?: string;
+    iocs?: string[];
+    recommendations?: string[];
+    risk_factors?: string[];
+  };
   created_at: string;
 }
 

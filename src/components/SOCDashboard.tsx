@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AlertTriangle, Shield, Users, BarChart3, Bell, Search, Filter, MessageSquare, FileText, Bot, LogOut, User } from 'lucide-react';
+import { AlertTriangle, Shield, Users, BarChart3, Bell, Search, Filter, MessageSquare, FileText, Bot, LogOut, User, Eye, Target, Brain } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,8 @@ import { AIAssistant } from './AIAssistant';
 import { CollaborationPanel } from './CollaborationPanel';
 import { IncidentManagement } from './IncidentManagement';
 import { ReportGenerator } from './ReportGenerator';
+import { ThreatDetectionEngine } from './ThreatDetectionEngine';
+import { SecurityAnalyticsDashboard } from './SecurityAnalyticsDashboard';
 
 export function SOCDashboard() {
   const { user, userProfile, signOut } = useAuth();
@@ -163,6 +165,32 @@ export function SOCDashboard() {
               <FileText className="mr-3 h-4 w-4" />
               Reports
             </Button>
+
+            <div className="border-t border-border my-3"></div>
+
+            <Button
+              variant={activeView === 'threat-detection' ? 'secondary' : 'ghost'}
+              className="w-full justify-start"
+              onClick={() => setActiveView('threat-detection')}
+            >
+              <Eye className="mr-3 h-4 w-4" />
+              Threat Detection
+              <Badge variant="outline" className="ml-auto">
+                AI
+              </Badge>
+            </Button>
+
+            <Button
+              variant={activeView === 'security-analytics' ? 'secondary' : 'ghost'}
+              className="w-full justify-start"
+              onClick={() => setActiveView('security-analytics')}
+            >
+              <Target className="mr-3 h-4 w-4" />
+              Security Analytics
+              <Badge variant="outline" className="ml-auto">
+                New
+              </Badge>
+            </Button>
           </nav>
 
           {/* Quick Stats */}
@@ -203,6 +231,8 @@ export function SOCDashboard() {
             {activeView === 'metrics' && <KPIMetrics />}
             {activeView === 'threats' && <ThreatMap />}
             {activeView === 'reports' && <ReportGenerator />}
+            {activeView === 'threat-detection' && <ThreatDetectionEngine />}
+            {activeView === 'security-analytics' && <SecurityAnalyticsDashboard />}
           </div>
         </main>
       </div>
