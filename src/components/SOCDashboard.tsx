@@ -12,6 +12,7 @@ import { AIAssistant } from './AIAssistant';
 import { CollaborationPanel } from './CollaborationPanel';
 import { IncidentManagement } from './IncidentManagement';
 import { ReportGenerator } from './ReportGenerator';
+import { SOCL3Dashboard } from './SOCL3Dashboard';
 
 export function SOCDashboard() {
   const { user, userProfile, signOut } = useAuth();
@@ -163,6 +164,20 @@ export function SOCDashboard() {
               <FileText className="mr-3 h-4 w-4" />
               Reports
             </Button>
+
+            <div className="border-t border-border my-3"></div>
+
+            <Button
+              variant={activeView === 'l3-dashboard' ? 'secondary' : 'ghost'}
+              className="w-full justify-start"
+              onClick={() => setActiveView('l3-dashboard')}
+            >
+              <Bot className="mr-3 h-4 w-4" />
+              SOC L3 Dashboard
+              <Badge variant="outline" className="ml-auto">
+                Enhanced
+              </Badge>
+            </Button>
           </nav>
 
           {/* Quick Stats */}
@@ -203,6 +218,7 @@ export function SOCDashboard() {
             {activeView === 'metrics' && <KPIMetrics />}
             {activeView === 'threats' && <ThreatMap />}
             {activeView === 'reports' && <ReportGenerator />}
+            {activeView === 'l3-dashboard' && <SOCL3Dashboard />}
           </div>
         </main>
       </div>
