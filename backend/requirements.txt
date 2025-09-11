@@ -4,3 +4,8 @@ psycopg2-binary
 redis
 boto3
 requests
+langgraph
+langchain
+langchain-openai
+langchain-community
+langchain-pinecone
