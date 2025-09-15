@@ -6,6 +6,7 @@
 import { Logger } from '../data-ingestion/utils/logger';
 import { EvaluationHarness, ComprehensiveEvaluationResult, EvaluationConfig } from './evaluation-harness';
 import { MonitoringScripts, MonitoringConfig, PerformanceSnapshot, TrendAnalysis } from './monitoring-scripts';
+import { RAGASService, RAGASEvaluationResult, SOCRAGASDataset } from '../ragas/ragas-service';
 
 export interface EvaluationServiceConfig {
   evaluation: EvaluationConfig;
@@ -15,12 +16,24 @@ export interface EvaluationServiceConfig {
   reportIntervalHours: number;
   enableBenchmarking: boolean;
   benchmarkModels: string[];
+  enableRAGASEvaluation: boolean;
+  ragasConfig?: {
+    enableFaithfulness: boolean;
+    enableAnswerRelevancy: boolean;
+    enableContextPrecision: boolean;
+    enableContextRecall: boolean;
+    enableAnswerCorrectness: boolean;
+    enableContextUtilization: boolean;
+    enableAnswerCompleteness: boolean;
+    enableAnswerConsistency: boolean;
+  };
 }
 
 export interface EvaluationReport {
   id: string;
   timestamp: Date;
   evaluationResult: ComprehensiveEvaluationResult;
+  ragasResults?: RAGASEvaluationResult[];
   performanceSnapshots: PerformanceSnapshot[];
   trendAnalysis: TrendAnalysis;
   summary: {
@@ -31,6 +44,7 @@ export interface EvaluationReport {
       latency: number;
       hallucinationRate: number;
       confidence: number;
+      ragasScore?: number;
     };
     recommendations: string[];
     nextEvaluationDate: Date;
@@ -53,6 +67,7 @@ export class EvaluationService {
   private config: EvaluationServiceConfig;
   private evaluationHarness: EvaluationHarness;
   private monitoringScripts: MonitoringScripts;
+  private ragasService?: RAGASService;
   private reports: EvaluationReport[];
   private benchmarks: BenchmarkResult[];
   private reportInterval?: NodeJS.Timeout;
@@ -89,6 +104,17 @@ export class EvaluationService {
       reportIntervalHours: 24,
       enableBenchmarking: true,
       benchmarkModels: ['gpt-4', 'gpt-3.5-turbo', 'claude-3'],
+      enableRAGASEvaluation: true,
+      ragasConfig: {
+        enableFaithfulness: true,
+        enableAnswerRelevancy: true,
+        enableContextPrecision: true,
+        enableContextRecall: true,
+        enableAnswerCorrectness: true,
+        enableContextUtilization: true,
+        enableAnswerCompleteness: true,
+        enableAnswerConsistency: true,
+      },
     };
     this.reports = [];
     this.benchmarks = [];
@@ -104,10 +130,16 @@ export class EvaluationService {
     this.evaluationHarness = new EvaluationHarness(this.config.evaluation);
     this.monitoringScripts = new MonitoringScripts(this.evaluationHarness, this.config.monitoring);
     
+    // Initialize RAGAS service if enabled
+    if (this.config.enableRAGASEvaluation && this.config.ragasConfig) {
+      this.ragasService = new RAGASService(this.config.ragasConfig);
+    }
+    
     this.logger.info('Evaluation service initialized', {
       continuousEvaluation: this.config.enableContinuousEvaluation,
       automatedReporting: this.config.enableAutomatedReporting,
       benchmarking: this.config.enableBenchmarking,
+      ragasEvaluation: this.config.enableRAGASEvaluation,
     });
   }
 
@@ -474,6 +506,119 @@ export class EvaluationService {
 
   getConfig(): EvaluationServiceConfig {
     return { ...this.config };
+  }
+
+  // RAGAS Evaluation Methods
+
+  /**
+   * Run RAGAS evaluation on SOC datasets
+   * Evaluates RAG system performance using SOC-specific scenarios
+   */
+  async runRAGASEvaluation(): Promise<RAGASEvaluationResult[]> {
+    if (!this.ragasService) {
+      throw new Error('RAGAS service is not enabled');
+    }
+
+    this.logger.info('Starting RAGAS evaluation');
+
+    try {
+      const datasets = this.ragasService.getDatasets();
+      const results = await this.ragasService.evaluateBatch(datasets);
+
+      this.logger.info('RAGAS evaluation completed', {
+        datasetsEvaluated: datasets.length,
+        averageScore: results.reduce((sum, r) => sum + r.overallScore, 0) / results.length,
+      });
+
+      return results;
+    } catch (error) {
+      this.logger.error('RAGAS evaluation failed', { error });
+      throw error;
+    }
+  }
+
+  /**
+   * Evaluate a custom SOC dataset with RAGAS
+   */
+  async evaluateSOCDataset(dataset: SOCRAGASDataset): Promise<RAGASEvaluationResult> {
+    if (!this.ragasService) {
+      throw new Error('RAGAS service is not enabled');
+    }
+
+    this.logger.info('Evaluating SOC dataset', { datasetId: dataset.id });
+
+    try {
+      const result = await this.ragasService.evaluateDataset(dataset);
+      
+      this.logger.info('SOC dataset evaluation completed', {
+        datasetId: dataset.id,
+        overallScore: result.overallScore,
+      });
+
+      return result;
+    } catch (error) {
+      this.logger.error('SOC dataset evaluation failed', { error, datasetId: dataset.id });
+      throw error;
+    }
+  }
+
+  /**
+   * Get RAGAS evaluation results
+   */
+  getRAGASResults(): RAGASEvaluationResult[] {
+    if (!this.ragasService) {
+      return [];
+    }
+
+    return this.ragasService.getEvaluationResults();
+  }
+
+  /**
+   * Get RAGAS average scores
+   */
+  getRAGASAverageScores(): any {
+    if (!this.ragasService) {
+      return null;
+    }
+
+    return this.ragasService.getAverageScores();
+  }
+
+  /**
+   * Export RAGAS results
+   */
+  exportRAGASResults(format: 'json' | 'csv'): string {
+    if (!this.ragasService) {
+      throw new Error('RAGAS service is not enabled');
+    }
+
+    return this.ragasService.exportResults(format);
+  }
+
+  /**
+   * Get RAGAS service status
+   */
+  getRAGASStatus(): any {
+    if (!this.ragasService) {
+      return { enabled: false };
+    }
+
+    return {
+      enabled: true,
+      ...this.ragasService.getServiceStatus(),
+    };
+  }
+
+  /**
+   * Update RAGAS configuration
+   */
+  updateRAGASConfig(config: any): void {
+    if (!this.ragasService) {
+      throw new Error('RAGAS service is not enabled');
+    }
+
+    this.ragasService.updateConfig(config);
+    this.logger.info('RAGAS configuration updated', { config });
   }
 
   // Cleanup methods

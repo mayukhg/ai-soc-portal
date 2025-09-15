@@ -9,6 +9,8 @@ langchain
 langchain-openai
 langchain-community
 langchain-pinecone
+langsmith
+ragas
 lime
 shap
 scikit-learn
