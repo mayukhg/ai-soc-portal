@@ -8,14 +8,24 @@ import { SOCWorkflow } from './soc-workflow';
 import { SOCState } from './types';
 import { Alert, Incident, Entity, ThreatIntelligence } from './types';
 import { LangSmithService, TraceMetadata } from '../langsmith/langsmith-service';
+import { AuditService } from '../auditability/audit-service';
+import { GuardrailService } from '../auditability/guardrail-service';
 
 export class LangGraphService {
   private workflow: SOCWorkflow;
   private langSmithService?: LangSmithService;
+  private auditService?: AuditService;
+  private guardrailService?: GuardrailService;
 
-  constructor(langSmithService?: LangSmithService) {
+  constructor(
+    langSmithService?: LangSmithService,
+    auditService?: AuditService,
+    guardrailService?: GuardrailService
+  ) {
     this.workflow = new SOCWorkflow();
     this.langSmithService = langSmithService;
+    this.auditService = auditService;
+    this.guardrailService = guardrailService;
   }
 
   /**
@@ -401,6 +411,31 @@ export class LangGraphService {
           );
         }
 
+        // Log audit event for phase completion
+        if (this.auditService) {
+          await this.auditService.logAIOperation({
+            operation: `workflow_phase_${currentState.current_phase}`,
+            category: this.mapWorkflowPhaseToCategory(currentState.current_phase),
+            userId: currentState.user_id,
+            sessionId: currentState.session_id,
+            requestId: traceId,
+            workflowId: currentState.workflow_id,
+            workflowPhase: currentState.current_phase,
+            agentType: this.getAgentTypeForPhase(currentState.current_phase),
+            latencyMs: phaseDuration,
+            inputTokens: this.estimateInputTokens(currentState),
+            outputTokens: this.estimateOutputTokens(currentState),
+            result: 'success',
+            metadata: {
+              phase: currentState.current_phase,
+              duration: phaseDuration,
+              confidence: currentState.confidence_scores[currentState.current_phase] || 0,
+              errors: currentState.errors.length,
+              warnings: currentState.warnings.length,
+            },
+          });
+        }
+
       } catch (error) {
         // Complete phase trace with error
         if (this.langSmithService && traceId) {
@@ -460,6 +495,22 @@ export class LangGraphService {
     };
     
     return phaseAgentMap[phase] || 'unknown-agent';
+  }
+
+  /**
+   * Map workflow phase to audit category
+   */
+  private mapWorkflowPhaseToCategory(phase: string): 'threat_analysis' | 'incident_response' | 'risk_assessment' | 'correlation_analysis' | 'ai_model_operations' {
+    const phaseCategoryMap: Record<string, 'threat_analysis' | 'incident_response' | 'risk_assessment' | 'correlation_analysis' | 'ai_model_operations'> = {
+      'context_analysis': 'threat_analysis',
+      'reasoning': 'risk_assessment',
+      'decision_making': 'incident_response',
+      'response_generation': 'ai_model_operations',
+      'action_execution': 'incident_response',
+      'learning': 'correlation_analysis',
+    };
+    
+    return phaseCategoryMap[phase] || 'ai_model_operations';
   }
 
   /**
@@ -537,12 +588,46 @@ export class LangGraphService {
   }
 
   /**
+   * Set audit service for auditability
+   */
+  setAuditService(auditService: AuditService): void {
+    this.auditService = auditService;
+  }
+
+  /**
+   * Set guardrail service for content filtering
+   */
+  setGuardrailService(guardrailService: GuardrailService): void {
+    this.guardrailService = guardrailService;
+  }
+
+  /**
    * Get LangSmith service status
    */
   getLangSmithStatus(): { enabled: boolean; service?: any } {
     return {
       enabled: !!this.langSmithService,
       service: this.langSmithService?.getServiceStatus(),
+    };
+  }
+
+  /**
+   * Get audit service status
+   */
+  getAuditStatus(): { enabled: boolean; service?: any } {
+    return {
+      enabled: !!this.auditService,
+      service: this.auditService?.getServiceStatus(),
+    };
+  }
+
+  /**
+   * Get guardrail service status
+   */
+  getGuardrailStatus(): { enabled: boolean; service?: any } {
+    return {
+      enabled: !!this.guardrailService,
+      service: this.guardrailService?.getServiceStatus(),
     };
   }
 }
