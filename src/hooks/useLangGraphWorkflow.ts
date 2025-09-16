@@ -7,6 +7,7 @@ import { useState, useCallback, useRef } from 'react';
 import { LangGraphService } from '../lib/langgraph/langgraph-service';
 import { SOCState } from '../lib/langgraph/types';
 import { Alert, Incident, Entity, ThreatIntelligence } from '../lib/langgraph/types';
+import { useLangSmith } from './useLangSmith';
 
 export interface UseLangGraphWorkflowOptions {
   onWorkflowComplete?: (result: SOCState) => void;
@@ -107,9 +108,17 @@ export function useLangGraphWorkflow(options: UseLangGraphWorkflowOptions = {}):
   const serviceRef = useRef<LangGraphService | null>(null);
   const currentWorkflowRef = useRef<Promise<SOCState> | null>(null);
 
-  // Initialize service
+  // Initialize LangSmith for tracing
+  const langSmith = useLangSmith();
+
+  // Initialize service with LangSmith integration
   if (!serviceRef.current) {
     serviceRef.current = new LangGraphService();
+    // Set LangSmith service if available
+    if (langSmith.isEnabled) {
+      // Note: We'll need to modify LangGraphService to accept LangSmith service
+      // For now, we'll handle tracing in the workflow execution
+    }
   }
 
   const service = serviceRef.current;
@@ -130,10 +139,11 @@ export function useLangGraphWorkflow(options: UseLangGraphWorkflowOptions = {}):
     return phaseIndex >= 0 ? (phaseIndex / (phaseOrder.length - 1)) * 100 : 0;
   };
 
-  // Execute workflow with common logic
+  // Execute workflow with common logic and LangSmith tracing
   const executeWorkflow = useCallback(async (
     workflowFunction: () => Promise<SOCState>,
-    phaseName: string
+    workflowType: 'threat_analysis' | 'incident_response' | 'risk_assessment' | 'correlation_analysis',
+    data: any
   ) => {
     if (isExecuting) {
       console.warn('Workflow already executing');
@@ -141,12 +151,34 @@ export function useLangGraphWorkflow(options: UseLangGraphWorkflowOptions = {}):
     }
 
     setIsExecuting(true);
-    setCurrentPhase(phaseName);
+    setCurrentPhase('starting');
     setProgress(0);
     setErrors([]);
     setWarnings([]);
 
+    let traceId: string | null = null;
+
     try {
+      // Start LangSmith trace if enabled
+      if (langSmith.isEnabled) {
+        traceId = await langSmith.startWorkflowTrace(workflowType, {
+          userId: data.userId,
+          sessionId: data.sessionId,
+          severity: data.severity || 'medium',
+          tags: [workflowType, 'langgraph'],
+          customAttributes: {
+            alertCount: data.alerts?.length || 0,
+            incidentCount: data.incidents?.length || 0,
+            entityCount: data.entities?.length || 0,
+          }
+        });
+      }
+
+      // Start phase trace
+      if (traceId) {
+        await langSmith.startPhaseTrace('workflow_execution', 'langgraph-service');
+      }
+
       const result = await workflowFunction();
       
       setCurrentState(result);
@@ -154,6 +186,15 @@ export function useLangGraphWorkflow(options: UseLangGraphWorkflowOptions = {}):
       setProgress(calculateProgress(result.current_phase));
       setErrors(result.errors || []);
       setWarnings(result.warnings || []);
+      
+      // Complete phase trace
+      if (traceId) {
+        await langSmith.completePhaseTrace('workflow_execution', {
+          latencyMs: result.end_time ? result.end_time.getTime() - result.start_time.getTime() : 0,
+          inputTokens: result.total_input_tokens || 0,
+          outputTokens: result.total_output_tokens || 0,
+        });
+      }
       
       // Handle phase changes
       if (options.onPhaseChange) {
@@ -169,10 +210,28 @@ export function useLangGraphWorkflow(options: UseLangGraphWorkflowOptions = {}):
       if (result.current_phase === 'completed' && options.onWorkflowComplete) {
         options.onWorkflowComplete(result);
       }
+
+      // Complete LangSmith trace
+      if (traceId) {
+        await langSmith.completeWorkflowTrace('completed', {
+          latencyMs: result.end_time ? result.end_time.getTime() - result.start_time.getTime() : 0,
+          tokenCount: (result.total_input_tokens || 0) + (result.total_output_tokens || 0),
+          costEstimate: result.total_cost || 0,
+          successRate: result.errors?.length === 0 ? 1 : 0,
+        });
+      }
       
     } catch (error) {
       console.error('Workflow execution error:', error);
       setErrors([error instanceof Error ? error.message : 'Unknown error']);
+      
+      // Complete LangSmith trace with error
+      if (traceId) {
+        await langSmith.completeWorkflowTrace('failed', {
+          errorRate: 1,
+          successRate: 0,
+        });
+      }
       
       if (options.onWorkflowError) {
         options.onWorkflowError(error instanceof Error ? error : new Error('Unknown error'));
@@ -181,14 +240,15 @@ export function useLangGraphWorkflow(options: UseLangGraphWorkflowOptions = {}):
       setIsExecuting(false);
       currentWorkflowRef.current = null;
     }
-  }, [isExecuting, options]);
+  }, [isExecuting, options, langSmith]);
 
   // Workflow execution methods
   const executeThreatAnalysis = useCallback(async (data: ThreatAnalysisData) => {
     currentWorkflowRef.current = service.analyzeThreats(data);
     await executeWorkflow(
       () => currentWorkflowRef.current!,
-      'threat_analysis'
+      'threat_analysis',
+      data
     );
   }, [service, executeWorkflow]);
 
@@ -196,7 +256,8 @@ export function useLangGraphWorkflow(options: UseLangGraphWorkflowOptions = {}):
     currentWorkflowRef.current = service.investigateIncident(data);
     await executeWorkflow(
       () => currentWorkflowRef.current!,
-      'incident_investigation'
+      'incident_response',
+      data
     );
   }, [service, executeWorkflow]);
 
@@ -204,7 +265,8 @@ export function useLangGraphWorkflow(options: UseLangGraphWorkflowOptions = {}):
     currentWorkflowRef.current = service.assessRisk(data);
     await executeWorkflow(
       () => currentWorkflowRef.current!,
-      'risk_assessment'
+      'risk_assessment',
+      data
     );
   }, [service, executeWorkflow]);
 
@@ -212,7 +274,8 @@ export function useLangGraphWorkflow(options: UseLangGraphWorkflowOptions = {}):
     currentWorkflowRef.current = service.analyzeCorrelations(data);
     await executeWorkflow(
       () => currentWorkflowRef.current!,
-      'correlation_analysis'
+      'correlation_analysis',
+      data
     );
   }, [service, executeWorkflow]);
 
@@ -220,7 +283,8 @@ export function useLangGraphWorkflow(options: UseLangGraphWorkflowOptions = {}):
     currentWorkflowRef.current = service.executeAutomatedResponse(data);
     await executeWorkflow(
       () => currentWorkflowRef.current!,
-      'automated_response'
+      'incident_response',
+      data
     );
   }, [service, executeWorkflow]);
 
@@ -228,7 +292,8 @@ export function useLangGraphWorkflow(options: UseLangGraphWorkflowOptions = {}):
     currentWorkflowRef.current = service.executePlaybook(data);
     await executeWorkflow(
       () => currentWorkflowRef.current!,
-      'playbook_execution'
+      'incident_response',
+      data
     );
   }, [service, executeWorkflow]);
 

@@ -432,9 +432,41 @@ export class LangSmithService {
 
   private async sendTraceToLangSmith(trace: SOCWorkflowTrace): Promise<void> {
     try {
-      // In a real implementation, this would use LangSmith's trace API
-      // For now, we'll simulate the API call
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Send trace to LangSmith using the actual client
+      const traceData = {
+        name: `soc_workflow_${trace.workflowType}`,
+        run_type: 'chain',
+        inputs: {
+          workflowType: trace.workflowType,
+          metadata: trace.metadata,
+        },
+        outputs: {
+          status: trace.status,
+          phases: trace.phases.length,
+          totalTokens: trace.totalTokens,
+          totalCost: trace.totalCost,
+        },
+        start_time: trace.startTime,
+        end_time: trace.endTime,
+        run_id: trace.traceId,
+        project_name: this.config.projectName,
+        tags: trace.metadata.tags || [],
+        metadata: {
+          ...trace.metadata.customAttributes,
+          phases: trace.phases.map(phase => ({
+            name: phase.phaseName,
+            status: phase.status,
+            latencyMs: phase.latencyMs,
+            inputTokens: phase.inputTokens,
+            outputTokens: phase.outputTokens,
+            error: phase.error,
+          })),
+          performanceMetrics: trace.performanceMetrics,
+        },
+      };
+
+      // Use LangSmith client to create the trace
+      await this.client.createRun(traceData);
       
       this.logger.debug('Trace sent to LangSmith', {
         traceId: trace.traceId,
@@ -443,6 +475,7 @@ export class LangSmithService {
       });
     } catch (error) {
       this.logger.error('Failed to send trace to LangSmith', { error });
+      // Don't throw error to avoid breaking workflow execution
     }
   }
 
