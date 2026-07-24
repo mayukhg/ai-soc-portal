@@ -141,24 +141,6 @@ The global Security Operations Center market is projected to reach **$7.8 billio
 - Predictive threat hunting
 - Advanced automation workflows
 
-## Customer Success Stories
-
-### Fortune 500 Financial Services Company
-- **Challenge**: Managing 25,000+ daily alerts across global offices
-- **Solution**: SOC AI Portal with custom threat correlation models
-- **Results**: 
-  - 80% reduction in alert investigation time
-  - 65% improvement in threat detection accuracy
-  - $2.3M annual cost savings
-
-### Healthcare System Network
-- **Challenge**: HIPAA compliance with limited security staff
-- **Solution**: Automated compliance reporting and incident response
-- **Results**:
-  - 100% compliance audit success rate
-  - 50% reduction in security staffing requirements
-  - Zero data breach incidents in 18 months
-
 ## Investment Requirements
 
 ### Funding Needs: $5M Series A
