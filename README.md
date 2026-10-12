@@ -49,14 +49,25 @@ The design principle: **an AI verdict an analyst cannot audit is worth less than
 
 **Frontend** — React 18 with TypeScript, Vite, Tailwind CSS, shadcn/ui.
 
+**Backend (running locally)** — a Python API over PostgreSQL. Alert, incident, comment, indicator, KPI, and report screens read that database. A static walkthrough of the same screens is in `mockup/index.html`.
+
 **Backend (target state)** — Python on AWS Lambda for serverless compute, Aurora Serverless (PostgreSQL) for relational state, Pinecone for vector search, Redis on ElastiCache for caching and session state.
 
 **AI orchestration** — LangChain and LangGraph for multi-step reasoning, with LangSmith for tracing and RAGAS for retrieval-augmented generation evaluation.
+
+### Two-tier model routing
+
+The assistant that answers analyst questions does not send every question to a model. `backend/model_router.py` chooses the tier locally, then sends only the model calls to OpenRouter.
+
+Routine lookups are answered from the alert rows already loaded, at no model cost. A short written question uses the fast path: `inclusionai/ling-3.0-flash-vl`, with `google/gemini-2.5-flash-lite` only if Ling returns an error. A correlation, campaign, multi-address, or threat-hunting question uses the deep path: `anthropic/claude-sonnet-5` states what the records support, then `openai/gpt-4.1` writes the response plan.
+
+The fast-path model was chosen from the cheapest comparable text models on the OpenRouter catalog (12 Oct 2026), then scored on four equal criteria: cost, Artificial Analysis Intelligence Index, an Omniscience-based trust score, and the AA-Omniscience hallucination rate. Ling 3.0 Flash VL scored 81.4 out of 100 and led the shortlist on performance, trust, and non-hallucination while staying at about $0.022 per 1,000 calls. The deep-path models were not taken from that cheap list. They are reserved for the smaller set of ambiguous questions, where a higher unit cost is accepted because each question is still about one cent at the output cap and the local gate keeps them off the routine path. The full scoring, token budgets, and gate rules are in `TWO_TIER_ARCHITECTURE.md`.
 
 **Observability** — see `monitoring/` and `llm_operations_logging.md`.
 
 Detailed diagrams and component breakdowns:
 
+- `TWO_TIER_ARCHITECTURE.md` — fast-path and deep-path routing, and how the models were scored
 - `HIGH_LEVEL_ARCHITECTURE.md` — system overview
 - `ARCHITECTURE.md` — detailed architecture
 - `techstack_flow_diagram.md`, `techstack_usage.md` — stack and data flow
@@ -83,7 +94,7 @@ public/        Static assets
 `EXECUTIVE_PITCH.md` · `business_justification.md` · `future_roadmap.md`
 
 **Architecture and implementation**
-`HIGH_LEVEL_ARCHITECTURE.md` · `ARCHITECTURE.md` · `techstack_usage.md` · `techstack_flow_diagram.md` · `COMPONENT_REFERENCE.md` · `data_ingestion_implementation.md`
+`TWO_TIER_ARCHITECTURE.md` · `HIGH_LEVEL_ARCHITECTURE.md` · `ARCHITECTURE.md` · `techstack_usage.md` · `techstack_flow_diagram.md` · `COMPONENT_REFERENCE.md` · `data_ingestion_implementation.md`
 
 **AI engineering**
 `langchain_implementation.md` · `lang_graph_implementation.md` · `rag_implementation.md` · `ai_reasoning_pseudocode.md` · `prompt_reasoning_logic.md` · `contextualization_pseudocode.md`
