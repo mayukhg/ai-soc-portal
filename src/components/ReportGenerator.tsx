@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FileText, Download, Calendar, Settings, TrendingUp, Users, Shield, Clock, Filter, Send } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,68 +34,6 @@ interface ScheduledReport {
   status: 'active' | 'paused';
 }
 
-const reportTemplates: ReportTemplate[] = [
-  {
-    id: 'tier3-incident-analysis',
-    name: 'Incident Analysis Report',
-    description: 'Detailed technical analysis of security incidents for Tier 3 analysts',
-    role: 'tier3',
-    sections: ['Incident Timeline', 'IOCs', 'Attack Vectors', 'Mitigation Steps', 'Lessons Learned'],
-    frequency: 'Weekly',
-    lastGenerated: '2024-01-28 09:30',
-    status: 'active'
-  },
-  {
-    id: 'tier3-threat-intel',
-    name: 'Threat Intelligence Summary',
-    description: 'Comprehensive threat landscape analysis with technical details',
-    role: 'tier3',
-    sections: ['New Threats', 'TTPs Analysis', 'Vulnerability Assessment', 'Recommendations'],
-    frequency: 'Daily',
-    lastGenerated: '2024-01-28 14:15',
-    status: 'active'
-  },
-  {
-    id: 'mgmt-executive-summary',
-    name: 'Executive Security Summary',
-    description: 'High-level security posture overview for management',
-    role: 'management',
-    sections: ['Security Metrics', 'Risk Assessment', 'Budget Impact', 'Strategic Recommendations'],
-    frequency: 'Monthly',
-    lastGenerated: '2024-01-25 16:00',
-    status: 'active'
-  },
-  {
-    id: 'mgmt-kpi-dashboard',
-    name: 'SOC Performance Dashboard',
-    description: 'KPI metrics and operational efficiency for management review',
-    role: 'management',
-    sections: ['MTTD/MTTR Trends', 'Team Performance', 'False Positive Rates', 'Escalation Analysis'],
-    frequency: 'Weekly',
-    lastGenerated: '2024-01-28 08:00',
-    status: 'active'
-  }
-];
-
-const scheduledReports: ScheduledReport[] = [
-  {
-    id: 'sched-1',
-    template: 'Executive Security Summary',
-    frequency: 'Monthly',
-    nextRun: '2024-02-01 09:00',
-    recipients: ['ciso@company.com', 'security-leads@company.com'],
-    status: 'active'
-  },
-  {
-    id: 'sched-2',
-    template: 'SOC Performance Dashboard',
-    frequency: 'Weekly',
-    nextRun: '2024-01-29 08:00',
-    recipients: ['soc-manager@company.com', 'security-team@company.com'],
-    status: 'active'
-  }
-];
-
 export function ReportGenerator() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -107,6 +45,54 @@ export function ReportGenerator() {
   const [generating, setGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [generatedReport, setGeneratedReport] = useState<string | null>(null);
+  const [reportTemplates, setReportTemplates] = useState<ReportTemplate[]>([]);
+  const [scheduledReports, setScheduledReports] = useState<ScheduledReport[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from('reports')
+      .select('*')
+      .order('updated_at', { ascending: false })
+      .then(({ data }) => {
+        if (!data) return;
+        const templates: ReportTemplate[] = [];
+        const scheduled: ScheduledReport[] = [];
+        data.forEach((row) => {
+          const content = (row.content || {}) as {
+            kind?: string;
+            description?: string;
+            role?: 'tier3' | 'management';
+            sections?: string[];
+            frequency?: string;
+            template?: string;
+          };
+          if (content.kind === 'template' && (content.role === 'tier3' || content.role === 'management')) {
+            templates.push({
+              id: row.template_id || row.id,
+              name: row.title,
+              description: content.description || '',
+              role: content.role,
+              sections: content.sections || [],
+              frequency: content.frequency || 'Ad hoc',
+              lastGenerated: new Date(row.updated_at).toLocaleString(),
+              status: row.status === 'draft' ? 'draft' : row.status === 'generating' ? 'scheduled' : 'active',
+            });
+          }
+          if (content.kind === 'schedule') {
+            scheduled.push({
+              id: row.id,
+              template: content.template || row.title,
+              frequency: content.frequency || row.recurrence_pattern || 'Ad hoc',
+              nextRun: row.scheduled_for ? new Date(row.scheduled_for).toLocaleString() : 'Not scheduled',
+              recipients: row.generated_for || [],
+              status: row.status === 'draft' ? 'paused' : 'active',
+            });
+          }
+        });
+        setReportTemplates(templates);
+        setScheduledReports(scheduled);
+      });
+  }, []);
 
   const getRoleColor = (role: string) => {
     return role === 'tier3' ? 'bg-primary/10 text-primary border-primary/20' : 'bg-accent/10 text-accent border-accent/20';
@@ -197,6 +183,9 @@ export function ReportGenerator() {
   };
 
   const filteredTemplates = reportTemplates.filter(template => template.role === selectedRole);
+  const sectionChoices = filteredTemplates
+    .flatMap((template) => template.sections)
+    .filter((section, index, all) => all.indexOf(section) === index);
 
   return (
     <div className="space-y-6">
@@ -283,6 +272,9 @@ export function ReportGenerator() {
             </Select>
           </div>
 
+          {filteredTemplates.length === 0 && (
+            <p className="text-sm text-muted-foreground">No report templates are loaded yet.</p>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {filteredTemplates.map((template, index) => (
               <Card 
@@ -395,25 +387,7 @@ export function ReportGenerator() {
                 <div className="space-y-4">
                   <Label>Report Sections</Label>
                   <div className="space-y-2 max-h-48 overflow-y-auto border rounded-lg p-3">
-                    {selectedRole === 'management' ? [
-                      'Executive Summary',
-                      'Security Metrics Overview',
-                      'Risk Assessment',
-                      'Budget & Resource Analysis',
-                      'Compliance Status',
-                      'Strategic Recommendations',
-                      'Incident Impact Analysis',
-                      'Team Performance KPIs'
-                    ] : [
-                      'Technical Incident Analysis',
-                      'IOC Details',
-                      'Attack Vector Analysis',
-                      'Malware Analysis',
-                      'Network Forensics',
-                      'Timeline Reconstruction',
-                      'Mitigation Procedures',
-                      'Threat Intelligence Correlation'
-                    ].map((section) => (
+                    {sectionChoices.map((section) => (
                       <div key={section} className="flex items-center space-x-2">
                         <Checkbox 
                           id={section}

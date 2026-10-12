@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import {
   ReactFlow,
   MiniMap,
@@ -60,147 +60,78 @@ const nodeTypes = {
   threat: ThreatNode,
 };
 
-// Sample threat correlation data
-const initialNodes: Node[] = [
-  {
-    id: '1',
-    type: 'threat',
-    position: { x: 250, y: 50 },
-    data: { label: 'APT-2024-001', type: 'threat_actor', severity: 'critical' },
-  },
-  {
-    id: '2',
-    type: 'threat',
-    position: { x: 100, y: 150 },
-    data: { label: '192.168.1.100', type: 'ip', severity: 'high' },
-  },
-  {
-    id: '3',
-    type: 'threat',
-    position: { x: 400, y: 150 },
-    data: { label: 'malicious.example.com', type: 'domain', severity: 'high' },
-  },
-  {
-    id: '4',
-    type: 'threat',
-    position: { x: 250, y: 250 },
-    data: { label: 'trojan.exe', type: 'malware', severity: 'critical' },
-  },
-  {
-    id: '5',
-    type: 'threat',
-    position: { x: 50, y: 300 },
-    data: { label: 'CVE-2024-0001', type: 'vulnerability', severity: 'medium' },
-  },
-  {
-    id: '6',
-    type: 'threat',
-    position: { x: 450, y: 300 },
-    data: { label: '10.0.0.50', type: 'ip', severity: 'medium' },
-  },
-  {
-    id: '7',
-    type: 'threat',
-    position: { x: 150, y: 400 },
-    data: { label: 'phishing.site.com', type: 'domain', severity: 'high' },
-  },
-  {
-    id: '8',
-    type: 'threat',
-    position: { x: 350, y: 400 },
-    data: { label: 'backdoor.dll', type: 'malware', severity: 'high' },
-  },
-];
+export interface GraphIndicator {
+  id: string;
+  indicator_value: string;
+  indicator_type: string;
+  confidence_score: number;
+  metadata?: {
+    include_in_graph?: boolean;
+    graph_type?: string;
+    links?: { to?: string; label?: string }[];
+  } | null;
+}
 
-const initialEdges: Edge[] = [
-  {
-    id: 'e1-2',
-    source: '1',
-    target: '2',
-    type: 'smoothstep',
-    animated: true,
-    style: { stroke: '#ef4444', strokeWidth: 2 },
-    markerEnd: { type: MarkerType.ArrowClosed, color: '#ef4444' },
-    label: 'controls',
-  },
-  {
-    id: 'e1-3',
-    source: '1',
-    target: '3',
-    type: 'smoothstep',
-    animated: true,
-    style: { stroke: '#ef4444', strokeWidth: 2 },
-    markerEnd: { type: MarkerType.ArrowClosed, color: '#ef4444' },
-    label: 'uses',
-  },
-  {
-    id: 'e2-4',
-    source: '2',
-    target: '4',
-    type: 'smoothstep',
-    style: { stroke: '#f97316', strokeWidth: 2 },
-    markerEnd: { type: MarkerType.ArrowClosed, color: '#f97316' },
-    label: 'downloads',
-  },
-  {
-    id: 'e3-4',
-    source: '3',
-    target: '4',
-    type: 'smoothstep',
-    style: { stroke: '#f97316', strokeWidth: 2 },
-    markerEnd: { type: MarkerType.ArrowClosed, color: '#f97316' },
-    label: 'hosts',
-  },
-  {
-    id: 'e4-5',
-    source: '4',
-    target: '5',
-    type: 'smoothstep',
-    style: { stroke: '#eab308', strokeWidth: 1 },
-    markerEnd: { type: MarkerType.ArrowClosed, color: '#eab308' },
-    label: 'exploits',
-  },
-  {
-    id: 'e2-6',
-    source: '2',
-    target: '6',
-    type: 'smoothstep',
-    style: { stroke: '#3b82f6', strokeWidth: 1 },
-    markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6' },
-    label: 'communicates',
-  },
-  {
-    id: 'e6-7',
-    source: '6',
-    target: '7',
-    type: 'smoothstep',
-    style: { stroke: '#f97316', strokeWidth: 2 },
-    markerEnd: { type: MarkerType.ArrowClosed, color: '#f97316' },
-    label: 'redirects',
-  },
-  {
-    id: 'e7-8',
-    source: '7',
-    target: '8',
-    type: 'smoothstep',
-    style: { stroke: '#f97316', strokeWidth: 2 },
-    markerEnd: { type: MarkerType.ArrowClosed, color: '#f97316' },
-    label: 'delivers',
-  },
-  {
-    id: 'e4-8',
-    source: '4',
-    target: '8',
-    type: 'smoothstep',
-    style: { stroke: '#eab308', strokeWidth: 1 },
-    markerEnd: { type: MarkerType.ArrowClosed, color: '#eab308' },
-    label: 'related',
-  },
-];
+function severityFor(confidence: number) {
+  if (confidence >= 90) return 'critical';
+  if (confidence >= 70) return 'high';
+  if (confidence >= 50) return 'medium';
+  return 'low';
+}
 
-export function ThreatCorrelationGraph() {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+function shortLabel(value: string) {
+  if (value.length <= 28) return value;
+  return `${value.slice(0, 12)}…${value.slice(-8)}`;
+}
+
+function buildCorrelation(indicators: GraphIndicator[]) {
+  const graphed = indicators.filter((indicator) => indicator.metadata?.include_in_graph);
+  const nodes: Node[] = graphed.map((indicator, index) => {
+    const angle = (2 * Math.PI * index) / Math.max(graphed.length, 1);
+    return {
+      id: indicator.id,
+      type: 'threat',
+      position: {
+        x: 280 + Math.cos(angle) * 220,
+        y: 180 + Math.sin(angle) * 140,
+      },
+      data: {
+        label: shortLabel(indicator.indicator_value),
+        type: indicator.metadata?.graph_type || indicator.indicator_type,
+        severity: severityFor(indicator.confidence_score),
+      },
+    };
+  });
+  const idByValue = new Map(graphed.map((indicator) => [indicator.indicator_value, indicator.id]));
+  const edges: Edge[] = [];
+  graphed.forEach((indicator) => {
+    (indicator.metadata?.links || []).forEach((link, index) => {
+      const target = link.to ? idByValue.get(link.to) : undefined;
+      if (!target) return;
+      edges.push({
+        id: `${indicator.id}-${target}-${index}`,
+        source: indicator.id,
+        target,
+        type: 'smoothstep',
+        animated: indicator.confidence_score >= 90,
+        style: { stroke: '#f97316', strokeWidth: 2 },
+        markerEnd: { type: MarkerType.ArrowClosed, color: '#f97316' },
+        label: link.label || 'related',
+      });
+    });
+  });
+  return { nodes, edges };
+}
+
+export function ThreatCorrelationGraph({ indicators }: { indicators: GraphIndicator[] }) {
+  const built = useMemo(() => buildCorrelation(indicators), [indicators]);
+  const [nodes, setNodes, onNodesChange] = useNodesState(built.nodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(built.edges);
+
+  useEffect(() => {
+    setNodes(built.nodes);
+    setEdges(built.edges);
+  }, [built, setNodes, setEdges]);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),

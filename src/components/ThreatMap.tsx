@@ -131,6 +131,7 @@ export function ThreatMap() {
             <SelectItem value="url">URL</SelectItem>
             <SelectItem value="hash">File Hash</SelectItem>
             <SelectItem value="email">Email</SelectItem>
+            <SelectItem value="file">File</SelectItem>
           </SelectContent>
         </Select>
 
@@ -240,7 +241,7 @@ export function ThreatMap() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ThreatCorrelationGraph />
+          <ThreatCorrelationGraph indicators={threatIntel} />
         </CardContent>
       </Card>
 

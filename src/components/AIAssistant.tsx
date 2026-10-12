@@ -128,6 +128,15 @@ export function AIAssistant() {
                     </div>
                     <div className="text-xs opacity-70 mt-2">
                       {formatMessageTime(message.created_at)}
+                      {message.message_type === 'assistant' && message.metadata?.tier && (
+                        <span>
+                          {' · '}
+                          {message.metadata.tier === 'deep' ? 'Deep path' : 'Fast path'}
+                          {Array.isArray(message.metadata.models) && message.metadata.models.length > 0
+                            ? ` · ${message.metadata.models.join(', ')}`
+                            : ' · database'}
+                        </span>
+                      )}
                     </div>
                   </div>
 

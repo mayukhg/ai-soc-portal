@@ -110,6 +110,7 @@ export function useAIAssistant() {
           content: data.message,
           context_type: contextType as any,
           context_id: contextId,
+          metadata: data.routing,
           created_at: new Date().toISOString()
         };
 

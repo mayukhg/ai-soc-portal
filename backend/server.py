@@ -20,6 +20,8 @@ from pathlib import Path
 import psycopg2
 from psycopg2.extras import Json, RealDictCursor
 
+from model_router import RouterError, answer_question, save_openrouter_key
+
 ROOT = Path(__file__).resolve().parent
 DATABASE_URL = os.environ.get(
     "DATABASE_URL", "postgresql://soc:soc@127.0.0.1:5433/soc_ai"
@@ -505,7 +507,7 @@ def related_alerts(cur, message):
             LIMIT 3
             """
         )
-        return cur.fetchall()
+        return cur.fetchall(), False
     clauses = []
     params = []
     for token in tokens[:6]:
@@ -526,7 +528,7 @@ def related_alerts(cur, message):
     )
     found = cur.fetchall()
     if found:
-        return found
+        return found, True
     cur.execute(
         """
         SELECT title, severity, status, description, alert_type, source
@@ -536,7 +538,7 @@ def related_alerts(cur, message):
         LIMIT 3
         """
     )
-    return cur.fetchall()
+    return cur.fetchall(), False
 
 
 def function_ai_assistant(body, user_id):
@@ -552,29 +554,40 @@ def function_ai_assistant(body, user_id):
     context_id = valid_uuid(body.get("contextId"))
     with connect() as conn:
         with conn.cursor() as cur:
-            matches = related_alerts(cur, message)
-            if matches:
-                lines = [
-                    f"- {row['title']} ({row['severity']}, {row['status']}, {row['source']}): {row['description']}"
-                    for row in matches
-                ]
-                reply = (
-                    "From the Postgres alert store, these records match that question:\n"
-                    + "\n".join(lines)
-                    + "\n\nNext step: confirm the source address against threat intelligence, then contain the affected hosts if the indicator is still active."
-                )
-            else:
-                reply = "The Postgres alert store has no open records that match that question."
-            for message_type, content in (("user", message), ("assistant", reply)):
-                cur.execute(
-                    """
-                    INSERT INTO public.ai_interactions
-                      (user_id, session_id, message_type, content, context_type, context_id)
-                    VALUES (%s, %s, %s, %s, %s, %s)
-                    """,
-                    (user_id, session_id, message_type, content, context_type, context_id),
-                )
-    return {"success": True, "message": reply}
+            matches, matched = related_alerts(cur, message)
+            matches = [dict(row) for row in matches]
+            try:
+                routed = answer_question(message, matches, context_type, matched)
+            except RouterError as exc:
+                return {
+                    "success": False,
+                    "error": str(exc),
+                    "code": exc.code,
+                    "routing": exc.routing,
+                }
+            reply = routed["message"]
+            routing = {
+                "tier": routed["tier"],
+                "models": routed["models"],
+                "reason": routed["reason"],
+            }
+            cur.execute(
+                """
+                INSERT INTO public.ai_interactions
+                  (user_id, session_id, message_type, content, context_type, context_id)
+                VALUES (%s, %s, 'user', %s, %s, %s)
+                """,
+                (user_id, session_id, message, context_type, context_id),
+            )
+            cur.execute(
+                """
+                INSERT INTO public.ai_interactions
+                  (user_id, session_id, message_type, content, context_type, context_id, metadata)
+                VALUES (%s, %s, 'assistant', %s, %s, %s, %s)
+                """,
+                (user_id, session_id, reply, context_type, context_id, Json(routing)),
+            )
+    return {"success": True, "message": reply, "routing": routing}
 
 
 def function_calculate_kpis():
@@ -1080,6 +1093,18 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(status, payload)
                 return
 
+            if path == "/api/openrouter-key":
+                if user_id is None:
+                    self._send(401, {"error": "Not authenticated"})
+                    return
+                try:
+                    save_openrouter_key(body.get("apiKey") or "")
+                except RouterError as exc:
+                    self._send(400, {"error": str(exc), "code": exc.code})
+                    return
+                self._send(200, {"success": True})
+                return
+
             if path == "/api/search":
                 if user_id is None:
                     self._send(401, {"error": "Not authenticated"})
@@ -1116,8 +1141,8 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     print("Applying schema and seed...")
     apply_sql_file(ROOT / "sql" / "schema.sql")
-    apply_sql_file(ROOT / "sql" / "seed.sql")
     ensure_demo_user()
+    apply_sql_file(ROOT / "sql" / "seed.sql")
     print(f"PostgreSQL ready. Demo analyst: {DEMO_EMAIL} / {DEMO_PASSWORD}")
     server = ThreadingHTTPServer((HOST, PORT), Handler)
     print(f"SOC API listening on http://{HOST}:{PORT}")
