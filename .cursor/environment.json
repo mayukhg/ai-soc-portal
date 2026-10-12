@@ -1,0 +1,16 @@
+{
+  "name": "AI SOC Portal",
+  "install": "./scripts/cloud-agent-install.sh",
+  "terminals": [
+    {
+      "name": "vite",
+      "command": "npm run dev"
+    }
+  ],
+  "ports": [
+    {
+      "name": "frontend",
+      "port": 8080
+    }
+  ]
+}
