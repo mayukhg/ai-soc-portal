@@ -153,6 +153,11 @@ export function AuthPage() {
           <div>
             <CardTitle className="text-2xl font-bold">SOC Dashboard</CardTitle>
             <p className="text-muted-foreground">Security Operations Center</p>
+            {import.meta.env.DEV && (
+              <p className="text-xs text-muted-foreground">
+                Local PostgreSQL sign-in: analyst@soc.local / analyst123
+              </p>
+            )}
           </div>
         </CardHeader>
 

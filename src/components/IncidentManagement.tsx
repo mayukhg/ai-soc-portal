@@ -6,8 +6,19 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useSemanticSearch } from '@/hooks/useSemanticSearch';
+import { supabase } from '@/integrations/supabase/client';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { downloadCsv, fetchIncidentDetail, type IncidentDetail } from '@/lib/backendApi';
+import { useToast } from '@/hooks/use-toast';
 
 /**
  * Interface for incident data structure
@@ -27,37 +38,6 @@ interface Incident {
 }
 
 /**
- * Mock incident data for demonstration purposes
- * In production, this would come from the backend API
- */
-const mockIncidents: Incident[] = [
-  {
-    id: 'INC-2024-001',
-    title: 'Suspicious PowerShell Execution Detected',
-    severity: 'high',
-    status: 'investigating',
-    assignee: 'John Smith',
-    createdAt: '2024-01-15',
-    lastUpdate: '2024-01-16',
-    alertCount: 3,
-    description: 'Multiple PowerShell scripts executed from unusual locations with suspicious parameters.',
-    tags: ['powershell', 'malware', 'lateral-movement']
-  },
-  {
-    id: 'INC-2024-002',
-    title: 'Data Exfiltration Attempt',
-    severity: 'critical',
-    status: 'open',
-    assignee: 'Sarah Johnson',
-    createdAt: '2024-01-14',
-    lastUpdate: '2024-01-15',
-    alertCount: 5,
-    description: 'Large data transfers detected to external IP addresses during off-hours.',
-    tags: ['data-exfiltration', 'network-anomaly', 'traffic-analysis']
-  }
-];
-
-/**
  * IncidentManagement Component
  * 
  * Provides a comprehensive interface for managing security incidents.
@@ -70,13 +50,35 @@ const mockIncidents: Incident[] = [
  * 
  * @returns JSX component for incident management
  */
-export function IncidentManagement() {
-  // State management for incidents and UI
-  const [incidents] = useState<Incident[]>(mockIncidents);  // Mock incident data
-  const [searchTerm, setSearchTerm] = useState('');         // Search input value
-  const [statusFilter, setStatusFilter] = useState('all');  // Status filter selection
-  const [severityFilter, setSeverityFilter] = useState('all');  // Severity filter selection
-  const [isSemanticMode, setIsSemanticMode] = useState(false);  // AI semantic search toggle
+export function IncidentManagement({
+  focusIncidentId,
+  onIncidentsChanged,
+}: {
+  focusIncidentId?: string | null;
+  onIncidentsChanged?: () => void;
+}) {
+  const { toast } = useToast();
+  const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [severityFilter, setSeverityFilter] = useState('all');
+  const [isSemanticMode, setIsSemanticMode] = useState(false);
+  const [profiles, setProfiles] = useState<{ user_id: string; full_name: string | null }[]>([]);
+  const [creating, setCreating] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [newOpen, setNewOpen] = useState(false);
+  const [draft, setDraft] = useState({
+    title: '',
+    description: '',
+    severity: 'medium',
+    status: 'open',
+    assignee: '',
+    tags: '',
+  });
+  const [assignTarget, setAssignTarget] = useState<Incident | null>(null);
+  const [detail, setDetail] = useState<IncidentDetail | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
   
   // Semantic search hook for AI-powered incident search
   const { 
@@ -90,6 +92,59 @@ export function IncidentManagement() {
    * Handle search term changes for semantic search
    * Implements debouncing to avoid excessive API calls
    */
+  const loadIncidents = () => {
+    return supabase
+      .from('incidents')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        if (!data) return;
+        setIncidents(data.map((row) => ({
+          id: row.id,
+          title: row.title,
+          severity: row.severity as Incident['severity'],
+          status: row.status as Incident['status'],
+          assignee: row.assignee || 'Unassigned',
+          createdAt: new Date(row.created_at).toLocaleDateString(),
+          lastUpdate: new Date(row.updated_at).toLocaleDateString(),
+          alertCount: row.alert_count ?? 0,
+          description: row.description || '',
+          tags: row.tags || [],
+        })));
+      });
+  };
+
+  useEffect(() => {
+    loadIncidents();
+    supabase
+      .from('profiles')
+      .select('user_id, full_name')
+      .order('full_name', { ascending: true })
+      .then(({ data }) => {
+        if (data) setProfiles(data);
+      });
+  }, []);
+
+  const openDetail = (incidentId: string) => {
+    setDetailOpen(true);
+    setDetailLoading(true);
+    fetchIncidentDetail(incidentId)
+      .then(setDetail)
+      .catch((err) => {
+        toast({
+          title: 'Could not load incident',
+          description: err instanceof Error ? err.message : 'Request failed',
+          variant: 'destructive',
+        });
+        setDetailOpen(false);
+      })
+      .finally(() => setDetailLoading(false));
+  };
+
+  useEffect(() => {
+    if (focusIncidentId) openDetail(focusIncidentId);
+  }, [focusIncidentId]);
+
   useEffect(() => {
     if (isSemanticMode && searchTerm.trim()) {
       // Debounce search requests by 500ms
@@ -174,6 +229,59 @@ export function IncidentManagement() {
     }
   };
 
+  const exportIncidents = async () => {
+    try {
+      setExporting(true);
+      await downloadCsv('/api/incidents/export', 'incidents.csv');
+    } catch (err) {
+      toast({
+        title: 'Export failed',
+        description: err instanceof Error ? err.message : 'Could not export incidents',
+        variant: 'destructive',
+      });
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const createIncident = async () => {
+    if (!draft.title.trim()) return;
+    setCreating(true);
+    const tags = draft.tags.split(',').map((tag) => tag.trim()).filter(Boolean);
+    const { error } = await supabase.from('incidents').insert([{
+      title: draft.title.trim(),
+      description: draft.description.trim(),
+      severity: draft.severity,
+      status: draft.status,
+      assignee: draft.assignee || null,
+      tags,
+      alert_count: 0,
+    }]);
+    setCreating(false);
+    if (error) {
+      toast({ title: 'Could not create incident', description: error.message, variant: 'destructive' });
+      return;
+    }
+    setNewOpen(false);
+    setDraft({ title: '', description: '', severity: 'medium', status: 'open', assignee: '', tags: '' });
+    await loadIncidents();
+    onIncidentsChanged?.();
+  };
+
+  const assignIncident = async (fullName: string) => {
+    if (!assignTarget) return;
+    const { error } = await supabase
+      .from('incidents')
+      .update({ assignee: fullName })
+      .eq('id', assignTarget.id);
+    if (error) {
+      toast({ title: 'Assign failed', description: error.message, variant: 'destructive' });
+      return;
+    }
+    setAssignTarget(null);
+    await loadIncidents();
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Section */}
@@ -185,11 +293,11 @@ export function IncidentManagement() {
           </p>
         </div>
         <div className="flex items-center space-x-3">
-          <Button variant="outline">
+          <Button variant="outline" onClick={exportIncidents} disabled={exporting}>
             <Download className="h-4 w-4 mr-2" />
-            Export
+            {exporting ? 'Exporting...' : 'Export'}
           </Button>
-          <Button>
+          <Button onClick={() => setNewOpen(true)}>
             <FileText className="h-4 w-4 mr-2" />
             New Incident
           </Button>
@@ -266,7 +374,16 @@ export function IncidentManagement() {
               </Select>
 
               {/* Clear Filters Button */}
-              <Button variant="outline" disabled={isSemanticMode}>
+              <Button
+                variant="outline"
+                disabled={isSemanticMode && !searchTerm && statusFilter === 'all' && severityFilter === 'all'}
+                onClick={() => {
+                  setSearchTerm('');
+                  setStatusFilter('all');
+                  setSeverityFilter('all');
+                  clearResults();
+                }}
+              >
                 <Filter className="h-4 w-4 mr-2" />
                 Clear Filters
               </Button>
@@ -338,10 +455,10 @@ export function IncidentManagement() {
 
                 {/* Action Buttons */}
                 <div className="flex items-center space-x-2">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => openDetail(incident.id)}>
                     View Details
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => setAssignTarget(incident)}>
                     Assign
                   </Button>
                 </div>
@@ -364,6 +481,134 @@ export function IncidentManagement() {
           </CardContent>
         </Card>
       )}
+
+      <Dialog open={newOpen} onOpenChange={setNewOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New incident</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input
+              placeholder="Title"
+              value={draft.title}
+              onChange={(event) => setDraft({ ...draft, title: event.target.value })}
+            />
+            <Textarea
+              placeholder="Description"
+              value={draft.description}
+              onChange={(event) => setDraft({ ...draft, description: event.target.value })}
+            />
+            <div className="grid grid-cols-2 gap-3">
+              <Select value={draft.severity} onValueChange={(severity) => setDraft({ ...draft, severity })}>
+                <SelectTrigger><SelectValue placeholder="Severity" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="critical">Critical</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={draft.status} onValueChange={(status) => setDraft({ ...draft, status })}>
+                <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="open">Open</SelectItem>
+                  <SelectItem value="investigating">Investigating</SelectItem>
+                  <SelectItem value="resolved">Resolved</SelectItem>
+                  <SelectItem value="closed">Closed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Select value={draft.assignee || 'unassigned'} onValueChange={(assignee) => setDraft({ ...draft, assignee: assignee === 'unassigned' ? '' : assignee })}>
+              <SelectTrigger><SelectValue placeholder="Assignee" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="unassigned">Unassigned</SelectItem>
+                {profiles.map((profile) => (
+                  <SelectItem key={profile.user_id} value={profile.full_name || profile.user_id}>
+                    {profile.full_name || profile.user_id}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input
+              placeholder="Tags, comma separated"
+              value={draft.tags}
+              onChange={(event) => setDraft({ ...draft, tags: event.target.value })}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNewOpen(false)}>Cancel</Button>
+            <Button onClick={createIncident} disabled={creating || !draft.title.trim()}>
+              {creating ? 'Saving...' : 'Create'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={assignTarget !== null} onOpenChange={(open) => !open && setAssignTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Assign {assignTarget?.title}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            {profiles.map((profile) => (
+              <Button
+                key={profile.user_id}
+                variant="outline"
+                className="w-full justify-start"
+                onClick={() => assignIncident(profile.full_name || 'Unassigned')}
+              >
+                {profile.full_name || profile.user_id}
+              </Button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{detail?.incident.title || 'Incident'}</DialogTitle>
+          </DialogHeader>
+          {detailLoading && <p className="text-sm text-muted-foreground">Loading incident...</p>}
+          {detail && (
+            <div className="space-y-4 max-h-[60vh] overflow-auto">
+              <p className="text-sm">{detail.incident.description}</p>
+              <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+                <span>{detail.incident.severity}</span>
+                <span>{detail.incident.status}</span>
+                <span>{detail.incident.assignee || 'Unassigned'}</span>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium mb-2">Related alerts</h4>
+                {detail.alerts.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No alerts are linked to this incident.</p>
+                ) : (
+                  <ul className="space-y-1 text-sm">
+                    {detail.alerts.map((alert) => (
+                      <li key={alert.id}>{alert.severity.toUpperCase()} · {alert.title} · {alert.status}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div>
+                <h4 className="text-sm font-medium mb-2">Comments</h4>
+                {detail.comments.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No comments yet.</p>
+                ) : (
+                  <ul className="space-y-2 text-sm">
+                    {detail.comments.map((comment) => (
+                      <li key={comment.id}>
+                        <span className="font-medium">{comment.profile?.full_name || 'Analyst'}: </span>
+                        {comment.content}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,6 +1,5 @@
-import { useState } from 'react';
-import { AlertTriangle, Shield, Users, BarChart3, Bell, Search, Filter, MessageSquare, FileText, Bot, LogOut, User } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useEffect, useState } from 'react';
+import { AlertTriangle, Shield, BarChart3, Bell, Search, Filter, MessageSquare, FileText, Bot, LogOut, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,17 +11,65 @@ import { AIAssistant } from './AIAssistant';
 import { CollaborationPanel } from './CollaborationPanel';
 import { IncidentManagement } from './IncidentManagement';
 import { ReportGenerator } from './ReportGenerator';
+import { fetchAlertCounts, searchRecords, type AlertCounts, type SearchHit } from '@/lib/backendApi';
+
+const emptyCounts: AlertCounts = {
+  total: 0,
+  critical: 0,
+  high: 0,
+  medium: 0,
+  low: 0,
+  incidents: 0,
+};
 
 export function SOCDashboard() {
   const { user, userProfile, signOut } = useAuth();
   const [activeView, setActiveView] = useState('alerts');
-  const [alertCount] = useState({
-    critical: 3,
-    high: 12,
-    medium: 45,
-    low: 18,
-    total: 78
-  });
+  const [alertCount, setAlertCount] = useState<AlertCounts>(emptyCounts);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchHits, setSearchHits] = useState<SearchHit[]>([]);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [focusIncidentId, setFocusIncidentId] = useState<string | null>(null);
+
+  const refreshCounts = () => {
+    fetchAlertCounts().then(setAlertCount).catch(() => setAlertCount(emptyCounts));
+  };
+
+  useEffect(() => {
+    refreshCounts();
+  }, []);
+
+  useEffect(() => {
+    const query = searchTerm.trim();
+    if (query.length < 2) {
+      setSearchHits([]);
+      return;
+    }
+    const timer = setTimeout(() => {
+      searchRecords(query)
+        .then((body) => {
+          setSearchHits(body.results || []);
+          setSearchOpen(true);
+        })
+        .catch(() => setSearchHits([]));
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const openHit = (hit: SearchHit) => {
+    setSearchOpen(false);
+    setSearchTerm('');
+    if (hit.kind === 'incident') {
+      setFocusIncidentId(hit.id);
+      setActiveView('incidents');
+      return;
+    }
+    if (hit.kind === 'indicator') {
+      setActiveView('threats');
+      return;
+    }
+    setActiveView('alerts');
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -48,10 +95,39 @@ export function SOCDashboard() {
           <div className="flex items-center space-x-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Search alerts, IOCs, incidents..." 
+              <Input
+                placeholder="Search alerts, IOCs, incidents..."
                 className="pl-10 w-80"
+                value={searchTerm}
+                onChange={(event) => {
+                  setSearchTerm(event.target.value);
+                  setSearchOpen(true);
+                }}
+                onFocus={() => searchHits.length > 0 && setSearchOpen(true)}
+                onBlur={() => setTimeout(() => setSearchOpen(false), 150)}
               />
+              {searchOpen && searchTerm.trim().length >= 2 && (
+                <div className="absolute top-11 left-0 z-50 w-80 rounded-md border bg-popover p-1">
+                  {searchHits.length === 0 ? (
+                    <p className="px-3 py-2 text-sm text-muted-foreground">No matches</p>
+                  ) : (
+                    searchHits.map((hit) => (
+                      <button
+                        key={`${hit.kind}-${hit.id}`}
+                        type="button"
+                        className="flex w-full flex-col items-start rounded-sm px-3 py-2 text-left hover:bg-accent"
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={() => openHit(hit)}
+                      >
+                        <span className="text-sm font-medium">{hit.title}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {hit.kind} · {hit.detail}
+                        </span>
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
             
             <Button variant="outline" size="icon">
@@ -112,7 +188,7 @@ export function SOCDashboard() {
               <FileText className="mr-3 h-4 w-4" />
               Incidents
               <Badge variant="outline" className="ml-auto">
-                4
+                {alertCount.incidents}
               </Badge>
             </Button>
 
@@ -196,10 +272,15 @@ export function SOCDashboard() {
         {/* Main Content */}
         <main className="flex-1 p-6">
           <div className="animate-fade-in">
-            {activeView === 'alerts' && <AlertFeed />}
-            {activeView === 'incidents' && <IncidentManagement />}
+            {activeView === 'alerts' && <AlertFeed onAlertsChanged={refreshCounts} />}
+            {activeView === 'incidents' && (
+              <IncidentManagement
+                focusIncidentId={focusIncidentId}
+                onIncidentsChanged={refreshCounts}
+              />
+            )}
             {activeView === 'ai-assistant' && <AIAssistant />}
-            {activeView === 'collaboration' && <CollaborationPanel targetId="demo-alert-001" targetType="alert" title="Demo Alert Discussion" />}
+            {activeView === 'collaboration' && <CollaborationPanel targetId="11111111-1111-4111-8111-111111111111" targetType="alert" title="Network alert discussion" />}
             {activeView === 'metrics' && <KPIMetrics />}
             {activeView === 'threats' && <ThreatMap />}
             {activeView === 'reports' && <ReportGenerator />}

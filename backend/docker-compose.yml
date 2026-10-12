@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: soc-postgres
+    environment:
+      POSTGRES_USER: soc
+      POSTGRES_PASSWORD: soc
+      POSTGRES_DB: soc_ai
+    ports:
+      - "5433:5432"
+    volumes:
+      - soc_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U soc -d soc_ai"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  soc_pg_data:

@@ -15,6 +15,8 @@ interface Alert {
   affected_systems?: string[];
   indicators?: string[];
   assigned_to?: string;
+  assignee_name?: string;
+  incident_id?: string;
   created_at: string;
   updated_at: string;
   resolved_at?: string;

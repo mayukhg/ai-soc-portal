@@ -29,8 +29,7 @@ export function useSemanticSearch() {
 
     setIsSearching(true);
     try {
-      // TODO: Move endpoint to environment variable
-      const endpoint = process.env.REACT_APP_SEMANTIC_SEARCH_API || 'https://<API_GATEWAY_ID>.execute-api.<REGION>.amazonaws.com/prod/semantic-search';
+      const endpoint = import.meta.env.VITE_SEMANTIC_SEARCH_API || '/api/semantic-search';
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {

@@ -1,33 +1,72 @@
-import { useState } from 'react';
-import { Clock, ExternalLink, MessageSquare, User, AlertTriangle, CheckCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Clock, User, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAlerts } from '@/hooks/useAlerts';
+import { supabase } from '@/integrations/supabase/client';
+import { downloadCsv } from '@/lib/backendApi';
+import { useToast } from '@/hooks/use-toast';
 
-interface Alert {
-  id: string;
-  title: string;
-  severity: 'critical' | 'high' | 'medium' | 'low';
-  source: string;
-  created_at: string;
-  status: 'open' | 'acknowledged' | 'investigating' | 'resolved' | 'false_positive';
-  assigned_to?: string;
-  description?: string;
-  alert_type: string;
-  source_ip?: string;
-  affected_systems?: string[];
-  indicators?: string[];
+interface ProfileOption {
+  user_id: string;
+  full_name: string | null;
 }
 
-export function AlertFeed() {
-  const { alerts, loading, error, updateAlertStatus } = useAlerts();
+export function AlertFeed({ onAlertsChanged }: { onAlertsChanged?: () => void }) {
+  const { alerts, loading, error, updateAlertStatus, refresh } = useAlerts();
+  const { toast } = useToast();
   const [selectedSeverity, setSelectedSeverity] = useState<string>('all');
+  const [profiles, setProfiles] = useState<ProfileOption[]>([]);
+  const [exporting, setExporting] = useState(false);
 
   const filteredAlerts = alerts.filter(alert => 
     selectedSeverity === 'all' || alert.severity === selectedSeverity
   );
+
+  useEffect(() => {
+    supabase
+      .from('profiles')
+      .select('user_id, full_name')
+      .order('full_name', { ascending: true })
+      .then(({ data }) => {
+        if (data) setProfiles(data as ProfileOption[]);
+      });
+  }, []);
+
+  const exportFeed = async () => {
+    try {
+      setExporting(true);
+      await downloadCsv('/api/alerts/export', 'alerts.csv');
+    } catch (err) {
+      toast({
+        title: 'Export failed',
+        description: err instanceof Error ? err.message : 'Could not export alerts',
+        variant: 'destructive',
+      });
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const assignAlert = async (alertId: string, userId: string) => {
+    const { error: assignError } = await supabase
+      .from('alerts')
+      .update({ assigned_to: userId })
+      .eq('id', alertId);
+    if (assignError) {
+      toast({ title: 'Assign failed', description: assignError.message, variant: 'destructive' });
+      return;
+    }
+    await refresh();
+    onAlertsChanged?.();
+  };
+
+  const changeStatus = async (alertId: string, status: string) => {
+    await updateAlertStatus(alertId, status);
+    onAlertsChanged?.();
+  };
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -94,8 +133,8 @@ export function AlertFeed() {
         <h2 className="text-3xl font-bold">Alert Feed</h2>
         <div className="flex items-center space-x-3">
           <Badge variant="outline">Live Updates</Badge>
-          <Button variant="outline" size="sm">
-            Export Feed
+          <Button variant="outline" size="sm" onClick={exportFeed} disabled={exporting}>
+            {exporting ? 'Exporting...' : 'Export Feed'}
           </Button>
         </div>
       </div>
@@ -139,11 +178,9 @@ export function AlertFeed() {
                     <div className="text-sm text-muted-foreground">
                       {formatTimeAgo(alert.created_at)} • {alert.source}
                     </div>
-                    {alert.assigned_to && (
-                      <div className="text-sm text-muted-foreground">
-                        Assigned to: {alert.assigned_to}
-                      </div>
-                    )}
+                    <div className="text-sm text-muted-foreground">
+                      Assigned to: {alert.assignee_name || 'Unassigned'}
+                    </div>
                   </div>
                 </div>
                 
@@ -192,26 +229,36 @@ export function AlertFeed() {
                   <Button 
                     size="sm" 
                     variant="outline"
-                    onClick={() => updateAlertStatus(alert.id, 'acknowledged')}
+                    onClick={() => changeStatus(alert.id, 'acknowledged')}
                     disabled={alert.status === 'acknowledged'}
                   >
                     Acknowledge
                   </Button>
                   <Button 
                     size="sm" 
-                    onClick={() => updateAlertStatus(alert.id, 'investigating')}
+                    onClick={() => changeStatus(alert.id, 'investigating')}
                     disabled={alert.status === 'investigating'}
                   >
                     Investigate
                   </Button>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Button size="sm" variant="ghost">
-                    <MessageSquare className="h-4 w-4" />
-                  </Button>
-                  <Button size="sm" variant="ghost">
-                    <ExternalLink className="h-4 w-4" />
-                  </Button>
+                  <Select
+                    value={alert.assigned_to || 'unassigned'}
+                    onValueChange={(userId) => {
+                      if (userId !== 'unassigned') assignAlert(alert.id, userId);
+                    }}
+                  >
+                    <SelectTrigger className="w-40 h-8">
+                      <SelectValue placeholder="Assign" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="unassigned" disabled>Assign</SelectItem>
+                      {profiles.map((profile) => (
+                        <SelectItem key={profile.user_id} value={profile.user_id}>
+                          {profile.full_name || profile.user_id}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </CardContent>
