@@ -188,7 +188,7 @@ export function AIAssistant() {
                   </Button>
                 </div>
               </div>
-              <Button type="submit" disabled={!inputMessage.trim() || loading}>
+              <Button type="submit" aria-label="Send" title="Send" disabled={!inputMessage.trim() || loading}>
                 <Send className="h-4 w-4" />
               </Button>
             </form>

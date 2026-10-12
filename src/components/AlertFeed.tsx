@@ -129,9 +129,9 @@ export function AlertFeed({ onAlertsChanged }: { onAlertsChanged?: () => void })
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold">Alert Feed</h2>
-        <div className="flex items-center space-x-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-2xl font-bold md:text-3xl">Alert Feed</h2>
+        <div className="flex flex-wrap items-center gap-3">
           <Badge variant="outline">Live Updates</Badge>
           <Button variant="outline" size="sm" onClick={exportFeed} disabled={exporting}>
             {exporting ? 'Exporting...' : 'Export Feed'}
@@ -140,7 +140,7 @@ export function AlertFeed({ onAlertsChanged }: { onAlertsChanged?: () => void })
       </div>
 
       {/* Severity Filter */}
-      <div className="flex items-center space-x-2">
+      <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm font-medium">Filter by severity:</span>
         {['all', 'critical', 'high', 'medium', 'low'].map((severity) => (
           <Button
@@ -170,11 +170,11 @@ export function AlertFeed({ onAlertsChanged }: { onAlertsChanged?: () => void })
             style={{ animationDelay: `${index * 100}ms` }}
           >
             <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start space-x-3">
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div className="flex min-w-0 flex-1 items-start gap-3">
                   {getStatusIcon(alert.status)}
-                  <div className="space-y-1">
-                    <CardTitle className="text-lg">{alert.title}</CardTitle>
+                  <div className="min-w-0 space-y-1">
+                    <CardTitle className="break-words text-lg">{alert.title}</CardTitle>
                     <div className="text-sm text-muted-foreground">
                       {formatTimeAgo(alert.created_at)} • {alert.source}
                     </div>
@@ -198,7 +198,7 @@ export function AlertFeed({ onAlertsChanged }: { onAlertsChanged?: () => void })
             <CardContent className="space-y-4">
               <div className="space-y-3">
                 {alert.description && (
-                  <p className="text-sm text-foreground">{alert.description}</p>
+                  <p className="break-words text-sm text-foreground">{alert.description}</p>
                 )}
                 
                 {alert.indicators && alert.indicators.length > 0 && (
@@ -224,8 +224,8 @@ export function AlertFeed({ onAlertsChanged }: { onAlertsChanged?: () => void })
                 )}
               </div>
 
-              <div className="flex items-center justify-between pt-3 border-t">
-                <div className="flex items-center space-x-2">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-3">
+                <div className="flex flex-wrap items-center gap-2">
                   <Button 
                     size="sm" 
                     variant="outline"

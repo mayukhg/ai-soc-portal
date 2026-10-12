@@ -79,11 +79,11 @@ export function SOCDashboard() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="flex items-center justify-between px-6 py-4">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <Shield className="h-8 w-8 text-primary" />
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+        <div className="flex flex-wrap items-center gap-3 px-3 py-3 md:justify-between md:px-6 md:py-4">
+          <div className="flex min-w-0 items-center gap-2 md:gap-4">
+            <div className="flex min-w-0 items-center gap-2">
+              <Shield className="h-8 w-8 shrink-0 text-primary" />
+              <h1 className="truncate text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent md:text-2xl">
                 SoC-AI Portal
               </h1>
             </div>
@@ -92,12 +92,12 @@ export function SOCDashboard() {
             </Badge>
           </div>
 
-          <div className="flex items-center space-x-4">
-            <div className="relative">
+          <div className="flex w-full min-w-0 flex-wrap items-center gap-2 md:w-auto md:flex-nowrap md:gap-4">
+            <div className="relative w-full min-w-0 md:w-80">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search alerts, IOCs, incidents..."
-                className="pl-10 w-80"
+                className="w-full min-w-0 pl-10"
                 value={searchTerm}
                 onChange={(event) => {
                   setSearchTerm(event.target.value);
@@ -107,7 +107,7 @@ export function SOCDashboard() {
                 onBlur={() => setTimeout(() => setSearchOpen(false), 150)}
               />
               {searchOpen && searchTerm.trim().length >= 2 && (
-                <div className="absolute top-11 left-0 z-50 w-80 rounded-md border bg-popover p-1">
+                <div className="absolute top-11 left-0 z-50 w-full rounded-md border bg-popover p-1 md:w-80">
                   {searchHits.length === 0 ? (
                     <p className="px-3 py-2 text-sm text-muted-foreground">No matches</p>
                   ) : (
@@ -130,22 +130,22 @@ export function SOCDashboard() {
               )}
             </div>
             
-            <Button variant="outline" size="icon">
+            <Button variant="outline" size="icon" aria-label="Filter" title="Filter">
               <Filter className="h-4 w-4" />
             </Button>
             
-            <Button variant="outline" size="icon" className="relative">
+            <Button variant="outline" size="icon" className="relative" aria-label="Notifications" title="Notifications">
               <Bell className="h-4 w-4" />
               {alertCount.critical > 0 && (
                 <span className="absolute -top-1 -right-1 h-3 w-3 bg-critical rounded-full animate-pulse-glow" />
               )}
             </Button>
 
-            <div className="flex items-center space-x-2 pl-4 border-l border-border">
-              <div className="h-8 w-8 rounded-full bg-gradient-to-r from-primary to-accent flex items-center justify-center">
+            <div className="flex shrink-0 items-center gap-2 md:border-l md:border-border md:pl-4">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-primary to-accent">
                 <User className="h-4 w-4 text-primary-foreground" />
               </div>
-              <div className="text-sm">
+              <div className="text-sm leading-tight">
                 <div className="font-medium">
                   {userProfile?.role ? 
                     userProfile.role.replace('analyst_', 'Analyst T').replace('_', ' ').toUpperCase() : 
@@ -164,9 +164,9 @@ export function SOCDashboard() {
       </header>
 
       {/* Main Layout */}
-      <div className="flex">
+      <div className="flex min-w-0 flex-col md:flex-row">
         {/* Sidebar Navigation */}
-        <aside className="w-64 bg-card border-r border-border min-h-[calc(100vh-5rem)]">
+        <aside className="w-full min-w-0 border-b border-border bg-card md:w-64 md:shrink-0 md:border-b-0 md:border-r md:min-h-[calc(100vh-5rem)]">
           <nav className="p-4 space-y-2">
             <Button
               variant={activeView === 'alerts' ? 'secondary' : 'ghost'}
@@ -270,7 +270,7 @@ export function SOCDashboard() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-6">
+        <main className="min-w-0 flex-1 p-3 md:p-6">
           <div className="animate-fade-in">
             {activeView === 'alerts' && <AlertFeed onAlertsChanged={refreshCounts} />}
             {activeView === 'incidents' && (
