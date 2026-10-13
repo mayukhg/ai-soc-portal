@@ -36,6 +36,7 @@ This is the part of the repository worth reading first, and the reason the proje
 | Concern | How it is addressed | Reference |
 |---|---|---|
 | Is the model right? | Evaluation harness using LangSmith tracing and RAGAS retrieval/answer metrics, run against a fixed question set | `langsmith_ragas_implementation.md`, `langsmith_usage.md`, `langsmith-config.md` |
+| Did the assistant take the right path, and did the answer stay on the records? | Phoenix dataset of 17 synthetic questions, with code evaluators for route, reason, model choice, and answer quality | `EVAL_FRAMEWORK.md` |
 | Is it making things up? | Hallucination and accuracy detection on generated output, with grounding checks against retrieved context | `hall_acc_detect.md` |
 | Why did it decide that? | Explainability surfaces exposing the reasoning path and the evidence behind each conclusion | `ai_explainability.md`, `prompt_reasoning_logic.md` |
 | Can we prove what happened? | Structured logging of LLM operations and generative AI calls, retained for audit | `gen_ai_logging.md`, `llm_operations_logging.md`, `auditability.md` |
@@ -63,11 +64,14 @@ Routine lookups are answered from the alert rows already loaded, at no model cos
 
 The fast-path model was chosen from the cheapest comparable text models on the OpenRouter catalog (12 Oct 2026), then scored on four equal criteria: cost, Artificial Analysis Intelligence Index, an Omniscience-based trust score, and the AA-Omniscience hallucination rate. Ling 3.0 Flash VL scored 81.4 out of 100 and led the shortlist on performance, trust, and non-hallucination while staying at about $0.022 per 1,000 calls. The deep-path models were not taken from that cheap list. They are reserved for the smaller set of ambiguous questions, where a higher unit cost is accepted because each question is still about one cent at the output cap and the local gate keeps them off the routine path. The full scoring, token budgets, and gate rules are in `TWO_TIER_ARCHITECTURE.md`.
 
-**Observability** — see `monitoring/` and `llm_operations_logging.md`.
+The same router is evaluated in Arize Phoenix. `backend/evals/` holds 17 synthetic analyst questions. A local Phoenix server at `http://127.0.0.1:6006` stores the dataset `soc-assistant-evals` and two experiments: `soc-routing` checks the gate on every case, and `soc-answer-quality` checks live lookup and fast-path replies. On the 13 Oct 2026 run, routing scored 1.00 and answer quality scored 0.90. Deep-path questions are labeled and scored on the route only. Metrics, hosting, and the per-case results are in `EVAL_FRAMEWORK.md`.
+
+**Observability** — OpenTelemetry spans from the live assistant go to the same Phoenix server. See `EVAL_FRAMEWORK.md`, `monitoring/`, and `llm_operations_logging.md`.
 
 Detailed diagrams and component breakdowns:
 
 - `TWO_TIER_ARCHITECTURE.md` — fast-path and deep-path routing, and how the models were scored
+- `EVAL_FRAMEWORK.md` — Phoenix dataset, evaluators, hosting, and the latest scores
 - `HIGH_LEVEL_ARCHITECTURE.md` — system overview
 - `ARCHITECTURE.md` — detailed architecture
 - `techstack_flow_diagram.md`, `techstack_usage.md` — stack and data flow
@@ -80,7 +84,7 @@ Detailed diagrams and component breakdowns:
 
 ```
 src/           Frontend application (React + TypeScript)
-backend/       Backend services
+backend/       Backend services, including evals/ for the Phoenix dataset and experiments
 supabase/      Deprecated — previous backend, pending removal
 monitoring/    Observability configuration
 scripts/       Operational and build scripts
@@ -94,13 +98,13 @@ public/        Static assets
 `EXECUTIVE_PITCH.md` · `business_justification.md` · `future_roadmap.md`
 
 **Architecture and implementation**
-`TWO_TIER_ARCHITECTURE.md` · `HIGH_LEVEL_ARCHITECTURE.md` · `ARCHITECTURE.md` · `techstack_usage.md` · `techstack_flow_diagram.md` · `COMPONENT_REFERENCE.md` · `data_ingestion_implementation.md`
+`TWO_TIER_ARCHITECTURE.md` · `EVAL_FRAMEWORK.md` · `HIGH_LEVEL_ARCHITECTURE.md` · `ARCHITECTURE.md` · `techstack_usage.md` · `techstack_flow_diagram.md` · `COMPONENT_REFERENCE.md` · `data_ingestion_implementation.md`
 
 **AI engineering**
 `langchain_implementation.md` · `lang_graph_implementation.md` · `rag_implementation.md` · `ai_reasoning_pseudocode.md` · `prompt_reasoning_logic.md` · `contextualization_pseudocode.md`
 
 **Evaluation, safety, and audit**
-`langsmith_ragas_implementation.md` · `langsmith_usage.md` · `langsmith-config.md` · `hall_acc_detect.md` · `ai_explainability.md` · `llm_rubric_implementation.md` · `gen_ai_logging.md` · `llm_operations_logging.md` · `auditability.md`
+`EVAL_FRAMEWORK.md` · `langsmith_ragas_implementation.md` · `langsmith_usage.md` · `langsmith-config.md` · `hall_acc_detect.md` · `ai_explainability.md` · `llm_rubric_implementation.md` · `gen_ai_logging.md` · `llm_operations_logging.md` · `auditability.md`
 
 **API and deployment**
 `API_DOCUMENTATION.md` · `BACKEND_API_REFERENCE.md` · `DEPLOYMENT.md`
@@ -132,7 +136,7 @@ The frontend runs standalone with the dev server. Backend services, model provid
 See `future_roadmap.md` for the full plan. Near-term priorities:
 
 1. Complete the migration off Supabase to the Lambda / Aurora / Pinecone / Redis stack
-2. Broaden the evaluation set and publish baseline RAGAS scores in-repo
+2. Broaden the evaluation set and publish baseline RAGAS scores in-repo. The assistant router already has a Phoenix baseline in `EVAL_FRAMEWORK.md`
 3. Detection-engineering integrations (SIEM and EDR ingestion)
 4. Multi-tenant isolation
 

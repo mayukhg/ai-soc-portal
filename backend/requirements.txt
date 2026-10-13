@@ -11,6 +11,13 @@ langchain-community
 langchain-pinecone
 langsmith
 ragas
+arize-phoenix
+arize-phoenix-client
+arize-phoenix-evals
+opentelemetry-sdk
+opentelemetry-exporter-otlp
+openinference-semantic-conventions
+openinference-instrumentation-openai
 lime
 shap
 scikit-learn

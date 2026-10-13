@@ -1139,6 +1139,12 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
+    try:
+        from tracer import init_tracing
+
+        init_tracing()
+    except Exception as exc:
+        print(f"Phoenix tracing is off: {exc}")
     print("Applying schema and seed...")
     apply_sql_file(ROOT / "sql" / "schema.sql")
     ensure_demo_user()

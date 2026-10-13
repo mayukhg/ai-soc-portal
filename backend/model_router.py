@@ -139,6 +139,15 @@ def choose_route(message, records, context_type, matched=True):
     return "fast", ["lookup answered from the database"]
 
 
+def planned_models(message, tier):
+    """Model ids that tier would call. This does not call a model."""
+    if tier == "deep":
+        return [item["id"] for item in TIER_2_AGENTS]
+    if LANGUAGE_PATTERN.search(message or ""):
+        return [TIER_1_MODELS[0]["id"]]
+    return []
+
+
 def _record_block(records):
     if not records:
         return "No matching alert records."
@@ -152,7 +161,32 @@ def _record_block(records):
     return "\n".join(lines)
 
 
-def _chat(model, messages, max_tokens, timeout):
+def _completion_text(body, model):
+    """Return the assistant text, or raise when the provider sent none.
+
+    A null or blank content field is a failed completion. Raising RouterError
+    lets the fast path try its failover model instead of crashing.
+    """
+    try:
+        content = body["choices"][0]["message"]["content"]
+    except (KeyError, IndexError, TypeError) as exc:
+        raise RouterError(f"OpenRouter returned an empty completion for {model}") from exc
+    if isinstance(content, list):
+        parts = []
+        for item in content:
+            if isinstance(item, str):
+                parts.append(item)
+            elif isinstance(item, dict):
+                text = item.get("text") or item.get("content") or ""
+                if isinstance(text, str):
+                    parts.append(text)
+        content = "".join(parts)
+    if not isinstance(content, str) or not content.strip():
+        raise RouterError(f"OpenRouter returned an empty completion for {model}")
+    return content.strip()
+
+
+def _post_chat(model, messages, max_tokens, timeout):
     key = load_openrouter_key()
     if not key:
         raise RouterError(
@@ -191,10 +225,25 @@ def _chat(model, messages, max_tokens, timeout):
         raise RouterError(f"OpenRouter returned {exc.code} for {model}.") from exc
     except urllib.error.URLError as exc:
         raise RouterError(f"OpenRouter request failed for {model}: {exc.reason}") from exc
+    text = _completion_text(body, model)
+    return text, body.get("usage") if isinstance(body.get("usage"), dict) else {}
+
+
+def _chat(model, messages, max_tokens, timeout):
+    """Call OpenRouter and record one Phoenix LLM span when tracing is on."""
     try:
-        return body["choices"][0]["message"]["content"].strip()
-    except (KeyError, IndexError, TypeError) as exc:
-        raise RouterError(f"OpenRouter returned an empty completion for {model}") from exc
+        from tracer import finish_llm_span, llm_call_span, mark_span_error
+    except ImportError:
+        text, _usage = _post_chat(model, messages, max_tokens, timeout)
+        return text
+    with llm_call_span(model, messages, max_tokens) as span:
+        try:
+            text, usage = _post_chat(model, messages, max_tokens, timeout)
+        except RouterError as exc:
+            mark_span_error(span, exc)
+            raise
+        finish_llm_span(span, text, usage)
+        return text
 
 
 def _fast_answer(message, records):
@@ -288,6 +337,23 @@ def _lookup_answer(records):
 
 
 def answer_question(message, records, context_type, matched=True):
+    try:
+        from tracer import chain_span, finish_chain_span, mark_span_error
+    except ImportError:
+        chain_span = None
+    if chain_span is None:
+        return _answer_question(message, records, context_type, matched)
+    with chain_span(message) as span:
+        try:
+            result = _answer_question(message, records, context_type, matched)
+        except RouterError as exc:
+            mark_span_error(span, exc)
+            raise
+        finish_chain_span(span, result)
+        return result
+
+
+def _answer_question(message, records, context_type, matched=True):
     tier, reasons = choose_route(message, records, context_type, matched)
     reason = "; ".join(reasons)
     try:
