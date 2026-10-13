@@ -87,7 +87,7 @@ src/           Frontend application (React + TypeScript)
 backend/       Backend services, including evals/ for the Phoenix dataset and experiments
 supabase/      Deprecated — previous backend, pending removal
 monitoring/    Observability configuration
-scripts/       Operational and build scripts
+scripts/       startup.sh and shutdown.sh for the local stack; deploy scripts
 docs/          Supplementary documentation
 public/        Static assets
 ```
@@ -107,7 +107,7 @@ public/        Static assets
 `EVAL_FRAMEWORK.md` · `langsmith_ragas_implementation.md` · `langsmith_usage.md` · `langsmith-config.md` · `hall_acc_detect.md` · `ai_explainability.md` · `llm_rubric_implementation.md` · `gen_ai_logging.md` · `llm_operations_logging.md` · `auditability.md`
 
 **API and deployment**
-`API_DOCUMENTATION.md` · `BACKEND_API_REFERENCE.md` · `DEPLOYMENT.md`
+`scripts/startup.sh` · `scripts/shutdown.sh` · `API_DOCUMENTATION.md` · `BACKEND_API_REFERENCE.md` · `DEPLOYMENT.md`
 
 **Quality management**
 `AI SoC Portal - TQM Process.docx` · `AI SoC Portal - TQM Implementation Guide.docx` · `COMPREHENSIVE_BEST_PRACTICES_ANALYSIS.md`
@@ -122,10 +122,16 @@ public/        Static assets
 git clone https://github.com/mayukhg/ai-soc-portal.git
 cd ai-soc-portal
 npm install
-npm run dev
+./scripts/startup.sh
 ```
 
-The frontend runs standalone with the dev server. Backend services, model provider credentials, and vector store configuration are required for AI features — see `DEPLOYMENT.md`.
+[`scripts/startup.sh`](scripts/startup.sh) asks for the OpenRouter API key, saves it in `.env`, and starts Postgres, the API, Vite, and Phoenix. Stop that stack with [`scripts/shutdown.sh`](scripts/shutdown.sh):
+
+```bash
+./scripts/shutdown.sh
+```
+
+The frontend can also be started on its own with `npm run dev`. Backend services, model provider credentials, and vector store configuration are required for AI features — see `DEPLOYMENT.md`.
 
 > **TODO before publishing:** add the required environment variables here (model provider key, Pinecone index and key, database URL, Redis URL) with a matching `.env.example`. Note that a `.env` file is currently committed to this repository — remove it, add it to `.gitignore`, and rotate any keys it contained.
 
