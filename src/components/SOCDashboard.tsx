@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AlertTriangle, Shield, BarChart3, Bell, Search, Filter, MessageSquare, FileText, Bot, LogOut, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import { IncidentManagement } from './IncidentManagement';
 import { ReportGenerator } from './ReportGenerator';
 import { fetchAlertCounts, searchRecords, type AlertCounts, type SearchHit } from '@/lib/backendApi';
 import { DASHBOARD_SECTION_EVENTS, trackHotjarEvent, trackHotjarStateChange } from '@/lib/hotjar';
+import { indicatorType, track } from '@/lib/tracking';
 
 const emptyCounts: AlertCounts = {
   total: 0,
@@ -40,10 +41,14 @@ export function SOCDashboard() {
     refreshCounts();
   }, []);
 
+  const previousView = useRef('');
+
   useEffect(() => {
     const eventName = DASHBOARD_SECTION_EVENTS[activeView];
     if (eventName) trackHotjarEvent(eventName);
     trackHotjarStateChange(`/dashboard/${activeView}`);
+    track('page_viewed', { page_name: activeView, referrer_page: previousView.current });
+    previousView.current = activeView;
   }, [activeView]);
 
   useEffect(() => {
@@ -58,6 +63,10 @@ export function SOCDashboard() {
           setSearchHits(body.results || []);
           setSearchOpen(true);
           trackHotjarEvent('search_used');
+          track('threat_indicator_searched', {
+            indicator_type: indicatorType(query),
+            results_count: (body.results || []).length,
+          });
         })
         .catch(() => setSearchHits([]));
     }, 300);

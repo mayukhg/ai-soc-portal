@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Clock, User, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { downloadCsv } from '@/lib/backendApi';
 import { useToast } from '@/hooks/use-toast';
 import { trackHotjarEvent } from '@/lib/hotjar';
+import { secondsSince, track } from '@/lib/tracking';
 
 interface ProfileOption {
   user_id: string;
@@ -40,6 +41,7 @@ export function AlertFeed({ onAlertsChanged }: { onAlertsChanged?: () => void })
     try {
       setExporting(true);
       await downloadCsv('/api/alerts/export', 'alerts.csv');
+      track('report_exported', { report_type: 'alerts', format: 'csv' });
     } catch (err) {
       toast({
         title: 'Export failed',
@@ -65,9 +67,38 @@ export function AlertFeed({ onAlertsChanged }: { onAlertsChanged?: () => void })
   };
 
   const changeStatus = async (alertId: string, status: string) => {
+    const alert = alerts.find((item) => item.id === alertId);
     await updateAlertStatus(alertId, status);
+    if (alert && status === 'acknowledged') {
+      track('alert_triaged', {
+        alert_id: alert.id,
+        triage_decision: 'acknowledged',
+        time_to_triage_seconds: secondsSince(alert.created_at),
+        severity: alert.severity,
+      });
+    }
+    if (alert && status === 'investigating') {
+      track('investigation_started', {
+        investigation_id: alert.id,
+        trigger_type: 'alert',
+      });
+    }
     onAlertsChanged?.();
   };
+
+  const seenAlerts = useRef(new Set<string>());
+  useEffect(() => {
+    filteredAlerts.forEach((alert) => {
+      if (seenAlerts.current.has(alert.id)) return;
+      seenAlerts.current.add(alert.id);
+      track('alert_viewed', {
+        alert_id: alert.id,
+        severity: alert.severity,
+        alert_type: alert.alert_type,
+        source_system: alert.source,
+      });
+    });
+  }, [filteredAlerts]);
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -150,7 +181,10 @@ export function AlertFeed({ onAlertsChanged }: { onAlertsChanged?: () => void })
             size="sm"
             onClick={() => {
               setSelectedSeverity(severity);
-              if (severity !== 'all') trackHotjarEvent('severity_filtered');
+              if (severity !== 'all') {
+                trackHotjarEvent('severity_filtered');
+                track('filter_applied', { filter_type: 'severity', filter_value: severity, view_context: 'alerts' });
+              }
             }}
           >
             {severity.charAt(0).toUpperCase() + severity.slice(1)}
@@ -168,8 +202,9 @@ export function AlertFeed({ onAlertsChanged }: { onAlertsChanged?: () => void })
 
       <div className="grid gap-4">
         {filteredAlerts.map((alert, index) => (
-          <Card 
-            key={alert.id} 
+          <Card
+            key={alert.id}
+            data-alert-id={alert.id}
             className={`transition-all duration-300 hover:shadow-lg border-l-4 ${getSeverityColor(alert.severity)} animate-slide-in`}
             style={{ animationDelay: `${index * 100}ms` }}
           >
@@ -245,6 +280,34 @@ export function AlertFeed({ onAlertsChanged }: { onAlertsChanged?: () => void })
                   >
                     Investigate
                   </Button>
+                  <Select onValueChange={(reason) => {
+                    void updateAlertStatus(alert.id, 'investigating');
+                    track('alert_escalated', { alert_id: alert.id, escalation_reason: reason });
+                    onAlertsChanged?.();
+                  }}>
+                    <SelectTrigger aria-label="Escalate alert" className="h-8 w-32">
+                      <SelectValue placeholder="Escalate" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="tier3">Tier 3</SelectItem>
+                      <SelectItem value="incident">Incident</SelectItem>
+                      <SelectItem value="threat_hunt">Threat hunt</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select onValueChange={(reason) => {
+                    void updateAlertStatus(alert.id, 'false_positive');
+                    track('alert_dismissed', { alert_id: alert.id, dismiss_reason: reason });
+                    onAlertsChanged?.();
+                  }}>
+                    <SelectTrigger aria-label="Dismiss alert" className="h-8 w-32">
+                      <SelectValue placeholder="Dismiss" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="false_positive">False positive</SelectItem>
+                      <SelectItem value="duplicate">Duplicate</SelectItem>
+                      <SelectItem value="benign">Benign</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <Select
                     value={alert.assigned_to || 'unassigned'}
                     onValueChange={(userId) => {

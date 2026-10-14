@@ -20,6 +20,7 @@ import {
 import { downloadCsv, fetchIncidentDetail, type IncidentDetail } from '@/lib/backendApi';
 import { useToast } from '@/hooks/use-toast';
 import { trackHotjarEvent } from '@/lib/hotjar';
+import { secondsSince, track, PLAYBOOKS } from '@/lib/tracking';
 
 /**
  * Interface for incident data structure
@@ -237,6 +238,7 @@ export function IncidentManagement({
     try {
       setExporting(true);
       await downloadCsv('/api/incidents/export', 'incidents.csv');
+      track('report_exported', { report_type: 'incidents', format: 'csv' });
     } catch (err) {
       toast({
         title: 'Export failed',
@@ -252,7 +254,7 @@ export function IncidentManagement({
     if (!draft.title.trim()) return;
     setCreating(true);
     const tags = draft.tags.split(',').map((tag) => tag.trim()).filter(Boolean);
-    const { error } = await supabase.from('incidents').insert([{
+    const { data, error } = await supabase.from('incidents').insert([{
       title: draft.title.trim(),
       description: draft.description.trim(),
       severity: draft.severity,
@@ -265,6 +267,18 @@ export function IncidentManagement({
     if (error) {
       toast({ title: 'Could not create incident', description: error.message, variant: 'destructive' });
       return;
+    }
+    const created = Array.isArray(data) ? data[0] as { id?: string; created_at?: string } : null;
+    track('incident_created', {
+      incident_id: created?.id,
+      severity: draft.severity,
+    });
+    if (draft.status === 'resolved' || draft.status === 'closed') {
+      track('incident_resolved', {
+        incident_id: created?.id,
+        resolution_type: draft.status,
+        time_to_resolve_seconds: secondsSince(created?.created_at),
+      });
     }
     setNewOpen(false);
     setDraft({ title: '', description: '', severity: 'medium', status: 'open', assignee: '', tags: '' });
@@ -283,6 +297,11 @@ export function IncidentManagement({
       return;
     }
     setAssignTarget(null);
+    track('incident_updated', {
+      incident_id: assignTarget.id,
+      field_changed: 'assignee',
+      status: assignTarget.status,
+    });
     await loadIncidents();
   };
 
@@ -351,7 +370,12 @@ export function IncidentManagement({
               </div>
             
               {/* Status Filter */}
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select value={statusFilter} onValueChange={(value) => {
+                setStatusFilter(value);
+                if (value !== 'all') {
+                  track('filter_applied', { filter_type: 'status', filter_value: value, view_context: 'incidents' });
+                }
+              }}>
                 <SelectTrigger className="w-full md:w-48">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
@@ -365,7 +389,12 @@ export function IncidentManagement({
               </Select>
 
               {/* Severity Filter */}
-              <Select value={severityFilter} onValueChange={setSeverityFilter}>
+              <Select value={severityFilter} onValueChange={(value) => {
+                setSeverityFilter(value);
+                if (value !== 'all') {
+                  track('filter_applied', { filter_type: 'severity', filter_value: value, view_context: 'incidents' });
+                }
+              }}>
                 <SelectTrigger className="w-full md:w-48">
                   <SelectValue placeholder="Filter by severity" />
                 </SelectTrigger>
@@ -616,6 +645,17 @@ export function IncidentManagement({
                   </ul>
                 )}
               </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => track('playbook_executed', {
+                  playbook_id: PLAYBOOKS[0].id,
+                  playbook_name: PLAYBOOKS[0].name,
+                  trigger_source: 'incident',
+                })}
+              >
+                Run playbook
+              </Button>
             </div>
           )}
         </DialogContent>

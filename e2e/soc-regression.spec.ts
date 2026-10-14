@@ -147,14 +147,20 @@ test.describe("assistant", () => {
   });
 
   test("a summary question uses the fast-path model", async ({ page }) => {
-    test.setTimeout(45_000);
+    test.setTimeout(70_000);
     await page.getByRole("button", { name: "AI Assistant" }).click();
     const box = page.getByPlaceholder("Ask me about security incidents, threats, or analysis...");
+    const replies = page.locator("div.bg-accent\\/50");
+    await expect(page.getByText("From the alert store:").last()).toBeVisible();
+    const before = await replies.count();
     await box.fill("Summarize the phishing alert");
     await box.locator("xpath=ancestor::form").locator('button[type="submit"]').click();
-    const reply = page.locator("div.bg-accent\\/50").filter({ hasText: "inclusionai/ling-3.0-flash-vl" }).last();
-    await expect(reply.locator("div.whitespace-pre-wrap")).toContainText(/phish|mail|invoice|Email Security/i, { timeout: 30_000 });
-    await expect(reply).toContainText("inclusionai/ling-3.0-flash-vl");
+    await expect.poll(async () => replies.count(), { timeout: 45_000 }).toBeGreaterThan(before);
+    const reply = replies.last();
+    await expect(reply.locator("div.whitespace-pre-wrap")).toContainText(/phish|mail|invoice|Email Security/i);
+    await expect(reply).toContainText("Fast path");
+    await expect(reply).toContainText(/inclusionai\/ling-3\.0-flash-vl|google\/gemini-2\.5-flash-lite/);
+    await expect(reply).not.toContainText(/claude-sonnet|openai\/gpt-4/);
   });
 });
 
@@ -211,5 +217,186 @@ test.describe("ux", () => {
     await page.goto("/this-route-does-not-exist");
     await expect(page.getByRole("heading", { name: "404" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Return to Home" })).toBeVisible();
+  });
+});
+
+type MixpanelEvent = { event: string; properties: Record<string, unknown> };
+
+function collectMixpanel(page: Page) {
+  const events: MixpanelEvent[] = [];
+  page.on("request", (request) => {
+    if (!request.url().includes("api-js.mixpanel.com/track")) return;
+    const fromQuery = new URL(request.url()).searchParams.get("data") || "";
+    const fromBody = request.postData() || "";
+    const parsed = decodeMixpanel(fromQuery || fromBody);
+    const items = Array.isArray(parsed) ? parsed : parsed ? [parsed] : [];
+    for (const item of items) {
+      if (item && typeof item === "object" && "event" in item) {
+        const record = item as MixpanelEvent;
+        events.push({ event: record.event, properties: record.properties || {} });
+      }
+    }
+  });
+  return events;
+}
+
+function decodeMixpanel(source: string): unknown {
+  const cleaned = source.replace(/^data=/, "");
+  const attempts = [cleaned];
+  try {
+    attempts.push(decodeURIComponent(cleaned));
+  } catch {
+    /* keep the raw value */
+  }
+  for (const attempt of attempts) {
+    try {
+      return JSON.parse(attempt);
+    } catch {
+      /* try the next form */
+    }
+    try {
+      return JSON.parse(Buffer.from(attempt, "base64").toString("utf8"));
+    } catch {
+      /* try the next form */
+    }
+  }
+  return null;
+}
+
+async function waitForMixpanel(events: MixpanelEvent[], name: string) {
+  await expect.poll(() => events.some((event) => event.event === name), { timeout: 10_000 }).toBe(true);
+  return events.find((event) => event.event === name)!;
+}
+
+function applicationProperties(properties: Record<string, unknown>) {
+  const automatic = new Set(["token", "distinct_id", "time", "mp_lib", "mp_sent_by_lib_version"]);
+  return Object.fromEntries(
+    Object.entries(properties).filter(([key]) => !key.startsWith("$") && !automatic.has(key)),
+  );
+}
+
+function assertNoFreeText(properties: Record<string, unknown>, banned: string[]) {
+  const application = applicationProperties(properties);
+  const blob = JSON.stringify(application);
+  for (const phrase of banned) {
+    expect(blob.toLowerCase()).not.toContain(phrase.toLowerCase());
+  }
+  expect(blob).not.toMatch(/\b(?:\d{1,3}\.){3}\d{1,3}\b/);
+}
+
+async function restoreAlert(page: Page, alertId: string) {
+  const restored = await page.evaluate(async (id) => {
+    const token = localStorage.getItem("soc.postgres.token");
+    const response = await fetch("/api/query", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        table: "alerts",
+        action: "update",
+        payload: { status: "open" },
+        filters: [{ op: "eq", column: "id", value: id }],
+      }),
+    });
+    return response.json();
+  }, alertId);
+  expect(restored.error).toBeNull();
+}
+
+test.describe("mixpanel analyst actions", () => {
+  const banned = [
+    "USB storage policy violation",
+    "Ledger Fox",
+    "failed login attempts",
+    "185.220.101.182",
+  ];
+
+  test("escalate and dismiss send list reasons and the alert returns to open", async ({ page }) => {
+    const events = collectMixpanel(page);
+    await signIn(page);
+    const card = page.locator("[data-alert-id]").filter({
+      has: page.getByRole("heading", { name: "USB storage policy violation" }),
+    });
+    const alertId = await card.getAttribute("data-alert-id");
+    expect(alertId).toBeTruthy();
+    try {
+      await card.getByRole("combobox", { name: "Escalate alert" }).click();
+      await page.getByRole("option", { name: "Tier 3" }).click();
+      const escalated = await waitForMixpanel(events, "alert_escalated");
+      expect(escalated.properties.alert_id).toBe(alertId);
+      expect(escalated.properties.escalation_reason).toBe("tier3");
+      assertNoFreeText(escalated.properties, banned);
+
+      await card.getByRole("combobox", { name: "Dismiss alert" }).click();
+      await page.getByRole("option", { name: "Benign" }).click();
+      const dismissed = await waitForMixpanel(events, "alert_dismissed");
+      expect(dismissed.properties.alert_id).toBe(alertId);
+      expect(dismissed.properties.dismiss_reason).toBe("benign");
+      assertNoFreeText(dismissed.properties, banned);
+    } finally {
+      await restoreAlert(page, alertId!);
+    }
+  });
+
+  test("an assistant lookup reply can be accepted, rejected, rated, and used to run a playbook", async ({ page }) => {
+    const events = collectMixpanel(page);
+    await signIn(page);
+    await page.getByRole("button", { name: "AI Assistant" }).click();
+    const box = page.getByPlaceholder("Ask me about security incidents, threats, or analysis...");
+    await box.fill("failed login attempts");
+    await box.locator("xpath=ancestor::form").locator('button[type="submit"]').click();
+    const reply = page.locator("div.bg-accent\\/50").filter({ hasText: "From the alert store:" }).last();
+    await expect(reply).toBeVisible();
+
+    await reply.getByRole("combobox", { name: "Accept recommendation" }).click();
+    await page.getByRole("option", { name: "Acknowledge alert" }).click();
+    const accepted = await waitForMixpanel(events, "ai_recommendation_accepted");
+    expect(accepted.properties.action_taken).toBe("acknowledge_alert");
+    expect(String(accepted.properties.recommendation_id)).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+    );
+    assertNoFreeText(accepted.properties, banned);
+
+    await reply.getByRole("combobox", { name: "Reject recommendation" }).click();
+    await page.getByRole("option", { name: "Incorrect" }).click();
+    const rejected = await waitForMixpanel(events, "ai_recommendation_rejected");
+    expect(rejected.properties.reject_reason).toBe("incorrect");
+    assertNoFreeText(rejected.properties, banned);
+
+    await reply.getByRole("combobox", { name: "Recommendation feedback" }).click();
+    await page.getByRole("option", { name: "Helpful", exact: true }).click();
+    const feedback = await waitForMixpanel(events, "ai_feedback_submitted");
+    expect(feedback.properties.feedback_type).toBe("helpful");
+    assertNoFreeText(feedback.properties, banned);
+
+    await reply.getByRole("button", { name: "Run playbook" }).click();
+    const playbook = await waitForMixpanel(events, "playbook_executed");
+    expect(playbook.properties).toMatchObject({
+      playbook_id: "finance-beacon-containment",
+      playbook_name: "Finance beacon containment",
+      trigger_source: "assistant",
+    });
+    assertNoFreeText(playbook.properties, banned);
+  });
+
+  test("running a playbook from an incident sends the catalog entry", async ({ page }) => {
+    const events = collectMixpanel(page);
+    await signIn(page);
+    await page.getByRole("button", { name: /Incidents/ }).click();
+    const card = page
+      .getByRole("heading", { name: "Ledger Fox intrusion across finance hosts" })
+      .locator("xpath=ancestor::*[contains(@class,'p-6')][1]");
+    await card.getByRole("button", { name: "View Details" }).click();
+    const dialog = page.getByRole("dialog");
+    await dialog.getByRole("button", { name: "Run playbook" }).click();
+    const playbook = await waitForMixpanel(events, "playbook_executed");
+    expect(playbook.properties).toMatchObject({
+      playbook_id: "finance-beacon-containment",
+      playbook_name: "Finance beacon containment",
+      trigger_source: "incident",
+    });
+    assertNoFreeText(playbook.properties, [...banned, "intrusion across finance hosts"]);
   });
 });

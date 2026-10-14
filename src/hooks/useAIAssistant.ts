@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { assistantHotjarEvent, trackHotjarEvent } from '@/lib/hotjar';
+import { track } from '@/lib/tracking';
 import { useToast } from '@/hooks/use-toast';
 
 interface AIMessage {
@@ -118,6 +119,24 @@ export function useAIAssistant() {
         setMessages(prev => [...prev, aiMessage]);
         const assistantEvent = assistantHotjarEvent(data.routing);
         if (assistantEvent) trackHotjarEvent(assistantEvent);
+        const models = Array.isArray(data.routing?.models) ? data.routing.models : [];
+        const tier = typeof data.routing?.tier === 'string' ? data.routing.tier : 'fast';
+        const queryIntent = models.length === 0 ? 'lookup' : tier;
+        track('ai_query_submitted', {
+          query_length: message.trim().length,
+          query_intent: queryIntent,
+        });
+        if (models.length > 0) {
+          track('ai_analysis_requested', {
+            analysis_type: tier,
+            alert_id: contextId,
+            model_version: String(models[0]),
+          });
+        }
+        track('ai_recommendation_viewed', {
+          recommendation_id: aiMessage.id,
+          context_type: contextType || 'general',
+        });
       } else {
         throw new Error(data?.error || 'Failed to get AI response');
       }

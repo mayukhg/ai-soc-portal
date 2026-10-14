@@ -2,6 +2,7 @@ import { useState, useEffect, createContext, useContext, ReactNode } from 'react
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { currentDevice, identifyUser, resetHotjarUser } from '@/lib/hotjar';
+import { consumeSessionDuration, identify, markSignedIn, reset, track } from '@/lib/tracking';
 
 interface AuthContextType {
   user: User | null;
@@ -94,17 +95,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     if (!user) return;
+    markSignedIn();
     const role = typeof userProfile?.role === 'string' ? userProfile.role : 'analyst_tier2';
     const tierMatch = role.match(/tier_?(\d+)/i);
+    const org = typeof userProfile?.organization === 'string' ? userProfile.organization : undefined;
+    identify(user.id, { email: user.email, role, org });
     identifyUser(user.id, {
       user_role: role,
       account_tier: tierMatch ? `tier${tierMatch[1]}` : 'tier2',
       device: currentDevice(),
       synthetic: true,
     });
+    const method = sessionStorage.getItem('mp_pending_sign_in');
+    if (method && userProfile?.role) {
+      track('user_signed_in', { method, role: userProfile.role });
+      sessionStorage.removeItem('mp_pending_sign_in');
+    }
   }, [user, userProfile]);
 
   const signOut = async () => {
+    track('user_signed_out', { session_duration_seconds: consumeSessionDuration() });
+    reset();
     resetHotjarUser();
     await supabase.auth.signOut();
   };

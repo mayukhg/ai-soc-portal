@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import { AuthPage } from "./pages/AuthPage";
 import IntroPage from "./pages/IntroPage";
 import { HotjarListener } from "./components/HotjarListener";
+import { MixpanelRouteListener } from "./lib/tracking";
 import HotjarMetricsPage from "./pages/HotjarMetricsPage";
 
 const queryClient = new QueryClient();
@@ -21,6 +22,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <HotjarListener />
+          <MixpanelRouteListener />
           <Routes>
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/intro" element={<IntroPage />} />

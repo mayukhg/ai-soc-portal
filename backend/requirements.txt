@@ -18,6 +18,7 @@ opentelemetry-sdk
 opentelemetry-exporter-otlp
 openinference-semantic-conventions
 openinference-instrumentation-openai
+mixpanel
 lime
 shap
 scikit-learn

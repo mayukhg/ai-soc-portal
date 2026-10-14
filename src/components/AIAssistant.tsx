@@ -4,9 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useAIAssistant } from '@/hooks/useAIAssistant';
+import { PLAYBOOKS, track } from '@/lib/tracking';
 
 export function AIAssistant() {
   const { messages, loading, sendMessage, clearHistory } = useAIAssistant();
@@ -138,6 +140,50 @@ export function AIAssistant() {
                         </span>
                       )}
                     </div>
+                    {message.message_type === 'assistant' && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <Select onValueChange={(action) => track('ai_recommendation_accepted', { recommendation_id: message.id, action_taken: action })}>
+                          <SelectTrigger aria-label="Accept recommendation" className="h-8 w-36">
+                            <SelectValue placeholder="Accept" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="acknowledge_alert">Acknowledge alert</SelectItem>
+                            <SelectItem value="open_incident">Open incident</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Select onValueChange={(reason) => track('ai_recommendation_rejected', { recommendation_id: message.id, reject_reason: reason })}>
+                          <SelectTrigger aria-label="Reject recommendation" className="h-8 w-36">
+                            <SelectValue placeholder="Reject" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="not_relevant">Not relevant</SelectItem>
+                            <SelectItem value="incorrect">Incorrect</SelectItem>
+                            <SelectItem value="incomplete">Incomplete</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Select onValueChange={(feedback) => track('ai_feedback_submitted', { recommendation_id: message.id, feedback_type: feedback })}>
+                          <SelectTrigger aria-label="Recommendation feedback" className="h-8 w-36">
+                            <SelectValue placeholder="Feedback" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="helpful">Helpful</SelectItem>
+                            <SelectItem value="not_helpful">Not helpful</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => track('playbook_executed', {
+                            playbook_id: PLAYBOOKS[0].id,
+                            playbook_name: PLAYBOOKS[0].name,
+                            trigger_source: 'assistant',
+                          })}
+                        >
+                          Run playbook
+                        </Button>
+                      </div>
+                    )}
                   </div>
 
                   {message.message_type === 'user' && (
