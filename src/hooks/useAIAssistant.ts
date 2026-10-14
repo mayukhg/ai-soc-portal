@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { assistantHotjarEvent, trackHotjarEvent } from '@/lib/hotjar';
 import { useToast } from '@/hooks/use-toast';
 
 interface AIMessage {
@@ -115,6 +116,8 @@ export function useAIAssistant() {
         };
 
         setMessages(prev => [...prev, aiMessage]);
+        const assistantEvent = assistantHotjarEvent(data.routing);
+        if (assistantEvent) trackHotjarEvent(assistantEvent);
       } else {
         throw new Error(data?.error || 'Failed to get AI response');
       }

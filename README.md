@@ -68,6 +68,28 @@ The same router is evaluated in Arize Phoenix. `backend/evals/` holds 17 synthet
 
 **Observability** — OpenTelemetry spans from the live assistant go to the same Phoenix server. See `EVAL_FRAMEWORK.md`, `monitoring/`, and `llm_operations_logging.md`.
 
+### Hotjar
+
+Analyst behaviour is recorded in the browser with the Hotjar snippet (`@hotjar/browser`, wired through `src/lib/hotjar.ts`). The snippet loads only when `VITE_HOTJAR_SITE_ID` is a positive integer. This portal uses site **1058676** and snippet version **6** (`VITE_HOTJAR_VERSION`). Both values are in `.env.example`. There is no feedback widget and no consent banner. With the site id unset, every Hotjar call is skipped and the app behaves as it did before.
+
+Identity sent to Hotjar is a SHA-256 of the user id, plus `user_role`, `account_tier`, `device` (`desktop` or `mobile`), and `synthetic: true`. Email, name, and the raw user id are dropped. Event names are a fixed list: sign-in failure and success, sign-out, each dashboard section, severity filter, search, incident open and close, assistant lookup, assistant fast path, and report viewed. The event does not include the search text, the question, or the answer. Route changes are reported as the pathname only. Password fields, the header search and its results, incident search, the assistant transcript and input, the incident detail, and generated report text carry `data-hj-suppress`.
+
+Hotjar does not capture pages served over plain HTTP, including `http://127.0.0.1:8080`. The snippet still loads on that URL. Recordings appear in the Hotjar project after the portal is served over HTTPS.
+
+The metrics view for these sessions is hosted in this app, not read back from Hotjar:
+
+[http://127.0.0.1:8080/dev/hotjar-insights](http://127.0.0.1:8080/dev/hotjar-insights)
+
+`src/pages/HotjarMetricsPage.tsx` computes the page from `data/hotjar/sessions-50.json`, `sessions-250.json`, and `sessions-1000.json`. Every persona is tagged synthetic. The page shows session count, average duration, report conversion, and a frustration index (share of sessions with a rage click or a u-turn; the figure is red at 25% or above), plus the funnel from sign-in through report viewed and a session table. Sample size, device, and frustration can be filtered, and a funnel step with drop-off lists the sessions that stopped before that step. On the 50-session file the page shows 50 sessions, an average duration of 6m 25s, 42% reaching a viewed report (21 sessions), and a 32% frustration index (16 sessions).
+
+Regenerate the fixtures without sending them to Hotjar:
+
+```bash
+node scripts/hotjar-seed-sessions.mjs        # 50 sessions
+node scripts/hotjar-seed-sessions.mjs 250
+node scripts/hotjar-seed-sessions.mjs 1000
+```
+
 Detailed diagrams and component breakdowns:
 
 - `TWO_TIER_ARCHITECTURE.md` — fast-path and deep-path routing, and how the models were scored
@@ -83,11 +105,12 @@ Detailed diagrams and component breakdowns:
 ## Repository map
 
 ```
-src/           Frontend application (React + TypeScript)
+src/           Frontend application (React + TypeScript), including the Hotjar snippet and /dev/hotjar-insights
 backend/       Backend services, including evals/ for the Phoenix dataset and experiments
+data/hotjar/   Synthetic Hotjar sessions (50, 250, and 1,000) for the local metrics page
 supabase/      Deprecated — previous backend, pending removal
 monitoring/    Observability configuration
-scripts/       startup.sh and shutdown.sh for the local stack; deploy scripts
+scripts/       startup.sh, shutdown.sh, and hotjar-seed-sessions.mjs; deploy scripts
 docs/          Supplementary documentation
 public/        Static assets
 ```
@@ -105,6 +128,9 @@ public/        Static assets
 
 **Evaluation, safety, and audit**
 `EVAL_FRAMEWORK.md` · `langsmith_ragas_implementation.md` · `langsmith_usage.md` · `langsmith-config.md` · `hall_acc_detect.md` · `ai_explainability.md` · `llm_rubric_implementation.md` · `gen_ai_logging.md` · `llm_operations_logging.md` · `auditability.md`
+
+**Product analytics**
+`src/lib/hotjar.ts` · `src/pages/HotjarMetricsPage.tsx` · `data/hotjar/` · `scripts/hotjar-seed-sessions.mjs`
 
 **API and deployment**
 `scripts/startup.sh` · `scripts/shutdown.sh` · `API_DOCUMENTATION.md` · `BACKEND_API_REFERENCE.md` · `DEPLOYMENT.md`
@@ -132,6 +158,8 @@ npm install
 ```
 
 The frontend can also be started on its own with `npm run dev`. Backend services, model provider credentials, and vector store configuration are required for AI features — see `DEPLOYMENT.md`.
+
+With the stack running, the local Hotjar metrics dashboard is at [http://127.0.0.1:8080/dev/hotjar-insights](http://127.0.0.1:8080/dev/hotjar-insights). It does not require the Hotjar website. Set `VITE_HOTJAR_SITE_ID` and `VITE_HOTJAR_VERSION` from `.env.example` before expecting the live snippet to load in the analyst UI.
 
 > **TODO before publishing:** add the required environment variables here (model provider key, Pinecone index and key, database URL, Redis URL) with a matching `.env.example`. Note that a `.env` file is currently committed to this repository — remove it, add it to `.gitignore`, and rotate any keys it contained.
 

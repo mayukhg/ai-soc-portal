@@ -1,0 +1,4723 @@
+{
+  "siteId": 1058676,
+  "version": 6,
+  "seed": 1058676,
+  "count": 250,
+  "synthetic": true,
+  "note": "Local fixtures only. Not uploaded to Hotjar. No alert text, addresses, or email.",
+  "sessions": [
+    {
+      "userIdHash": "a5514d4b56e6d8175b1e19dca08e76977a491506f5472e08825098a8834bf9f9",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 597,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "ed0e3aad354a78d48d02fd6f742fe2dd3119b1229fa9c7dcf33ef6f26fe26fbd",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 609,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "fd7f92ba5e88006f149d1c09679fc46b32f925bf841a930975ab344bf9437374",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 136,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "afbd0c07a241710212f701b50afa4ab714468e6dee74c02554c72bc1acaf1705",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 99,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "529768d4f769f9d2d2656c3e9ba7a9689cf0ec2fbc548ead31a6a23da62c197a",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 109,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "f4360c9830111324ea52ed7ad2f1c66add48c24805920e2fec5b249083492a00",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 536,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "2e9d772de4b13b50d390c1bee61d9718fe0c8fa6d6ff2a60ad8281c212441792",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 403,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "e4fd7befbe726e687033159af5647fbc52e124918bf67f84ac926bce31171b80",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 439,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "359ce729a259047b4cd9f1def7f457f91d4508f558437ea42aef24e30d51cc12",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 562,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "cb3818310789277af3995d944841380334fb8f9792eecab6cd0a00c8b91c2a32",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 340,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "7f23a57618674eef8f14f8a2e669fa58fff9faa0f736f6c4ed751129a4f79138",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 381,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "b9d349ae75d05bf51247023a7ab73697baaac340fc48b5168ecf85645d5473c8",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 195,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "e5241ab61af8cb361fd6b856c3aff9c1c01f6ea53156b1fa6b9796a7779383bf",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 100,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "b7d011bb53af6b49d40feb3ec88e5ebf2a02de0f60745249b10cdaf2694518c2",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 216,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "2d09875847ef1b7c4bb0cedd12f6b559334aa09d174c9c0fdb63a3d76968396c",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 116,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_alerts"
+      ],
+      "rageClicks": 1,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "21f3f0722c797ca189d8b0ca995c1456f27f297cec003d4ed7d53ae989fc0646",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 335,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "34bece5142669b1b5052db19458ef1a7c8d13b0c65dd0661eb1c0628c230cea0",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 378,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "46de7eb3be580a8cd6f4d50531264a5b7de348db96227e836b871e5911cc13a4",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 751,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "0b962aacd67391f4791e2bf87834e3f5d171669cdfc8d689d0d57f007d16157b",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 168,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "259867ad93c5d005c98d378c3e215e4d25d6b71f2b574948b1caf76390ccf10f",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 588,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed",
+        "section_alerts"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "6b32a073f2a4996a61c0215e3af3804b475c3c6ffa989d734e1e8ceb53be2aa4",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 726,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "a5077ed34b7a18a16effb5a039f2cb42e2a75b76d433d00bc1d871d7b0d1045c",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 58,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed",
+        "section_alerts"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "392a1d187c9af00cb9509335c58ff43b9097938314a7305814253937d473340a",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 304,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "61493727536e0914595ab4df15fd9af196eadddd024efb36f71ebfdc3703ffc0",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 409,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "b8130dba29a47baf3ee374ef147c3eabc79a67b8b6f990b141ccab2dc02cb720",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 209,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_alerts"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "8e1ec590d6f182e401c049eb02cd26d68238c3c87ce1ebe86c7d902fecfb53b4",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 199,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "278fc42a5ce785cc2022844d965e73fe5160c071df9b19e6b9bc66252dc5127c",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 519,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "33d9156343059a60d2812abdc79407f91a98e11b183aa3ad384d3bd9f7bc7477",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 750,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "53e19e1cbf792f5a403af6a4a61a2613b9b9e53ad7ef4c8039b9a2bd6dc839d8",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 116,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "e8f2f72760c8e24e97ae6aa05b2a8608d7fc8a39aaf57413d344282bba2c38cf",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 130,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "c4ab014c771070f83f1fc9efd2124a5b1910df8f0ccbd6601a6bd8576131eded",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 580,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "c88a9d74f005431da7956a21dd586aaff69167238e53f4f6f3d1171c7676ae99",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 366,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed",
+        "section_alerts"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "63904896c89e0c617f0f6b62954ab50a7641ccffef70de8b753e89390d59e962",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 526,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "3533a78719d5bb67961ceb5780db09fa64fed297f1226bf4bbf966f9414b621e",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 363,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "7e208eeeb3b4b14a12f0eb6b1787b243d8a20243cde723efd9c098642ed8261d",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 103,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "c7df6829b38d21b1d8b2ffe41ef613e6c2ceff13016e311cad0f52d1ab92cde2",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 723,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 3,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "c04dfd3e457b6e377cd51162ef411884fb99e69732a649324ae50daff1d70101",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 417,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "13ad73095c7028e9846f2ab57623522bd3ed26df7009333757389324d8ec8531",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 149,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "3c0667b261edcacb1295a499c4e452940b5be4a91ee10a15b6f67c62610838da",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 115,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "3cd84c8cc4d2443f1ffe0e8a83f3143861617540bbdda42f711d2af53ef3fb4d",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 753,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_alerts"
+      ],
+      "rageClicks": 1,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "97e83fa10f671b079886b9d9e4ff2dcfdadd4afdcd1a3641ffe768c083628380",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 657,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "adecb860ce89d289a575af5a15211355fb91685bd245a737967f0af3724ad6e8",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 349,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "e89d3c045292e5b082e552ea6775db53d94bd6547d1c63d65b59cf21906ec2a5",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 752,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "787ec2cd87ac64efe3e96b16cb9410a4d56835ed9c7816910448082daa45e4ed",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 176,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "b45558b7132a23e93184324ff7ea7bc4b135e7ad6f424987e6e617a9954206b9",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 248,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "252d5aea1e1bb2ceaec0cf9c61ee7b96c8bf462d26ff62bf4c0e79169d884f34",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 729,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed",
+        "section_alerts"
+      ],
+      "rageClicks": 1,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "f66e233f250bc710c591c4caacc2266287f1da78d6a092141f3a5749204db6e1",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 125,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "2f1d6b4fec331bfeff58e625f4d7ddbd887a0aaad5852e0cfb04ccc0952a1191",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 253,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "3c47e5d62c4f32215384b8f76776b3246a4e12925ad47d0978e7c3bf8fca9b3a",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 534,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "3b31933522fba700cf66dd2e0034f24a67bf22d4e4dbb8e80d89883d8d92e949",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 852,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "588d39b88de25c9170f0b9ce91c956650ab71f120515447ac4beaf3eb7cf27cf",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 777,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "a1bc8f83e6ab88594daf4eaf681e06f97b981526dfd813f19d1677a10968acd6",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 167,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "c11f962abc9def1d2843024ed220222408467692ba00c5c911619459c4adac28",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 32,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "cbc166d66f0895bd8f84ccfd507fd5a52b1658270e848dd98ebe14aa2b0d0737",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 242,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "0af026dc31640c1fe732050a920c82459d188e1fe2c473e4d5b3bb73b8d3298e",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 841,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 3,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "e1225071f652cf931ca1aef469db821658e70655424ffc5454d8b92e771f64b7",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 702,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed",
+        "section_alerts"
+      ],
+      "rageClicks": 3,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "2e9cf08bbe3cf5b2360d50e88e937a76d9d0d4dd50c79c3aa7745341e5c20723",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 301,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "eb3010dc76f3cc9e7000081cbf6768c6cbbea2c89954e7dc70fbf5276150c46a",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 609,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 2,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "ca410f4f68d60f4993f7e832ea55f779a5343e40ce332c5583e296b3c29ec031",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 764,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "07bed9e12d7f3d28ab3b2bd1ec7177de1ec9610e963dc5f1e43ba8378acc8b0d",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 701,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "6510754585cf4cbd5d4bb4ba3c47530ac6fc9c15d25975d00df18b5c459a534f",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 137,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "994b3c6bf229e75e3103056b2be258000ec5a022d9800a70739db3aebd25f854",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 873,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "c181617782c663149d29c5f8cd724bb2a7886281359bf2956173adc9bd2cd13c",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 589,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "bd4bd657b7adf5c153b2e3bda6d7f3e3425ecff522ef97cff1a221e82a5bac5b",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 282,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "44a9ee0cdf9b4becdbfc7771e3e7d1702f67786cc776470921c1ae5a4abf697a",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 726,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 3,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "42dfcefab32039f1dc85f65fe8fd5f66d7f88c14195de829c112f8cad40375b5",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 181,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "eecc34470127ce8de48cee0d205830c4faa326bb04f12e95d8fcd97cd7c6412f",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 379,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed",
+        "section_alerts"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "06ed9f69a927e80ccd5f0a847bfb8bb8664fb0a0ff4e3a1a7050f4d662e342fc",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 161,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "ec1ac5c113de503abffdeef3f2e97693e6b59ef287dc2a56340fe73c50e926e0",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 707,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "0ee60472d340474bbd99bc24508bfbce45e74f102d11f6c5020e0120fb75bbc7",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 350,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 2,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "e642d129cf522b6dcfa4a6fe4f928e2fb0042e4d51b734c691adad463038b54d",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 726,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed",
+        "section_alerts"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "a013802d985c1589cccf80d2255179c9c12b2383d3f7e7e1c4e1a7d8541145e4",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 350,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "900fe98fe39d4d32d84472bbc3612db5039a2aeff327e061831067eb1e80be48",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 473,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "38e51e2c056fdf52684e32410cf97a5b844a7c3d94f61824836f4d5f5eb9e7bf",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 444,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "49418fc6e67ab664c1767a2c664e6309d60ceaaebb9966159ffa1ec336a364e2",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 848,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 2,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "24608e34012c3e304eab051ca12c908f1c8c54e47b515fb134e91ec563effe01",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 420,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "0cbdfbcf1717910fdf07a438379a69f816d7e1beaff89c9be93a9fd650acb224",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 93,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "477d5bd023244394780e711ab75689466c65c36d2677c350f4fb53f009357410",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 748,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed",
+        "section_alerts"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "c4c0305a591dda560042229326790778aaabd9b308cfa44b0f5f372877be32a3",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 856,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 1,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "f90d20c39ad301e62c27732d911cce3270aeb8a1799940a1c790bc269291187d",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 277,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "df42684e078c728db9e7670a343c060171820e63426a4503a07103d6f81600b6",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 793,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "e955e109ab66b673d9757404b9418ac4a8eb79973c49c1067471fb13ee7e6693",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 847,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "56d01d0bd57196a6b471a159131bc0947d60db21532863b58cc42f845934e59c",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 522,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "020df3086c6eb75e6a5054d6af9f3686967b071533388c4503226c864af83354",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 801,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 2,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "ace6078d001e2dd9882fe03cd3d3c2385ac786f85d7900f5194055e0435884aa",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 740,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "b538d91fd0947fc4fe65275df7b8da8ac96e72f7ef23e4f9eb73c9171405c8af",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 524,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "cef0ef933c55cba1827e3710d676eda15c22b8cc3b4999be059e1c696e0dad9d",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 545,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed",
+        "section_alerts"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "df643f2ffc454fcca0610e8a08471ecd6ea8284fd6a3af11d93cfc223187d9cb",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 882,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed",
+        "section_alerts"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "1b631bcdcaf6e37e9cf4010b5bf57dc9e0e7bc64cbee505d9b6163a51120dfb6",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 312,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 3,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "b7d3109b5e402965f010a05b1bc34a26e633f0921eee1f7f1b37b5baebf8fffc",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 423,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "afac9afe77bcbf1aa4895cea7fc2e5fa93d5ddd122bc80450c23d87222d72266",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 591,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 2,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "5543cfcee353bdf45a5615e26c7ca83a84bb1367e2529e25601cae0d45ddd270",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 608,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "1bcc7719141e416c5b07f052448b2b2547025d3f2492281bfa80512d1ad9df10",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 303,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "793fb8e796bb9d9be7537767d1aabe85ca7b98d76c95972849375533c1268e87",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 314,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "8c5812384632e44a7018b910ac0fe5cf598e25f6eb382aeb6027bba76357b808",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 90,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "215a7ac5c98172e59295cfa29674eca20d5a6e4095f873efefffe3110486d0be",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 328,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed",
+        "section_alerts"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "1a52664eabe9761bf79cf815865c6922c71c282632f74645a23c9b74a3d174c5",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 574,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "f816e7c25e23bdd653d9e4e711f46d2911576ca120671c6a1653a2601b816c3d",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 778,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_alerts"
+      ],
+      "rageClicks": 1,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "9a89778a1820be9dc5393239499d87030b64e1843b63f19b92aa094949e70885",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 496,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed",
+        "section_alerts"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "9f3fe6a8d5bd2de543073b12b85ce1e70e3c77cc25808c6ab14df62e2f4dc3e8",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 313,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 3,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "63aabcc0af3429af4b4e5e05e3e1e0186f5caea216fd8701485160134d0fe8a5",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 602,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "8f4a4506e73107631a26877ce744aa7f9672b2eb7ab444f046445e73cde27c4c",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 798,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "b6f3b92ae07bc9e60551c7d3b88564cdd9d5790a23a6a55bf15eca97375fc078",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 90,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "6a834516f626fa8c0f77b6a4a6541185a67eaf8d91b0a6fce119fa73ce0b1d44",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 811,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "7ee3f9fcbd2199ff109df3151201ddc8fdd4d04332e9240c0bad868d70a0b104",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 517,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "deb9710e741a33d23e4622d79c60c067c26f2498816ed5e1a6b9db77a6b37e16",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 351,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "3d355800a7fb9d7002e2f4ab570db3c89a2148107162d294a9b523a134455a3a",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 732,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "3aba7cf3197d820d5a5c64face6de44a21a47b15990c779c9f6cd5e12af91c05",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 533,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "06c3db758d12346704ddf35ac385597a0676a139773b51d4171a04b7c5aeb22c",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 503,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "359317e66cfc51eb8fd1d2d36c8d63d11ba664709465969a653cc37215fdd0d7",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 370,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed",
+        "section_alerts"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "fb9e71275078631cc9a489e32b921c8724527818be5862f09186da05e1b6c618",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 534,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "9a2da3ff414dfb29249e298e7dca975cf1f571c4958242f96be0ff8ea840611d",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 744,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "7dc152597f0bc67d5a28cf0755e0a0988ca3ab8a60f390d765d950edf2f9e122",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 384,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "7075f454aeb0a79c51a590afef805b784e55b28babf01b6b74bd8394c1b1a3de",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 527,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "5a0b4bfbb9c60a95dea8d6f2b110d2c1b30a10b74a35112607821a4378ef9b3b",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 146,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "99135884db26e856cb3b12023d4c5532844bd6d5a8c8f324f37f490332d03c88",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 175,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "df734b2f318722ff7d051d7d5b4ea033026967b732f2bceb3eaf3c60cb18df62",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 56,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "f2dce97bb00b0015028f7972022c2913151ce5972766262cd10d7333a8d411dc",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 59,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "d6980dd85f9a072e40377874ac0e6171b38ec188cb97c05ad8355a24421e633b",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 625,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "8ac8c8ac798dfb5aff6aac3f5ae51a9cfd351672618767269458a4a9f1a1cdf0",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 292,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "763a5508eca7fd850756c2644a1e58461b558a4188016d479044fdb5c2da598f",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 569,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "7908ca3b459168a87db34a74b8e612d41aa0dc201fa995b6da4244b8eea25c62",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 748,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "f626305d0ac41f5a5fb15c99ef38a79c3095e8bdb4b74de2679c4f19a0d2ce53",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 381,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "0d6716b3f409fe4da6912aee0b3abe30da25383420c258dd0a3df9c33b17cdd1",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 539,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "2268cad844a271cb7a55ae8712918087cf9959f09fa4f46b7fb40905f244177f",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 490,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "dda41ad319e3488bf3c41a225550bb8f80329ddd2481ebd66509062690cc9336",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 212,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "615fb258ae3d165324c3d496e4ad699c57c7d047476b39f00c12480fd4fbeba7",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 837,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_alerts"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "0e17e3ee69dfca744f6c47e060624fddd73e3b927f3b8e0f632c93efb7e4c8cd",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 657,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "5d9270b5910656aee7756769ceae56f4f74c48802b15acc29cc839b9cee40677",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 635,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 2,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "04808bb403d668526ee2f02dace6da18f3c843c019bc228e03fdb0f054ec163e",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 477,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "bc4a698d5615a6b80e4a912b0b79b8a06c9f1ea513f8a83765a269695608e558",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 424,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "592db9182e51b9c3636d39ce0b762e7d89fae1fa9f1699d39852aecdd0aee6fa",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 294,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "3486a1ebccc41d52ea54a4bf2f4b023b940c88cee6a9b091ecbf1805310b0e10",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 384,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "3197c85335246a782e15ebdc2c75e2fb0a87e52d85a4dc7a2d0ae706dcc15715",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 577,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "0ba0354e93b85cda1b4d53537a5d34e8ac3e22cf6099dcea9cbf9d8b92f9c61b",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 432,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "e47e5bf018fbfcb4d8bc36e5d624ef888159ccbf1475d922d587cd8708ec94d8",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 127,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "7f5ef36382df3e460bba0c3143fcf7dab0fea69a7a6559b68d181bb272dd4683",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 485,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed",
+        "section_alerts"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "9847e8616adc68356d3e98a9b1029595c9c6281fbc12cb28bffe10e67cd8a254",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 268,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "a20b70b2f0aecfeeb444ecb10e38e1444f814b26605e546a3a1b5e6eaa348181",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 283,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "325ad2e57b8a1574d80c9d349099f67a38891ec71f8a8e21563e093de416f0d2",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 467,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "48220162a46beda68f0e9b04e1ff8966544f8868488ba7b473ad74b02fb6d1bc",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 402,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "16f3f3bd18f3734d5081bc7d4f431519ebb0f903b2c6a340448b5a32eda9e320",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 64,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "2068a2273fe187005708168d45265eb2096e3ebf3bc9c703428e2a6cb7048129",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 403,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "9463af31bde13d407b1e6cafe9cf0c4682b44fafae72c425d33591bb563fdea5",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 34,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "6594b675c180086940bc40644928c7b43a0f8afce884b19353934aebd7083917",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 371,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "46e8769a7208aadc7e51e5c17786689da8994cd1ae9eebc7c3b503c9e294956f",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 472,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "c8e742c075a1e4cbad91062b1cb5bdafc805995fd265b6a75fc4786316aeb29a",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 365,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "d6c8f02f99c48d342a8f6605e642fae88233fdf5a7a25912fc85127d8c0df9e3",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 588,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "efd54b40556fbd1cebb7fb634ec6ce4c6989f827a05cc8a8cef77e9e8c37d045",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 269,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "961b221df7cdc12dc6212fde396ba48994246ee3c9243e43fa65ac48acbdb7db",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 460,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "83079462ac43ca3db69f24edddea2573375db7a182a7d6b557540a42b0cc842e",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 179,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "34680587947a307ffe00fb855122d2cf1bced0f21d49f08e76e5d00a6945e4b4",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 65,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "00fb400589e60166c11bd49e72f3ce306b2fc21756b724f0cf83aa6fa328cc04",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 119,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "2ef67199de65477a2f429bcaaf96f8a385240472148cc125674b920ef8d73005",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 152,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "fb8f22cb3c88932d7933ebd974b01e85456c329627e7be897dc5db02775be223",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 463,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "f5bd64ecfae3bef8559d1562118c016984846e4c9f5e48585fc809df13762f1c",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 770,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "18af33e08863d1b26e708c5479eca4d77fde1c65fee392302e212e056bfc9385",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 153,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "64b85d1e6dd13cbd774a90767cac43e5c66ae6bcf342ffbfff9c50ff0786779f",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 622,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed",
+        "section_alerts"
+      ],
+      "rageClicks": 1,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "46406b18a93fbad7a73c2107bf4a3cbcf431a4c8b5aaa0406ac4342c9112abfe",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 371,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 3,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "e58fdb34b815ae049d5b326c175c74d3800a791fe8ed9cbac4713424dcfd450d",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 320,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 3,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "f89c5d8afdc9c2385d22ebc666632d8247acad1a5c3138ea86249bb401c66121",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 138,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "1e7ca02f6cb1d4eb22fb683311708e3e76f14fc240a2eef644afd710ffb5244b",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 635,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "d1ae117671d99c9540d88ad418d281a048cdc7e55d904e7cd6bb165bf1c99c2f",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 276,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "3295060724e5d3624ed819987a5df92c9cded2c3a10ea2e93399d26e8bb89cd7",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 737,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "c7580bc5360a80573a67eddcce269cc5d68da2ff599201dad09674598ffc652b",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 536,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 2,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "ffccddfe31b08e71ebca223705a0c522464daed91769f40beb4eed42c41cef69",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 108,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "a04ed5e2a49b0b67af8006467fe0442962a9322a013e36c319d318430fe3c849",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 552,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "852fb384e662af8bc9a693a085374e844a2bc8e27f69c1434c8b369830228b65",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 222,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 2,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "cd65f2d8c8b9614213055b43bdff42fb04f863d21edffef3bec67cb0c5a1fa0b",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 276,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "7738c7e15f1962d837f4fe2e1c82cd95c6181b7dc4d5482b001890302eba006b",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 844,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_alerts"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "5c9b336e3e386028881e38aa7229ac74ea1e7bf7e8f09bd4b217d72d7204972a",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 689,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed",
+        "section_alerts"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "8c37b156f0721db81b93f9f7c8a163522624626c36a835be8ed1faa063b1025a",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 391,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "c2d43aed69a5fc808236660c94c2bae645ee2ac14aa35db57ca7ca0c9f30bb17",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 88,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "d842bb91f2fc0d175aacefc634e4b8c06bb2bf3dd6e8fe5aa12894b0953bc38d",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 153,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "17685442042ef01d6e604e224f69356417bc4b5e7e3934b2bc7bb5dc3f3d22dc",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 874,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "ff1bfd12ff865c299f7d28973cf7a66c678235933ebd05ad0c06e82afb91bc38",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 710,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "5ae8737c57a0fe34f77a7d4371a72f6184c3ba66c2803a3b420df964b292c984",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 476,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "25ff15557fee99914f1cb6d61cb32f471c3ce84f9228b4fdf7ac958b0427cfde",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 531,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "22f14df8e676cb663807eddd307e16f166197b0783fc94336d2e1650a16b087a",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 218,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "47bf134aa796b2ca2099b8bfd28190e1e2ccd630098da7034e70d9fb7fd2db2e",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 587,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "195b2ec4a4c7038ec55be0b1a16ca82da799893194f71ac933060b74e4b01cae",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 851,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_alerts"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "c3e83a8033255e944f3c55b6d8c64b7ecaeddeb1cf0796075d4c9c104fb6ce82",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 565,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "3987110f88ad1a0fa668ae59d2e5bacc6aa3f56772a985898ee1799bfdaecb72",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 58,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "63655a3f22d19cee843170045906ad8200f44df487dbd00cf8e2eaf0930ac575",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 139,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "f1033707a2bc3aad133555598641f1321b9342d4cd2932cddaf528fcd6412211",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 115,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "75741e4309a960b72c2eb65970fdef2c1eb6224df177b8fca94d1f393f05da8c",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 449,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed",
+        "section_alerts"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "f8d7cd3616a29f8f51304d27469eef57b449a4449295090735f2b783220808c9",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 227,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "4f7cd558d5ee1fcbe4c087c49af761a087e2dd6531d906e9eda47aa045a8be5d",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 772,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "4b0bf58ae6025e0da3389561cbdcf81ab9ab84a843166a3926a3c2bc6b6a5a77",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 49,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "f9ca864be915274400743a235c97db30a7da68acde96d3630057f358b554c760",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 591,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "ed4e1ddc7f9993832abb16e6cc6679af45c144002c1576994463668ed890871c",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 404,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "8710144805839b1b5c5afc7e488899bde138c1738468a04c087c8fdf08bcc9c5",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 825,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "7fd4f31569e3833df3ee7e12595534787480be07638698c3061ab7d7bc5e310e",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 825,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "22cbe576206cc033470a1d2c0cb5c96fe98f299faeee9076d5abdce1e14bb194",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 587,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "e226ebe4101401619ec668ce7d6f5d57d6da640d05472327580513e5ddf370c0",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 263,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "60df3596c4e8ca210f618cdcb7e7415ecb76cd3fbd1b3f05c7682bdee9b406be",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 650,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "2aed8518d3063f6d1e0ec6eabb5e187baf0d13daa9c3eec151b5f2919490528d",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 749,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "d9eddb87c85fce5d80534c7a83c4d3535a34f048ceb7a12b7b9168403369fb61",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 585,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "b444315cd4e95956202714bed3c864ae781bf7c96ba78f6a14d789eeccdc45e6",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 119,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "298dbbb315fb3e3c165cd37580faf3ee6f70576d37bbef5abb7d41514b0dbea2",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 588,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed",
+        "section_alerts"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "c7f4163e9e5368017e72b34e3cd8853c17cc072107d3490fe6cfac26eac4cbff",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 276,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_alerts"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "0448ba3480eb96b0e613a4eaaae360ac09e02bde3375c19c6c557afd37ff8ea5",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 324,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "56fa7a248687f47942f5968ceb8aff9855946b26f8f954851639d88564fa0460",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 784,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "18f8d57e8c5a74868e70abd82c3e7177f5db9ba0d3cca8ddc6f516bf743bdc8d",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 141,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "d985f8b0b01fb87e938a3bd0cbdd7b2aa01e12724a1c44d5a8cc3a5320b627bd",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 466,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 3,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "51c0836a59dd3444a8735120155e8602bb69d658f475dbde678176765df86930",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 849,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "129a497ec0f3ed3ff61fde80f3b908e750cd0a06c0b57638063c42a9735e0e18",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 704,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "1f8fc367fc7dfeb659470bf5742312a286e6d90f08cc6717970d3c90bab2f50e",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 374,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "73fc53e49abf118d1deb4a8e1fb27323c2ac69cf32bc00a0902aed1d606eaa80",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 96,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed",
+        "section_alerts"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "d4cd6e373c061d0e97e242b7af209970621456392225b51c1860260b633c34e4",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 107,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "eca71456c5c0a82564832236dfd65a0bc5c100915707d65acea4574fed6deeee",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 458,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "be29105fae9f7a964e98b44adb2fb047188550b2229dbc285cf4daaec35ad3e9",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 598,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed",
+        "section_alerts"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "749dcc842fd9d3e71b3a216050bb2870f381d4db63a285d38b2f89105f18455b",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 229,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "7aa93333b946829a4eb9db90d6881dd6c486c02a6e4917c24ff9aaf59132299a",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 191,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "b2ecf556a9f05ab66e4597ec915dd25e9d0f9d93315e04ce3f5aa58f2df1c7ce",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 575,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "dae5a675e1b4706699c2faa68da0d3ca6c69495283bc286c544b228b199e8376",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 386,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "f58d378a0074cd23b9ac1bb0d5f4ea2dd0d0fe4a59d96db2a4fc84b4f683dee3",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 243,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "50b9966f9d12477388abf186510fd018264a9fc275c27871ff166eaa42334fb4",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 201,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "365dde936673abc4e4257fdf0c217d6315156f5691d73561f7166e5b57316ff5",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 767,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "201a20c2c0defa1b8ae1f8e971e5bb954a924c5a9762a0b104bdfaf1c5392a78",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 352,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 3,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "49b782cf6cd4b944c777f8b7b7bd3f9a3d25876806e2f05a606a25d2f71e536f",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 370,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "2ccebcd406e4c0c1b31dbe33fc4a6a5770ebd3456b616a22c3ae2b3ffc1d4475",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 105,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "9413b2e49d19da5c26bda7a387dfa9ef47d937ff68a4dcb476378132a1237b7e",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 112,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "3093cd0117ce852518c8c583818247a2564a6c61ac05c2d561ee6ae94e979484",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 672,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 3,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "a7ad13cbc2ecc3051832e3f7e46525ed20de022a0281a9d89e2744e93c7ce4f6",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 507,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "4babd272edd2ff28dd20e40eb63fb597259dfee31905b682da0b43d513faad2e",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 523,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 2,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "2c1ad0a98d43af5a037ecab29c7336b2b6f4f337067079fa825634eb58eb92f5",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 856,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 3,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "7b2ffdf12b7ea42e4483ef95d21791e699d6dcfb10decd29a9dfb43c8cc1ae8a",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 196,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "5f604c7f2f5217ab6a6cc46ab9fef315e1f78a5fc624caaf047fb406a1fd5c9d",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 418,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "3295f1d6a1c1c0da25f2cdd713dbe0ca8162130cfd45017451e99e1b7e3211a9",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 894,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 3,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "7d4c8c4e19d5cc14df14104ab9591c35898cb4a3c3985f2c2abbca44959bc5b3",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 268,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "b53c8e1c15af5a4470b2aefd2efb6a64ad3e7f717af4c4b74b4bc8d29f3011e4",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 105,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "d278c7fa452f407ebd93b31b75bd712a899a0d4db3df232761f6e1388029b42a",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 805,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "5d4c46bbf8ff2f75999954dd54c284907e2ffac3f8a3e1e49d449d005a4ab33e",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 105,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "c28ebc4d821592b6c30336238ebbde9869db059740262b625ecf2e510e7261e9",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 620,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "06f5ebe8c06e3eaa7fd1eb46c2103ee328bbd0d82ae9a6eff504e40c07376883",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 741,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "a571a82c6f2354b7b324a7ea4ad9f0a6ba9a4f41b799089a54a7c0af767519f3",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 474,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "fbd3a0b20b288accfc415723fdf76833f8b337e1bc49564a82f0649b8a57cdee",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 239,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_alerts"
+      ],
+      "rageClicks": 1,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "1c3236c2f93f273efa48ee809fcfba3d3cff3ba18d33c88ad50579941bcccd51",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 376,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "49df4596564bebfd7e66531929815663540029b2ddef2801d2467119184ef7a3",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 695,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "8b1a6e2b09545165bc91cb8fd0f18ae12b70c71b34f8bf431d1871a02ecc2ba2",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 552,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "75bef4306b4fcbbb12d3d7eef7af9f6010f8dd19110d7f19d486c395bdea664c",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 35,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed",
+        "section_alerts"
+      ],
+      "rageClicks": 3,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "c7d26e3b9a880dfc64073aed5bfdf74e66791a78ba276fff4b54bd6d623bd2fe",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 243,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "114714c779b797db219479565eada7901aaef687989c4d3595aff29b8134ad9e",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 159,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_alerts"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "4e45c2814547889d95e89ce379712afcf903649c538e88eb54acfce3ea3f4f57",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 867,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_alerts"
+      ],
+      "rageClicks": 0,
+      "uTurns": 1
+    },
+    {
+      "userIdHash": "c40166019b49c61343120aa8b20e651ac0d86dc15600abdcec6cad2fc7132b74",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 295,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "fe4ecda78f0c41e8fb82e5a51b5ad2b61b49cbb90fd60ec9dd484710055a10ee",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 140,
+      "events": [
+        "signed_in"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "874e88764e47ff8b671c4bddb96b51eb54d174ff3bf490d79a4fbf8ba1b1156c",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 166,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "94524d0e7832003bda016267d18c653c177dd4fc2e7d4d327a12c00a78d98276",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "mobile",
+      "synthetic": true,
+      "durationSec": 70,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 1,
+      "uTurns": 0
+    },
+    {
+      "userIdHash": "6e9551f9dc44746820ad59974326dee7253e5a36c486ae57a81e702977881938",
+      "user_role": "analyst_tier2",
+      "account_tier": "tier2",
+      "device": "desktop",
+      "synthetic": true,
+      "durationSec": 459,
+      "events": [
+        "signed_in",
+        "section_alerts",
+        "severity_filtered",
+        "search_used",
+        "section_incidents",
+        "incident_opened",
+        "incident_closed",
+        "section_assistant",
+        "assistant_lookup",
+        "section_reports",
+        "report_viewed"
+      ],
+      "rageClicks": 0,
+      "uTurns": 0
+    }
+  ]
+}

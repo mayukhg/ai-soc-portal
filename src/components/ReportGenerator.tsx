@@ -13,6 +13,7 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { trackHotjarEvent } from '@/lib/hotjar';
 
 interface ReportTemplate {
   id: string;
@@ -47,6 +48,10 @@ export function ReportGenerator() {
   const [generatedReport, setGeneratedReport] = useState<string | null>(null);
   const [reportTemplates, setReportTemplates] = useState<ReportTemplate[]>([]);
   const [scheduledReports, setScheduledReports] = useState<ScheduledReport[]>([]);
+
+  useEffect(() => {
+    trackHotjarEvent('report_viewed');
+  }, []);
 
   useEffect(() => {
     supabase
@@ -233,7 +238,7 @@ export function ReportGenerator() {
           </CardHeader>
           <CardContent>
             <div className="prose prose-sm max-w-none dark:prose-invert">
-              <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
+              <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed" data-hj-suppress="">
                 {generatedReport}
               </pre>
             </div>

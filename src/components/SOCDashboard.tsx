@@ -12,6 +12,7 @@ import { CollaborationPanel } from './CollaborationPanel';
 import { IncidentManagement } from './IncidentManagement';
 import { ReportGenerator } from './ReportGenerator';
 import { fetchAlertCounts, searchRecords, type AlertCounts, type SearchHit } from '@/lib/backendApi';
+import { DASHBOARD_SECTION_EVENTS, trackHotjarEvent, trackHotjarStateChange } from '@/lib/hotjar';
 
 const emptyCounts: AlertCounts = {
   total: 0,
@@ -40,6 +41,12 @@ export function SOCDashboard() {
   }, []);
 
   useEffect(() => {
+    const eventName = DASHBOARD_SECTION_EVENTS[activeView];
+    if (eventName) trackHotjarEvent(eventName);
+    trackHotjarStateChange(`/dashboard/${activeView}`);
+  }, [activeView]);
+
+  useEffect(() => {
     const query = searchTerm.trim();
     if (query.length < 2) {
       setSearchHits([]);
@@ -50,6 +57,7 @@ export function SOCDashboard() {
         .then((body) => {
           setSearchHits(body.results || []);
           setSearchOpen(true);
+          trackHotjarEvent('search_used');
         })
         .catch(() => setSearchHits([]));
     }, 300);
@@ -72,6 +80,7 @@ export function SOCDashboard() {
   };
 
   const handleSignOut = async () => {
+    trackHotjarEvent('signed_out');
     await signOut();
   };
 
@@ -98,6 +107,7 @@ export function SOCDashboard() {
               <Input
                 placeholder="Search alerts, IOCs, incidents..."
                 className="w-full min-w-0 pl-10"
+                data-hj-suppress=""
                 value={searchTerm}
                 onChange={(event) => {
                   setSearchTerm(event.target.value);
@@ -107,7 +117,7 @@ export function SOCDashboard() {
                 onBlur={() => setTimeout(() => setSearchOpen(false), 150)}
               />
               {searchOpen && searchTerm.trim().length >= 2 && (
-                <div className="absolute top-11 left-0 z-50 w-full rounded-md border bg-popover p-1 md:w-80">
+                <div className="absolute top-11 left-0 z-50 w-full rounded-md border bg-popover p-1 md:w-80" data-hj-suppress="">
                   {searchHits.length === 0 ? (
                     <p className="px-3 py-2 text-sm text-muted-foreground">No matches</p>
                   ) : (

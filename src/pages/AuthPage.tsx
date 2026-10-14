@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Shield, Mail, Lock, User as UserIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { trackHotjarEvent } from '@/lib/hotjar';
 
 export function AuthPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -69,6 +70,7 @@ export function AuthPage() {
       });
 
       if (error) {
+        trackHotjarEvent('sign_in_failed');
         if (error.message.includes('Invalid login credentials')) {
           setError('Invalid email or password. Please check your credentials and try again.');
         } else if (error.message.includes('Email not confirmed')) {
@@ -77,6 +79,7 @@ export function AuthPage() {
           setError(error.message);
         }
       } else {
+        trackHotjarEvent('signed_in');
         setMessage('Successfully signed in! Redirecting...');
       }
     } catch (err) {
@@ -212,6 +215,7 @@ export function AuthPage() {
                       className="pl-10"
                       required
                       disabled={authLoading}
+                      data-hj-suppress=""
                     />
                   </div>
                 </div>
@@ -279,6 +283,7 @@ export function AuthPage() {
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="signup-password"
+                      data-hj-suppress=""
                       type="password"
                       placeholder="••••••••"
                       value={password}
@@ -297,6 +302,7 @@ export function AuthPage() {
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="signup-confirm"
+                      data-hj-suppress=""
                       type="password"
                       placeholder="••••••••"
                       value={confirmPassword}

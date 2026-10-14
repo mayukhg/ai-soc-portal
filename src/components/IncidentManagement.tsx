@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/dialog';
 import { downloadCsv, fetchIncidentDetail, type IncidentDetail } from '@/lib/backendApi';
 import { useToast } from '@/hooks/use-toast';
+import { trackHotjarEvent } from '@/lib/hotjar';
 
 /**
  * Interface for incident data structure
@@ -129,7 +130,10 @@ export function IncidentManagement({
     setDetailOpen(true);
     setDetailLoading(true);
     fetchIncidentDetail(incidentId)
-      .then(setDetail)
+      .then((loaded) => {
+        setDetail(loaded);
+        trackHotjarEvent('incident_opened');
+      })
       .catch((err) => {
         toast({
           title: 'Could not load incident',
@@ -342,6 +346,7 @@ export function IncidentManagement({
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
                   disabled={isSearching}
+                  data-hj-suppress=""
                 />
               </div>
             
@@ -564,14 +569,20 @@ export function IncidentManagement({
         </DialogContent>
       </Dialog>
 
-      <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
+      <Dialog
+        open={detailOpen}
+        onOpenChange={(open) => {
+          if (!open && detail) trackHotjarEvent('incident_closed');
+          setDetailOpen(open);
+        }}
+      >
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{detail?.incident.title || 'Incident'}</DialogTitle>
           </DialogHeader>
           {detailLoading && <p className="text-sm text-muted-foreground">Loading incident...</p>}
           {detail && (
-            <div className="space-y-4 max-h-[60vh] overflow-auto">
+            <div className="space-y-4 max-h-[60vh] overflow-auto" data-hj-suppress="">
               <p className="text-sm">{detail.incident.description}</p>
               <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
                 <span>{detail.incident.severity}</span>

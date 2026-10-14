@@ -1,6 +1,7 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { currentDevice, identifyUser, resetHotjarUser } from '@/lib/hotjar';
 
 interface AuthContextType {
   user: User | null;
@@ -91,7 +92,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  useEffect(() => {
+    if (!user) return;
+    const role = typeof userProfile?.role === 'string' ? userProfile.role : 'analyst_tier2';
+    const tierMatch = role.match(/tier_?(\d+)/i);
+    identifyUser(user.id, {
+      user_role: role,
+      account_tier: tierMatch ? `tier${tierMatch[1]}` : 'tier2',
+      device: currentDevice(),
+      synthetic: true,
+    });
+  }, [user, userProfile]);
+
   const signOut = async () => {
+    resetHotjarUser();
     await supabase.auth.signOut();
   };
 

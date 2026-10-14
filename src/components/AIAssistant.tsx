@@ -77,7 +77,7 @@ export function AIAssistant() {
 
         <CardContent className="flex-1 flex flex-col p-0">
           <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-            <div className="space-y-4">
+            <div className="space-y-4" data-hj-suppress="">
               {messages.length === 0 && (
                 <div className="text-center py-8">
                   <Bot className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
@@ -178,6 +178,7 @@ export function AIAssistant() {
                   placeholder="Ask me about security incidents, threats, or analysis..."
                   disabled={loading}
                   className="pr-24"
+                  data-hj-suppress=""
                 />
                 <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex space-x-1">
                   <Button type="button" size="sm" variant="ghost" className="h-6 w-6 p-0">

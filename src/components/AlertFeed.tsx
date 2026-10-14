@@ -8,6 +8,7 @@ import { useAlerts } from '@/hooks/useAlerts';
 import { supabase } from '@/integrations/supabase/client';
 import { downloadCsv } from '@/lib/backendApi';
 import { useToast } from '@/hooks/use-toast';
+import { trackHotjarEvent } from '@/lib/hotjar';
 
 interface ProfileOption {
   user_id: string;
@@ -147,7 +148,10 @@ export function AlertFeed({ onAlertsChanged }: { onAlertsChanged?: () => void })
             key={severity}
             variant={selectedSeverity === severity ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setSelectedSeverity(severity)}
+            onClick={() => {
+              setSelectedSeverity(severity);
+              if (severity !== 'all') trackHotjarEvent('severity_filtered');
+            }}
           >
             {severity.charAt(0).toUpperCase() + severity.slice(1)}
           </Button>

@@ -8,6 +8,8 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { AuthPage } from "./pages/AuthPage";
 import IntroPage from "./pages/IntroPage";
+import { HotjarListener } from "./components/HotjarListener";
+import HotjarMetricsPage from "./pages/HotjarMetricsPage";
 
 const queryClient = new QueryClient();
 
@@ -18,10 +20,12 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <HotjarListener />
           <Routes>
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/intro" element={<IntroPage />} />
             <Route path="/" element={<Index />} />
+            <Route path="/dev/hotjar-insights" element={<HotjarMetricsPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
