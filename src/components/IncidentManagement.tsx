@@ -20,7 +20,9 @@ import {
 import { downloadCsv, fetchIncidentDetail, type IncidentDetail } from '@/lib/backendApi';
 import { useToast } from '@/hooks/use-toast';
 import { trackHotjarEvent } from '@/lib/hotjar';
-import { secondsSince, track, PLAYBOOKS } from '@/lib/tracking';
+import { mapSocRole, trackEvent } from '@/lib/mixpanel';
+import { useAuth } from '@/contexts/AuthContext';
+import { minutesSince, track, PLAYBOOKS } from '@/lib/tracking';
 
 /**
  * Interface for incident data structure
@@ -32,7 +34,8 @@ interface Incident {
   severity: 'critical' | 'high' | 'medium' | 'low';  // Severity level
   status: 'open' | 'investigating' | 'resolved' | 'closed';  // Current status
   assignee: string;                              // Assigned analyst
-  createdAt: string;                             // Creation date
+  createdAt: string;                             // Creation date (display)
+  createdAtIso: string;                          // Creation date (ISO for analytics)
   lastUpdate: string;                            // Last update date
   alertCount: number;                            // Number of associated alerts
   description: string;                           // Incident description
@@ -60,6 +63,8 @@ export function IncidentManagement({
   onIncidentsChanged?: () => void;
 }) {
   const { toast } = useToast();
+  const { userProfile } = useAuth();
+  const analystRole = mapSocRole(userProfile?.role);
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -108,6 +113,7 @@ export function IncidentManagement({
           status: row.status as Incident['status'],
           assignee: row.assignee || 'Unassigned',
           createdAt: new Date(row.created_at).toLocaleDateString(),
+          createdAtIso: row.created_at,
           lastUpdate: new Date(row.updated_at).toLocaleDateString(),
           alertCount: row.alert_count ?? 0,
           description: row.description || '',
@@ -173,6 +179,7 @@ export function IncidentManagement({
     status: result.status as 'open' | 'investigating' | 'resolved' | 'closed',
     assignee: result.assignee || 'Unassigned',
     createdAt: new Date(result.created_at).toLocaleDateString(),
+    createdAtIso: result.created_at,
     lastUpdate: new Date(result.updated_at).toLocaleDateString(),
     alertCount: result.alert_count,
     description: result.description || '',
@@ -238,7 +245,7 @@ export function IncidentManagement({
     try {
       setExporting(true);
       await downloadCsv('/api/incidents/export', 'incidents.csv');
-      track('report_exported', { report_type: 'incidents', format: 'csv' });
+      trackEvent('soc_report_exported', { report_type: 'incident_summary', format: 'csv' });
     } catch (err) {
       toast({
         title: 'Export failed',
@@ -254,6 +261,7 @@ export function IncidentManagement({
     if (!draft.title.trim()) return;
     setCreating(true);
     const tags = draft.tags.split(',').map((tag) => tag.trim()).filter(Boolean);
+    const incidentType = tags[0] || 'unauthorized_access';
     const { data, error } = await supabase.from('incidents').insert([{
       title: draft.title.trim(),
       description: draft.description.trim(),
@@ -262,22 +270,52 @@ export function IncidentManagement({
       assignee: draft.assignee || null,
       tags,
       alert_count: 0,
-    }]);
+    }]).select('id, created_at, severity, status').single();
     setCreating(false);
     if (error) {
       toast({ title: 'Could not create incident', description: error.message, variant: 'destructive' });
       return;
     }
-    const created = Array.isArray(data) ? data[0] as { id?: string; created_at?: string } : null;
-    track('incident_created', {
-      incident_id: created?.id,
+    const created = data as { id: string; created_at: string; severity: string; status: string };
+    trackEvent('incident_created', {
+      incident_id: created.id,
       severity: draft.severity,
+      incident_type: incidentType,
+      source: 'manual',
+      asset_id: created.id,
+      assigned_to_role: analystRole,
     });
-    if (draft.status === 'resolved' || draft.status === 'closed') {
-      track('incident_resolved', {
-        incident_id: created?.id,
-        resolution_type: draft.status,
-        time_to_resolve_seconds: secondsSince(created?.created_at),
+    if (draft.assignee) {
+      trackEvent('incident_assigned', {
+        incident_id: created.id,
+        severity: draft.severity,
+        assignment_type: 'manual',
+        assigned_role: analystRole,
+      });
+    }
+    if (draft.status === 'investigating') {
+      trackEvent('investigation_started', {
+        incident_id: created.id,
+        investigation_type: 'root_cause',
+        analyst_role: analystRole,
+      });
+    }
+    if (draft.status === 'resolved') {
+      trackEvent('incident_resolved', {
+        incident_id: created.id,
+        severity: draft.severity,
+        resolution_type: 'mitigated',
+        time_to_resolve_minutes: minutesSince(created.created_at),
+        playbooks_used: 0,
+        auto_resolved: false,
+      });
+    }
+    if (draft.status === 'closed') {
+      trackEvent('incident_closed', {
+        incident_id: created.id,
+        severity: draft.severity,
+        root_cause: 'unknown',
+        post_mortem_completed: false,
       });
     }
     setNewOpen(false);
@@ -296,13 +334,71 @@ export function IncidentManagement({
       toast({ title: 'Assign failed', description: error.message, variant: 'destructive' });
       return;
     }
-    setAssignTarget(null);
-    track('incident_updated', {
+    trackEvent('incident_assigned', {
       incident_id: assignTarget.id,
-      field_changed: 'assignee',
-      status: assignTarget.status,
+      severity: assignTarget.severity,
+      assignment_type: 'manual',
+      assigned_role: analystRole,
     });
+    setAssignTarget(null);
     await loadIncidents();
+  };
+
+  const updateIncidentStatus = async (
+    incident: Incident,
+    status: Incident['status'],
+    options?: { escalate?: boolean; fromSeverity?: string },
+  ) => {
+    const { error } = await supabase
+      .from('incidents')
+      .update({ status })
+      .eq('id', incident.id);
+    if (error) {
+      toast({ title: 'Update failed', description: error.message, variant: 'destructive' });
+      return;
+    }
+
+    if (options?.escalate && options.fromSeverity) {
+      trackEvent('incident_escalated', {
+        incident_id: incident.id,
+        from_severity: options.fromSeverity,
+        to_severity: incident.severity,
+        reason: 'scope_expansion',
+        escalated_by: 'analyst',
+        time_since_creation_minutes: minutesSince(incident.createdAtIso),
+      });
+    }
+
+    if (status === 'investigating') {
+      trackEvent('investigation_started', {
+        incident_id: incident.id,
+        investigation_type: 'forensic',
+        analyst_role: analystRole,
+      });
+    }
+
+    if (status === 'resolved') {
+      trackEvent('incident_resolved', {
+        incident_id: incident.id,
+        severity: incident.severity,
+        resolution_type: 'contained',
+        time_to_resolve_minutes: minutesSince(incident.createdAtIso),
+        playbooks_used: 1,
+        auto_resolved: false,
+      });
+    }
+
+    if (status === 'closed') {
+      trackEvent('incident_closed', {
+        incident_id: incident.id,
+        severity: incident.severity,
+        root_cause: 'external_attack',
+        post_mortem_completed: false,
+      });
+    }
+
+    await loadIncidents();
+    onIncidentsChanged?.();
   };
 
   return (
@@ -488,13 +584,70 @@ export function IncidentManagement({
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex items-center space-x-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Button variant="outline" size="sm" onClick={() => openDetail(incident.id)}>
                     View Details
                   </Button>
                   <Button variant="outline" size="sm" onClick={() => setAssignTarget(incident)}>
                     Assign
                   </Button>
+                  {incident.status === 'open' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => updateIncidentStatus(incident, 'investigating')}
+                    >
+                      Investigate
+                    </Button>
+                  )}
+                  {incident.status !== 'resolved' && incident.status !== 'closed' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => updateIncidentStatus(incident, 'resolved')}
+                    >
+                      Resolve
+                    </Button>
+                  )}
+                  {incident.status === 'resolved' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => updateIncidentStatus(incident, 'closed')}
+                    >
+                      Close
+                    </Button>
+                  )}
+                  {incident.severity !== 'critical' && incident.status !== 'closed' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const nextSeverity = incident.severity === 'low'
+                          ? 'medium'
+                          : incident.severity === 'medium'
+                            ? 'high'
+                            : 'critical';
+                        void supabase
+                          .from('incidents')
+                          .update({ severity: nextSeverity })
+                          .eq('id', incident.id)
+                          .then(() => {
+                            trackEvent('incident_escalated', {
+                              incident_id: incident.id,
+                              from_severity: incident.severity,
+                              to_severity: nextSeverity,
+                              reason: 'scope_expansion',
+                              escalated_by: 'analyst',
+                              time_since_creation_minutes: minutesSince(incident.createdAtIso),
+                            });
+                            void loadIncidents();
+                          });
+                      }}
+                    >
+                      Escalate
+                    </Button>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -645,17 +798,59 @@ export function IncidentManagement({
                   </ul>
                 )}
               </div>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => track('playbook_executed', {
-                  playbook_id: PLAYBOOKS[0].id,
-                  playbook_name: PLAYBOOKS[0].name,
-                  trigger_source: 'incident',
-                })}
-              >
-                Run playbook
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    const playbook = PLAYBOOKS[0];
+                    const start = Date.now();
+                    trackEvent('playbook_executed', {
+                      playbook_id: playbook.id,
+                      playbook_name: playbook.name,
+                      incident_id: detail.incident.id,
+                      triggered_by: 'analyst',
+                      execution_status: 'success',
+                      steps_completed: 4,
+                      steps_total: 4,
+                      duration_seconds: Math.max(1, Math.round((Date.now() - start) / 1000)),
+                    });
+                    trackEvent('containment_action_taken', {
+                      incident_id: detail.incident.id,
+                      action_type: 'model_isolated',
+                      triggered_by: 'analyst',
+                      asset_id: detail.incident.id,
+                      success: true,
+                    });
+                  }}
+                >
+                  Run playbook
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    trackEvent('case_notes_added', {
+                      incident_id: detail.incident.id,
+                      note_type: 'observation',
+                    });
+                  }}
+                >
+                  Add note
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    trackEvent('case_shared', {
+                      incident_id: detail.incident.id,
+                      shared_with: 'team',
+                    });
+                  }}
+                >
+                  Share case
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>

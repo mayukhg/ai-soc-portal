@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Globe, MapPin, Activity, Shield, Zap, Eye, Filter, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ThreatCorrelationGraph } from './ThreatCorrelationGraph';
 import { useThreatIntelligence } from '@/hooks/useThreatIntelligence';
+import { trackEvent } from '@/lib/mixpanel';
 
 interface ThreatLocation {
   country: string;
@@ -16,13 +17,42 @@ interface ThreatLocation {
   indicators: any[];
 }
 
+function getSeverityFromConfidence(confidence: number): 'critical' | 'high' | 'medium' | 'low' {
+  if (confidence >= 90) return 'critical';
+  if (confidence >= 70) return 'high';
+  if (confidence >= 50) return 'medium';
+  return 'low';
+}
+
 export function ThreatMap() {
   const { threatIntel, loading, error, getThreatsByCountry } = useThreatIntelligence();
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedCountry, setSelectedCountry] = useState<string>('all');
+  const seenThreats = useRef(new Set<string>());
 
   const threatLocations = getThreatsByCountry();
-  
+
+  useEffect(() => {
+    threatIntel.slice(0, 20).forEach((threat) => {
+      if (seenThreats.current.has(threat.id)) return;
+      seenThreats.current.add(threat.id);
+      trackEvent('threat_detected', {
+        threat_id: threat.id,
+        threat_type: threat.threat_type?.toLowerCase().includes('exfil')
+          ? 'data_exfiltration'
+          : threat.threat_type?.toLowerCase().includes('inject')
+            ? 'prompt_injection'
+            : 'unauthorized_access',
+        severity: getSeverityFromConfidence(threat.confidence_score),
+        source: 'threat_intelligence',
+        asset_id: threat.id,
+        asset_type: threat.indicator_type === 'hash' ? 'model' : 'api_endpoint',
+        auto_escalated: threat.confidence_score >= 85,
+        confidence_score: threat.confidence_score,
+      });
+    });
+  }, [threatIntel]);
+
   const filteredThreats = threatIntel.filter(threat => {
     const typeMatch = selectedType === 'all' || threat.indicator_type === selectedType;
     const countryMatch = selectedCountry === 'all' || threat.country_code === selectedCountry;
@@ -34,13 +64,6 @@ export function ThreatMap() {
     if (confidence >= 70) return 'bg-high text-high-foreground';
     if (confidence >= 50) return 'bg-medium text-medium-foreground';
     return 'bg-low text-low-foreground';
-  };
-
-  const getSeverityFromConfidence = (confidence: number): 'critical' | 'high' | 'medium' | 'low' => {
-    if (confidence >= 90) return 'critical';
-    if (confidence >= 70) return 'high';
-    if (confidence >= 50) return 'medium';
-    return 'low';
   };
 
   const formatTimeAgo = (dateString: string) => {

@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useAIAssistant } from '@/hooks/useAIAssistant';
+import { trackEvent } from '@/lib/mixpanel';
 import { PLAYBOOKS, track } from '@/lib/tracking';
 
 export function AIAssistant() {
@@ -174,11 +175,26 @@ export function AIAssistant() {
                           type="button"
                           size="sm"
                           variant="outline"
-                          onClick={() => track('playbook_executed', {
-                            playbook_id: PLAYBOOKS[0].id,
-                            playbook_name: PLAYBOOKS[0].name,
-                            trigger_source: 'assistant',
-                          })}
+                          onClick={() => {
+                            const playbook = PLAYBOOKS.find((item) => item.id === 'isolate_model') || PLAYBOOKS[0];
+                            trackEvent('playbook_executed', {
+                              playbook_id: playbook.id,
+                              playbook_name: playbook.name,
+                              incident_id: message.id,
+                              triggered_by: 'analyst',
+                              execution_status: 'success',
+                              steps_completed: 3,
+                              steps_total: 3,
+                              duration_seconds: 45,
+                            });
+                            trackEvent('containment_action_taken', {
+                              incident_id: message.id,
+                              action_type: 'model_isolated',
+                              triggered_by: 'analyst',
+                              asset_id: message.id,
+                              success: true,
+                            });
+                          }}
                         >
                           Run playbook
                         </Button>

@@ -1,8 +1,9 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { currentDevice, identifyUser, resetHotjarUser } from '@/lib/hotjar';
-import { consumeSessionDuration, identify, markSignedIn, reset, track } from '@/lib/tracking';
+import { currentDevice, identifyUser as identifyHotjarUser, resetHotjarUser } from '@/lib/hotjar';
+import { identifyUser, mapSocRole, trackEvent } from '@/lib/mixpanel';
+import { consumeSessionDuration, markSignedIn, reset } from '@/lib/tracking';
 
 interface AuthContextType {
   user: User | null;
@@ -97,24 +98,44 @@ export function AuthProvider({ children }: AuthProviderProps) {
     if (!user) return;
     markSignedIn();
     const role = typeof userProfile?.role === 'string' ? userProfile.role : 'analyst_tier2';
+    const socRole = mapSocRole(role);
     const tierMatch = role.match(/tier_?(\d+)/i);
-    const org = typeof userProfile?.organization === 'string' ? userProfile.organization : undefined;
-    identify(user.id, { email: user.email, role, org });
+    const team = typeof userProfile?.organization === 'string'
+      ? userProfile.organization
+      : typeof userProfile?.team === 'string'
+        ? userProfile.team
+        : 'blue_team';
+    const name = typeof userProfile?.full_name === 'string'
+      ? userProfile.full_name
+      : user.user_metadata?.full_name || user.email?.split('@')[0] || 'Analyst';
+
     identifyUser(user.id, {
+      $email: user.email,
+      $name: name,
+      role: socRole,
+      team,
+      $created: user.created_at,
+      platform: 'ai_soc',
+    });
+    identifyHotjarUser(user.id, {
       user_role: role,
       account_tier: tierMatch ? `tier${tierMatch[1]}` : 'tier2',
       device: currentDevice(),
       synthetic: true,
     });
+
     const method = sessionStorage.getItem('mp_pending_sign_in');
-    if (method && userProfile?.role) {
-      track('user_signed_in', { method, role: userProfile.role });
+    if (method) {
+      trackEvent('analyst_logged_in', {
+        method: method === 'sso' ? 'sso' : 'email',
+        role: socRole,
+      });
       sessionStorage.removeItem('mp_pending_sign_in');
     }
   }, [user, userProfile]);
 
   const signOut = async () => {
-    track('user_signed_out', { session_duration_seconds: consumeSessionDuration() });
+    trackEvent('analyst_logged_out', { session_duration_seconds: consumeSessionDuration() });
     reset();
     resetHotjarUser();
     await supabase.auth.signOut();

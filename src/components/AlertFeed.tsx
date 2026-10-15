@@ -9,7 +9,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { downloadCsv } from '@/lib/backendApi';
 import { useToast } from '@/hooks/use-toast';
 import { trackHotjarEvent } from '@/lib/hotjar';
-import { secondsSince, track } from '@/lib/tracking';
+import { mapSocRole, trackEvent } from '@/lib/mixpanel';
+import { useAuth } from '@/contexts/AuthContext';
+import { minutesSince, track } from '@/lib/tracking';
 
 interface ProfileOption {
   user_id: string;
@@ -18,10 +20,12 @@ interface ProfileOption {
 
 export function AlertFeed({ onAlertsChanged }: { onAlertsChanged?: () => void }) {
   const { alerts, loading, error, updateAlertStatus, refresh } = useAlerts();
+  const { userProfile } = useAuth();
   const { toast } = useToast();
   const [selectedSeverity, setSelectedSeverity] = useState<string>('all');
   const [profiles, setProfiles] = useState<ProfileOption[]>([]);
   const [exporting, setExporting] = useState(false);
+  const analystRole = mapSocRole(userProfile?.role);
 
   const filteredAlerts = alerts.filter(alert => 
     selectedSeverity === 'all' || alert.severity === selectedSeverity
@@ -41,7 +45,7 @@ export function AlertFeed({ onAlertsChanged }: { onAlertsChanged?: () => void })
     try {
       setExporting(true);
       await downloadCsv('/api/alerts/export', 'alerts.csv');
-      track('report_exported', { report_type: 'alerts', format: 'csv' });
+      trackEvent('soc_report_exported', { report_type: 'incident_summary', format: 'csv' });
     } catch (err) {
       toast({
         title: 'Export failed',
@@ -70,17 +74,28 @@ export function AlertFeed({ onAlertsChanged }: { onAlertsChanged?: () => void })
     const alert = alerts.find((item) => item.id === alertId);
     await updateAlertStatus(alertId, status);
     if (alert && status === 'acknowledged') {
-      track('alert_triaged', {
+      trackEvent('alert_triaged', {
         alert_id: alert.id,
-        triage_decision: 'acknowledged',
-        time_to_triage_seconds: secondsSince(alert.created_at),
         severity: alert.severity,
+        triage_result: 'monitoring',
+        time_to_triage_minutes: minutesSince(alert.created_at),
+        analyst_role: analystRole,
       });
     }
     if (alert && status === 'investigating') {
-      track('investigation_started', {
-        investigation_id: alert.id,
-        trigger_type: 'alert',
+      trackEvent('investigation_started', {
+        incident_id: alert.id,
+        investigation_type: 'threat_hunt',
+        analyst_role: analystRole,
+      });
+    }
+    if (alert && status === 'resolved') {
+      trackEvent('investigation_completed', {
+        incident_id: alert.id,
+        investigation_type: 'threat_hunt',
+        duration_minutes: minutesSince(alert.created_at),
+        findings_count: (alert.indicators || []).length,
+        evidence_collected: (alert.affected_systems || []).length,
       });
     }
     onAlertsChanged?.();
@@ -282,7 +297,23 @@ export function AlertFeed({ onAlertsChanged }: { onAlertsChanged?: () => void })
                   </Button>
                   <Select onValueChange={(reason) => {
                     void updateAlertStatus(alert.id, 'investigating');
-                    track('alert_escalated', { alert_id: alert.id, escalation_reason: reason });
+                    trackEvent('alert_triaged', {
+                      alert_id: alert.id,
+                      severity: alert.severity,
+                      triage_result: reason === 'incident' ? 'escalated_to_incident' : 'monitoring',
+                      time_to_triage_minutes: minutesSince(alert.created_at),
+                      analyst_role: analystRole,
+                    });
+                    if (reason === 'incident') {
+                      trackEvent('incident_created', {
+                        incident_id: alert.id,
+                        severity: alert.severity,
+                        incident_type: alert.alert_type || 'unauthorized_access',
+                        source: 'escalated_from_alert',
+                        asset_id: alert.affected_systems?.[0] || alert.id,
+                        assigned_to_role: analystRole,
+                      });
+                    }
                     onAlertsChanged?.();
                   }}>
                     <SelectTrigger aria-label="Escalate alert" className="h-8 w-32">
@@ -296,7 +327,22 @@ export function AlertFeed({ onAlertsChanged }: { onAlertsChanged?: () => void })
                   </Select>
                   <Select onValueChange={(reason) => {
                     void updateAlertStatus(alert.id, 'false_positive');
-                    track('alert_dismissed', { alert_id: alert.id, dismiss_reason: reason });
+                    const triageResult = reason === 'duplicate' ? 'duplicate' : 'false_positive';
+                    trackEvent('alert_triaged', {
+                      alert_id: alert.id,
+                      severity: alert.severity,
+                      triage_result: triageResult,
+                      time_to_triage_minutes: minutesSince(alert.created_at),
+                      analyst_role: analystRole,
+                    });
+                    if (reason === 'false_positive') {
+                      trackEvent('alert_false_positive_marked', {
+                        alert_id: alert.id,
+                        alert_type: alert.alert_type || 'unknown',
+                        reason: 'benign_activity',
+                        auto_suppressed_future: false,
+                      });
+                    }
                     onAlertsChanged?.();
                   }}>
                     <SelectTrigger aria-label="Dismiss alert" className="h-8 w-32">

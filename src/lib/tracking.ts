@@ -1,25 +1,16 @@
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import mixpanel from "mixpanel-browser";
+import { identifyUser, isMixpanelReady, resetMixpanel, trackEvent } from "@/lib/mixpanel";
 
-const TOKEN = import.meta.env.NEXT_PUBLIC_MIXPANEL_TOKEN;
 const SIGNED_IN_AT = "mp_signed_in_at";
 
-let ready = false;
-
-if (typeof window !== "undefined" && TOKEN) {
-  mixpanel.init(TOKEN, { track_pageview: true, persistence: "localStorage" });
-  ready = true;
-}
-
 export function identify(userId: string, traits: { email?: string; role?: string; org?: string } = {}) {
-  if (!ready || !userId) return;
-  mixpanel.identify(userId);
+  if (!isMixpanelReady() || !userId) return;
   const people: Record<string, string> = {};
   if (traits.email) people.$email = traits.email;
   if (traits.role) people.role = traits.role;
   if (traits.org) people.org = traits.org;
-  if (Object.keys(people).length > 0) mixpanel.people.set(people);
+  identifyUser(userId, people);
 }
 
 export const ESCALATION_REASONS = ["tier3", "incident", "threat_hunt"] as const;
@@ -28,6 +19,10 @@ export const ACCEPT_ACTIONS = ["acknowledge_alert", "open_incident"] as const;
 export const REJECT_REASONS = ["not_relevant", "incorrect", "incomplete"] as const;
 export const FEEDBACK_TYPES = ["helpful", "not_helpful"] as const;
 export const PLAYBOOKS = [
+  { id: "isolate_model", name: "isolate_model" },
+  { id: "revoke_access", name: "revoke_access" },
+  { id: "notify_stakeholders", name: "notify_stakeholders" },
+  { id: "rollback_model", name: "rollback_model" },
   { id: "finance-beacon-containment", name: "Finance beacon containment" },
 ] as const;
 
@@ -37,7 +32,17 @@ const LIMITED_EVENT_KEYS: Record<string, readonly string[]> = {
   ai_recommendation_accepted: ["recommendation_id", "action_taken"],
   ai_recommendation_rejected: ["recommendation_id", "reject_reason"],
   ai_feedback_submitted: ["recommendation_id", "feedback_type"],
-  playbook_executed: ["playbook_id", "playbook_name", "trigger_source"],
+  playbook_executed: [
+    "playbook_id",
+    "playbook_name",
+    "trigger_source",
+    "incident_id",
+    "triggered_by",
+    "execution_status",
+    "steps_completed",
+    "steps_total",
+    "duration_seconds",
+  ],
 };
 
 const ALLOWED_VALUES: Record<string, readonly string[]> = {
@@ -49,6 +54,8 @@ const ALLOWED_VALUES: Record<string, readonly string[]> = {
   playbook_id: PLAYBOOKS.map((playbook) => playbook.id),
   playbook_name: PLAYBOOKS.map((playbook) => playbook.name),
   trigger_source: ["assistant", "incident"],
+  triggered_by: ["auto", "analyst"],
+  execution_status: ["success", "partial", "failed"],
 };
 
 const BLOCKED_PROPERTY = /^(title|description|message|query|search|address|content|text|email|ip|ip_address|alert_text|search_text|reason_note)$/i;
@@ -71,13 +78,12 @@ export function sanitizeEventProperties(eventName: string, properties?: Record<s
 }
 
 export function track(eventName: string, properties?: Record<string, unknown>) {
-  if (!ready) return;
-  mixpanel.track(eventName, sanitizeEventProperties(eventName, properties));
+  if (!isMixpanelReady()) return;
+  trackEvent(eventName, sanitizeEventProperties(eventName, properties));
 }
 
 export function reset() {
-  if (!ready) return;
-  mixpanel.reset();
+  resetMixpanel();
 }
 
 export function markSignedIn() {
@@ -102,6 +108,10 @@ export function secondsSince(iso?: string) {
   return Math.max(0, Math.round((Date.now() - then) / 1000));
 }
 
+export function minutesSince(iso?: string) {
+  return Math.max(0, Math.round(secondsSince(iso) / 60));
+}
+
 /** Type only. The query string itself is not returned. */
 export function indicatorType(query: string) {
   const value = query.trim();
@@ -117,7 +127,11 @@ export function MixpanelRouteListener() {
 
   useEffect(() => {
     if (location.pathname === "/") return;
-    track("page_viewed", { page_name: location.pathname, referrer_page: previous.current });
+    trackEvent("soc_dashboard_viewed", {
+      section: location.pathname === "/auth" ? "settings" : "overview",
+      page_name: location.pathname,
+      referrer_page: previous.current,
+    });
     previous.current = location.pathname;
   }, [location.pathname]);
 

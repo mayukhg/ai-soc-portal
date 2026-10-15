@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCollaboration } from '@/hooks/useCollaboration';
+import { trackEvent } from '@/lib/mixpanel';
 
 /**
  * Props interface for the CollaborationPanel component
@@ -53,6 +54,24 @@ export function CollaborationPanel({ targetId, targetType, title }: Collaboratio
     setIsSubmitting(true);
     try {
       await addComment(newComment, commentType);
+      const noteType =
+        commentType === 'escalation'
+          ? 'action_taken'
+          : commentType === 'resolution'
+            ? 'update'
+            : commentType === 'question'
+              ? 'observation'
+              : 'observation';
+      trackEvent('case_notes_added', {
+        incident_id: targetId,
+        note_type: noteType,
+      });
+      if (commentType === 'escalation') {
+        trackEvent('case_shared', {
+          incident_id: targetId,
+          shared_with: 'team',
+        });
+      }
       setNewComment('');  // Clear form after successful submission
       setCommentType('note');  // Reset to default comment type
     } finally {

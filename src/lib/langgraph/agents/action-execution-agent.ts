@@ -3,6 +3,7 @@
  * Executes automated actions and manages playbook execution
  */
 
+import { trackEvent } from '@/lib/mixpanel';
 import { SOCState, ExecutionResult, ExecutionMetrics } from '../types';
 
 export class ActionExecutionAgent {
@@ -60,18 +61,20 @@ export class ActionExecutionAgent {
 
   private async executePlaybookActions(state: SOCState): Promise<ExecutionResult[]> {
     const results: ExecutionResult[] = [];
-    
+    const incidentId = state.incidents?.[0]?.id || state.alerts?.[0]?.id || state.session_id || 'unknown';
+
     for (const playbook of state.playbook_suggestions || []) {
       console.log(`📋 Executing playbook: ${playbook.name}`);
-      
+      const playbookStart = Date.now();
+      let stepsCompleted = 0;
+
       for (const step of playbook.steps) {
         const executionId = `exec_${Date.now()}_${step.step_id}`;
         const startTime = Date.now();
-        
+
         try {
-          // Simulate step execution
           const result = await this.executeStep(step, state);
-          
+
           const executionResult: ExecutionResult = {
             execution_id: executionId,
             action_id: step.step_id,
@@ -88,10 +91,10 @@ export class ActionExecutionAgent {
               retry_count: 0,
             },
           };
-          
+
+          stepsCompleted += 1;
           results.push(executionResult);
           this.executionQueue.set(executionId, executionResult);
-          
         } catch (error) {
           const executionResult: ExecutionResult = {
             execution_id: executionId,
@@ -110,13 +113,45 @@ export class ActionExecutionAgent {
               retry_count: 0,
             },
           };
-          
+
           results.push(executionResult);
           this.executionQueue.set(executionId, executionResult);
         }
       }
+
+      const stepsTotal = playbook.steps?.length || 0;
+      const executionStatus =
+        stepsCompleted === stepsTotal ? 'success' : stepsCompleted > 0 ? 'partial' : 'failed';
+      const playbookName = (playbook.name || 'isolate_model')
+        .toLowerCase()
+        .replace(/\s+/g, '_');
+
+      trackEvent('playbook_executed', {
+        playbook_id: playbook.playbook_id || playbook.name || crypto.randomUUID(),
+        playbook_name: playbookName,
+        incident_id: incidentId,
+        triggered_by: 'auto',
+        execution_status: executionStatus,
+        steps_completed: stepsCompleted,
+        steps_total: stepsTotal,
+        duration_seconds: Math.max(1, Math.round((Date.now() - playbookStart) / 1000)),
+      });
+
+      trackEvent('containment_action_taken', {
+        incident_id: incidentId,
+        action_type: playbookName.includes('revoke')
+          ? 'access_revoked'
+          : playbookName.includes('rollback')
+            ? 'model_rolled_back'
+            : playbookName.includes('quarantine')
+              ? 'data_quarantined'
+              : 'model_isolated',
+        triggered_by: 'auto',
+        asset_id: incidentId,
+        success: executionStatus !== 'failed',
+      });
     }
-    
+
     return results;
   }
 

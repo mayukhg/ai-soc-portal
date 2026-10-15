@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { trackHotjarEvent } from '@/lib/hotjar';
+import { trackEvent } from '@/lib/mixpanel';
 
 interface ReportTemplate {
   id: string;
@@ -159,6 +160,18 @@ export function ReportGenerator() {
 
       if (data?.success) {
         setGeneratedReport(data.content);
+        const mappedType = (() => {
+          const raw = requestBody.reportType || 'incident_summary';
+          if (raw.includes('executive')) return 'executive_brief';
+          if (raw.includes('threat')) return 'threat_landscape';
+          if (raw.includes('kpi') || raw.includes('performance') || raw.includes('mttr')) return 'mttr_report';
+          if (raw.includes('compliance')) return 'compliance';
+          return 'incident_summary';
+        })();
+        trackEvent('soc_report_exported', {
+          report_type: mappedType,
+          format: 'json',
+        });
         toast({
           title: "Report Generated Successfully",
           description: `Report created with ${data.summary?.incidents || 0} incidents and ${data.summary?.alerts || 0} alerts analyzed.`,

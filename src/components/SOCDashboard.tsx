@@ -13,7 +13,18 @@ import { IncidentManagement } from './IncidentManagement';
 import { ReportGenerator } from './ReportGenerator';
 import { fetchAlertCounts, searchRecords, type AlertCounts, type SearchHit } from '@/lib/backendApi';
 import { DASHBOARD_SECTION_EVENTS, trackHotjarEvent, trackHotjarStateChange } from '@/lib/hotjar';
+import { trackEvent } from '@/lib/mixpanel';
 import { indicatorType, track } from '@/lib/tracking';
+
+const VIEW_TO_SECTION: Record<string, string> = {
+  alerts: 'alerts',
+  incidents: 'incidents',
+  'ai-assistant': 'investigations',
+  collaboration: 'investigations',
+  metrics: 'overview',
+  threats: 'threats',
+  reports: 'reports',
+};
 
 const emptyCounts: AlertCounts = {
   total: 0,
@@ -47,7 +58,10 @@ export function SOCDashboard() {
     const eventName = DASHBOARD_SECTION_EVENTS[activeView];
     if (eventName) trackHotjarEvent(eventName);
     trackHotjarStateChange(`/dashboard/${activeView}`);
-    track('page_viewed', { page_name: activeView, referrer_page: previousView.current });
+    trackEvent('soc_dashboard_viewed', {
+      section: VIEW_TO_SECTION[activeView] || 'overview',
+      platform: 'ai_soc',
+    });
     previousView.current = activeView;
   }, [activeView]);
 

@@ -80,7 +80,7 @@ export function AuthPage() {
         }
       } else {
         trackHotjarEvent('signed_in');
-        sessionStorage.setItem('mp_pending_sign_in', 'password');
+        sessionStorage.setItem('mp_pending_sign_in', 'email');
         setMessage('Successfully signed in! Redirecting...');
       }
     } catch (err) {
