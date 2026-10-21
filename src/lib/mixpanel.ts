@@ -1,4 +1,5 @@
 import mixpanel from 'mixpanel-browser';
+import { atlasIdentify, atlasReset, atlasTrack } from '@/lib/atlas';
 
 const token = import.meta.env.NEXT_PUBLIC_MIXPANEL_TOKEN;
 
@@ -18,24 +19,34 @@ export const mp = mixpanel;
 export const isMixpanelReady = () => ready;
 
 export function identifyUser(userId: string, traits: Record<string, unknown>) {
-  if (!ready || !userId) return;
-  mixpanel.identify(userId);
-  mixpanel.people.set(traits);
+  if (!userId) return;
+  if (ready) {
+    mixpanel.identify(userId);
+    mixpanel.people.set(traits);
+  }
+  // Parallel Atlas identify (no-op when VITE_ATLAS_* unset)
+  atlasIdentify(userId, traits);
 }
 
 export function trackEvent(event: string, props: Record<string, unknown> = {}) {
-  if (!ready) return;
-  mixpanel.track(event, {
+  const payload = {
     ...props,
     platform: 'ai_soc',
     timestamp: new Date().toISOString(),
     $insert_id: crypto.randomUUID(),
-  });
+  };
+  if (ready) {
+    mixpanel.track(event, payload);
+  }
+  // Parallel Atlas track — covers direct trackEvent callers (auth, triage, playbooks, etc.)
+  atlasTrack(event, payload);
 }
 
 export function resetMixpanel() {
-  if (!ready) return;
-  mixpanel.reset();
+  if (ready) {
+    mixpanel.reset();
+  }
+  atlasReset();
 }
 
 /** Map app profile roles onto Mixpanel SOC role taxonomy. */

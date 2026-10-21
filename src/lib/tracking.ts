@@ -1,16 +1,28 @@
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
+import { atlasIdentify, atlasReset } from "@/lib/atlas";
 import { identifyUser, isMixpanelReady, resetMixpanel, trackEvent } from "@/lib/mixpanel";
 
 const SIGNED_IN_AT = "mp_signed_in_at";
 
+/**
+ * Identify the current analyst in Mixpanel and Atlas (parallel).
+ * Personas: soc_analyst | soc_lead | incident_manager | viewer
+ * (mapped upstream via mapSocRole from app roles like analyst_tier2 / admin).
+ */
 export function identify(userId: string, traits: { email?: string; role?: string; org?: string } = {}) {
-  if (!isMixpanelReady() || !userId) return;
+  if (!userId) return;
   const people: Record<string, string> = {};
   if (traits.email) people.$email = traits.email;
   if (traits.role) people.role = traits.role;
   if (traits.org) people.org = traits.org;
-  identifyUser(userId, people);
+
+  if (isMixpanelReady()) {
+    identifyUser(userId, people);
+  } else {
+    // Mixpanel identifyUser also fans out to Atlas when ready; call Atlas directly if MP is off.
+    atlasIdentify(userId, people);
+  }
 }
 
 export const ESCALATION_REASONS = ["tier3", "incident", "threat_hunt"] as const;
@@ -77,13 +89,26 @@ export function sanitizeEventProperties(eventName: string, properties?: Record<s
   return safe;
 }
 
+/**
+ * Dispatch a sanitized event to Mixpanel and Atlas in parallel.
+ * Falls back gracefully when either backend is unset/unavailable.
+ *
+ * Critical SOC paths covered by callers:
+ * alert_viewed, alert_triaged / escalate / dismiss, investigation_*,
+ * ai_query_submitted, playbook_executed, incident_*, soc_dashboard_viewed.
+ */
 export function track(eventName: string, properties?: Record<string, unknown>) {
-  if (!isMixpanelReady()) return;
-  trackEvent(eventName, sanitizeEventProperties(eventName, properties));
+  const safe = sanitizeEventProperties(eventName, properties);
+  // Dual-writes Mixpanel + Atlas inside trackEvent (Atlas-only when Mixpanel token is missing).
+  trackEvent(eventName, safe);
 }
 
 export function reset() {
   resetMixpanel();
+  // resetMixpanel also clears Atlas when Mixpanel is ready; clear Atlas if only Atlas is configured.
+  if (!isMixpanelReady()) {
+    atlasReset();
+  }
 }
 
 export function markSignedIn() {
@@ -127,7 +152,7 @@ export function MixpanelRouteListener() {
 
   useEffect(() => {
     if (location.pathname === "/") return;
-    trackEvent("soc_dashboard_viewed", {
+    track("soc_dashboard_viewed", {
       section: location.pathname === "/auth" ? "settings" : "overview",
       page_name: location.pathname,
       referrer_page: previous.current,

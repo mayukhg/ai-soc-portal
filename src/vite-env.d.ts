@@ -6,4 +6,6 @@ interface ImportMetaEnv {
   readonly VITE_HOTJAR_SITE_ID?: string
   readonly VITE_HOTJAR_VERSION?: string
   readonly NEXT_PUBLIC_MIXPANEL_TOKEN?: string
+  readonly VITE_ATLAS_API_ENDPOINT?: string
+  readonly VITE_ATLAS_TOKEN?: string
 }
