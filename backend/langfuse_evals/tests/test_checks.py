@@ -85,3 +85,21 @@ def test_untrusted_records_run_false_positives():
     assert checks.status_fidelity("This is a real compromise rather than a single-sensor false positive.", [BEACON])[0] == 1.0
     critical = [dict(BEACON, severity="critical")]
     assert checks.severity_fidelity("This is a high-priority exfiltration event.", critical)[0] == 1.0
+
+
+def test_search_terms_drop_stop_words_and_keep_indicators():
+    from server import search_terms
+
+    assert search_terms("Summarize the failed login attempts") == ["failed", "login", "attempts"]
+    assert search_terms("What is happening with 185.220.101.182?") == ["185.220.101.182"]
+    assert search_terms("Anything on MAIL-SERVER-01?") == ["anything", "mail-server-01"]
+
+
+def test_relevance_beats_recency():
+    from langfuse_evals.cases import RETRIEVAL_CORPUS
+
+    item = {"input": {"message": "Summarize the failed login attempts"}}
+    output = tasks.retrieval_task(item=item)
+    # The failed-login record is the oldest in the corpus; it must still rank first.
+    assert output["titles"][0] == "Failed Login Attempts"
+    assert RETRIEVAL_CORPUS[-1]["title"] == "Failed Login Attempts"
