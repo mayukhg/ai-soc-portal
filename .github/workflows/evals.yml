@@ -1,0 +1,74 @@
+name: SOC assistant evals
+
+on:
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/evals.yml"
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+  workflow_dispatch:
+    inputs:
+      live:
+        description: "Also run the live suites against OpenRouter and Langfuse (uses repo secrets, costs about $0.50)"
+        type: boolean
+        default: false
+
+jobs:
+  offline:
+    name: Unit tests and offline gates
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install eval dependencies
+        run: pip install "langfuse>=5.2" psycopg2-binary pytest
+      - name: Unit tests
+        run: python -m pytest -q langfuse_evals/tests
+      - name: Offline gates
+        # The offline model copies record text, so it tests routing, retrieval
+        # and the evaluators, not model quality. The adversarial and
+        # routing_challenge suites need a real model and run in the live job.
+        run: >
+          python -m langfuse_evals.run --no-langfuse --offline-model --include-deep
+          --suite golden,degraded,retrieval --report reports-ci/offline.md
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: offline-scorecard
+          path: backend/reports-ci/
+
+  live:
+    name: Live suites (manual)
+    if: github.event_name == 'workflow_dispatch' && inputs.live
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+      LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+      LANGFUSE_HOST: ${{ vars.LANGFUSE_HOST || 'https://us.cloud.langfuse.com' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install "langfuse>=5.2" psycopg2-binary pytest
+      - name: Live gates
+        run: >
+          python -m langfuse_evals.run --include-deep --judge --repeats 2
+          --run-name "ci-${{ github.run_id }}" --report reports-ci/live.md
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-scorecard
+          path: backend/reports-ci/
