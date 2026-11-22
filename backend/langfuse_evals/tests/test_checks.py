@@ -122,3 +122,20 @@ def test_field_line_ending_is_complete():
     reply = "Phishing alert on MAIL-SERVER-01 from billing@pay-ledger.example.\nSeverity: high\nStatus: acknowledged"
     assert checks.answer_complete(reply)[0] == 1.0
     assert checks.answer_complete("**Assessment: Large Outbound Transfer**\n\n**Host:** WS-F")[0] == 0.0
+
+
+def test_consistency_ignores_wording_but_not_decisions():
+    from langfuse import Evaluation
+
+    def result(message, ok):
+        return run._LocalResult(
+            {"metadata": {"case_id": "c1"}},
+            {"tier": "deep", "message": message},
+            [Evaluation(name="no_invented_entities", value=1.0 if ok else 0.0)],
+        )
+
+    same = [[result("WS-FINANCE-01 beacons.", True)], [result("WS-FINANCE-01 beacons from 192.168.1.100.", True)]]
+    assert run.consistency(same) == 1.0
+    assert run.entity_consistency(same) == 0.0
+    flipped = [[result("WS-FINANCE-01 beacons.", True)], [result("WS-FINANCE-09 beacons.", False)]]
+    assert run.consistency(flipped) == 0.0

@@ -94,23 +94,60 @@ def _field(item, name):
     return getattr(item, name, None)
 
 
-def consistency(runs):
-    """Share of cases whose route and named entities are identical in every repeat."""
+# Checks whose pass/fail must not flip between identical runs. Wording, and
+# which true details a reply chooses to mention, may vary.
+DECISION_CHECKS = (
+    "route_accuracy",
+    "models_match",
+    "lookup_exact",
+    "fact_recall",
+    "no_invented_entities",
+    "severity_fidelity",
+    "status_fidelity",
+    "injection_resisted",
+    "abstained",
+    "safe_actions",
+    "answer_complete",
+)
+
+
+def _repeat_signatures(runs, signature):
     by_case = {}
     for results in runs:
         for result in results:
             case_id = (_field(result.item, "metadata") or {}).get("case_id")
-            output = result.output or {}
-            signature = (
-                output.get("tier"),
-                tuple(sorted(checks.extract_entities(output.get("message") or ""))),
-                bool(output.get("message")),
-            )
-            by_case.setdefault(case_id, []).append(signature)
-    executed = [sigs for sigs in by_case.values() if len(sigs) > 1]
-    if not executed:
+            by_case.setdefault(case_id, []).append(signature(result))
+    repeated = [sigs for sigs in by_case.values() if len(sigs) > 1]
+    if not repeated:
         return None
-    return statistics.fmean(1.0 if len(set(sigs)) == 1 else 0.0 for sigs in executed)
+    return statistics.fmean(1.0 if len(set(sigs)) == 1 else 0.0 for sigs in repeated)
+
+
+def consistency(runs):
+    """Share of cases whose route and decision-check outcomes match in every repeat."""
+
+    def signature(result):
+        output = result.output or {}
+        outcomes = tuple(
+            sorted(
+                (e.name, float(e.value) >= 1.0)
+                for e in result.evaluations or []
+                if e.name in DECISION_CHECKS and isinstance(e.value, (int, float))
+            )
+        )
+        return output.get("tier"), bool(output.get("message")), outcomes
+
+    return _repeat_signatures(runs, signature)
+
+
+def entity_consistency(runs):
+    """Share of cases that name exactly the same entities in every repeat. Reported, not gated."""
+
+    def signature(result):
+        output = result.output or {}
+        return tuple(sorted(checks.extract_entities(output.get("message") or "")))
+
+    return _repeat_signatures(runs, signature)
 
 
 def run_suite(suite, args, client):
@@ -152,6 +189,9 @@ def run_suite(suite, args, client):
         last_run_id = getattr(result, "experiment_id", None) or last_run_id
     rows = [row for results in runs for row in evaluators._item_scores(results)]
     summary = evaluators.summarize(rows)
+    wording = entity_consistency(runs)
+    if wording is not None:
+        summary["entity_consistency"] = wording
     value = consistency(runs)
     if value is not None:
         summary["consistency"] = value
@@ -160,7 +200,7 @@ def run_suite(suite, args, client):
                 name="consistency",
                 value=value,
                 dataset_run_id=last_run_id,
-                comment=f"route and named entities identical across {repeats} repeats",
+                comment=f"route and decision-check outcomes identical across {repeats} repeats",
             )
     return {"summary": summary, "results": runs[-1], "urls": urls, "items": len(items)}
 
@@ -184,7 +224,7 @@ def metric_table(summary):
             cells.append(_fmt(summary.get(f"critical/{metric}")))
         cells += [_fmt(summary.get(f"slice/{name}/{metric}")) for name in slices]
         lines.append("| " + " | ".join(cells) + " |")
-    extras = [k for k in ("consistency", "latency_p95_s", "cost_usd_total") if k in summary]
+    extras = [k for k in ("consistency", "entity_consistency", "latency_p95_s", "cost_usd_total") if k in summary]
     if extras:
         lines += ["", " · ".join(f"`{k}` {_fmt(summary[k])}" for k in extras)]
     return lines

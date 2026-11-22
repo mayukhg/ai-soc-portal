@@ -189,9 +189,9 @@ def answer_complete(message):
         return 0.0, "empty reply"
     if len(text) < 40:
         return 0.0, f"only {len(text)} characters"
-    if text.count("**") % 2:
-        return 0.0, "unbalanced bold markup, reply was cut off"
     last_line = text.splitlines()[-1].strip()
+    if last_line.count("**") % 2:
+        return 0.0, "unbalanced bold markup on the last line, reply was cut off"
     field_done = FIELD_LINE.match(last_line) and not PARTIAL_TOKEN.search(last_line)
     if not (SENTENCE_END.search(last_line) or STEP_PATTERN.match(last_line) or field_done):
         return 0.0, f"last line is cut off: ...{last_line[-30:]!r}"
