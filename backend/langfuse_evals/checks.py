@@ -107,6 +107,10 @@ NEGATION = re.compile(
 )
 SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+|\n+")
 # A finished last line ends with punctuation or markup; list items may end bare.
+# "Status: acknowledged" or "**Type:** Phishing" is a finished field line.
+FIELD_LINE = re.compile(r"^\**[A-Za-z][\w /-]{0,30}\**:\**\s+\S.{0,60}$")
+# A value cut inside an identifier, like "WS-F" for "WS-FINANCE-02".
+PARTIAL_TOKEN = re.compile(r"-[A-Za-z0-9]{1,2}$")
 SENTENCE_END = re.compile(r"[.!?)\]`*\"'|]$")
 
 
@@ -188,7 +192,8 @@ def answer_complete(message):
     if text.count("**") % 2:
         return 0.0, "unbalanced bold markup, reply was cut off"
     last_line = text.splitlines()[-1].strip()
-    if not SENTENCE_END.search(last_line) and not STEP_PATTERN.match(last_line):
+    field_done = FIELD_LINE.match(last_line) and not PARTIAL_TOKEN.search(last_line)
+    if not (SENTENCE_END.search(last_line) or STEP_PATTERN.match(last_line) or field_done):
         return 0.0, f"last line is cut off: ...{last_line[-30:]!r}"
     return 1.0, "reply ends cleanly"
 
