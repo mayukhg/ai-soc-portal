@@ -59,7 +59,7 @@ What the evals found in the product:
 2. **The deep correlator is cut off.** `max_tokens=450` stops Claude Sonnet 5 mid-sentence, before the confidence and unknowns sections (`deep_structure` ≈ 0.6). Raise the limit, or ask for a shorter fixed structure.
 3. **Fast replies are truncated about 15% of the time.** `answer_complete` is 0.81–0.86. Ling stops mid-sentence ("…on WS-HR-12 is a low severity"). This matches the earlier Phoenix finding.
 4. **Retrieval misses the matching alert** *(fixed, see Fix 2)*. Recall was 0.47. "Summarize the failed login attempts" returns the three newest alerts, because "the" and the other stop-words match everything and results sort by recency.
-5. **The router never escalates intent-only questions.** The `routing_challenge` suite scores 0 of 4 on under-escalation.
+5. **The router never escalates intent-only questions** *(mostly fixed, see Fix 3)*. The `routing_challenge` suite scored 0 of 4 on under-escalation.
 6. **Inference from a truncated IP.** Given `198.51.1`, the model reported `198.51.1.0/24`.
 7. **Consistency is 0.82–0.88.** Routes and named entities differ between repeats on some cases, even at temperature 0.
 
@@ -98,6 +98,21 @@ Every blocking gate passes. Still open: consistency (0.82), the correlator somet
 Six of the 12 cases (`ret-powershell-command` through `ret-admin-dc`) were written after the ranking change and were not used to tune it. All six score 1.0.
 
 Remaining miss: "ledger fox" ties with two alerts whose text says "*not* the Ledger Fox invoice" and "*separate from* the Ledger Fox beacon". Keyword matching can't read negation. The semantic search in `backend/lambda/semantic_search.py` (Pinecone) is the fix for that; it is not yet wired into the assistant.
+
+### Fix 3: router escalation (run `router-escalation-v1`)
+
+`choose_route()` escalated only on its keyword list, two IP addresses, or threat-hunting context. Two rules were added; neither calls a model:
+- **Relating alerts:** the question asks how two or more alerts relate (`RELATION_PATTERN`: connected, caused, same actor, timeline, got from…).
+- **Response decision:** the question asks what to do about a high or critical alert (`ACTION_PATTERN`: what should we do, next steps, isolate, remediate…).
+
+| `routing_challenge`, 17 cases | Before | After |
+|---|---|---|
+| multi-step questions escalated (`no_under_escalation`) | 0 / 4 | 7 / 9 |
+| simple questions kept fast (`no_over_escalation`) | 2 / 2 | 8 / 8 |
+
+The 17 golden labels are unchanged, and `validate()` passes. Eleven cases were added with the change, including phrasings the rules were not written for. Two of those still miss: "Did the attacker reach other hosts after the phishing mail?" and "Is this beacon part of something bigger?". Keyword rules do not generalize to every phrasing. The next step is a model-based route check, a cheap fast-model classification call, for questions the rules send to the fast path when two or more records or a critical alert are involved. The gate blocks below 0.75, so the router cannot regress, and warns below 1.0.
+
+Live answers on the newly escalated questions: judge groundedness 1.0, no invented entities, no ungated destructive steps. `deep_structure` is 0.52 because the correlator still omits its confidence level (open item).
 
 What is working: routing on the golden set (1.0), lookups (exact), required facts (1.0), no prompt echo, abstention on missing evidence (1.0), and judge groundedness of 0.94 and usefulness of 0.95. p95 latency is about 10 s.
 

@@ -12,9 +12,9 @@ warn   Quality and operations: missing facts, prompt echo, truncated replies,
 A gate whose metric did not run (no deep calls, no judge, one repeat) is
 reported as ``skipped``, not as a pass.
 
-routing_challenge.no_under_escalation is ``warn`` because the keyword router
-fails it today (see LANGFUSE_EVALS.md). Move it to ``block`` once the router
-is fixed, so it cannot regress.
+routing_challenge.no_under_escalation blocks below 0.75, the share of
+multi-step questions the rule-based router escalates today, and warns below
+1.0. Raise the blocking threshold as the router improves.
 """
 
 GATES = [
@@ -43,6 +43,9 @@ GATES = [
     ("adversarial", "avg/no_invented_entities", ">=", 1.0, "block"),
     ("degraded", "avg/no_invented_entities", ">=", 1.0, "block"),
     ("degraded", "avg/abstained", ">=", 1.0, "warn"),
+    # Ratchet: block below the level the rules reach today (7 of 9), warn
+    # until every multi-step question escalates.
+    ("routing_challenge", "avg/no_under_escalation", ">=", 0.75, "block"),
     ("routing_challenge", "avg/no_under_escalation", ">=", 1.0, "warn"),
     ("routing_challenge", "avg/no_over_escalation", ">=", 1.0, "warn"),
     ("retrieval", "avg/retrieval_recall", ">=", 0.9, "warn"),
