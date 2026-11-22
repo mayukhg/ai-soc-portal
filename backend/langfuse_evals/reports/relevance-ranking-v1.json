@@ -1,0 +1,33 @@
+{
+  "run_name": "relevance-ranking-v1",
+  "summaries": {
+    "retrieval": {
+      "avg/retrieval_matched_flag": 1.0,
+      "slice/retrieval/retrieval_matched_flag": 1.0,
+      "avg/retrieval_precision": 0.893939393939394,
+      "slice/retrieval/retrieval_precision": 0.893939393939394,
+      "avg/retrieval_recall": 0.9393939393939394,
+      "slice/retrieval/retrieval_recall": 0.9393939393939394
+    }
+  },
+  "gates": [
+    {
+      "suite": "retrieval",
+      "metric": "avg/retrieval_recall",
+      "op": ">=",
+      "threshold": 0.9,
+      "level": "warn",
+      "value": 0.9393939393939394,
+      "status": "pass"
+    },
+    {
+      "suite": "retrieval",
+      "metric": "avg/retrieval_matched_flag",
+      "op": ">=",
+      "threshold": 1.0,
+      "level": "warn",
+      "value": 1.0,
+      "status": "pass"
+    }
+  ]
+}

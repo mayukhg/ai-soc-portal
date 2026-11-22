@@ -370,6 +370,43 @@ RETRIEVAL_CASES = (
         "relevant": ["Malware Detection on Endpoint"],
         "expect_matched": True,
     },
+    # Held out: written after the ranking change, not used to tune it.
+    {
+        "id": "ret-powershell-command",
+        "message": "Decode the encoded PowerShell command",
+        "relevant": ["Encoded PowerShell on finance workstation"],
+        "expect_matched": True,
+    },
+    {
+        "id": "ret-mail-server",
+        "message": "Anything on MAIL-SERVER-01?",
+        "relevant": ["Phishing Email Campaign"],
+        "expect_matched": True,
+    },
+    {
+        "id": "ret-volume-exfil",
+        "message": "Where did the 2.4 GB exfiltration go?",
+        "relevant": ["Large outbound transfer from finance"],
+        "expect_matched": True,
+    },
+    {
+        "id": "ret-trojan-quarantine",
+        "message": "Was the trojan quarantined?",
+        "relevant": ["Malware Detection on Endpoint"],
+        "expect_matched": True,
+    },
+    {
+        "id": "ret-payroll-link",
+        "message": "Who reported the payroll portal link",
+        "relevant": ["Payroll phishing mail"],
+        "expect_matched": True,
+    },
+    {
+        "id": "ret-admin-dc",
+        "message": "administrator lockouts on DC-PRIMARY",
+        "relevant": ["Failed Login Attempts"],
+        "expect_matched": True,
+    },
     {
         "id": "ret-no-match",
         "message": "printer toner status",

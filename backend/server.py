@@ -496,9 +496,64 @@ def function_get_alerts(body):
             return {"success": True, "data": rows_ready(cur.fetchall())}
 
 
+# Words that say what the analyst wants done, not which alert they mean.
+SEARCH_STOP_WORDS = {
+    "the", "and", "for", "from", "with", "about", "what", "which", "who", "why", "how",
+    "when", "where", "are", "was", "were", "has", "have", "had", "does", "did", "this",
+    "that", "these", "those", "there", "their", "into", "onto", "over", "any", "all",
+    "our", "your", "you", "can", "could", "would", "should", "will", "please", "tell",
+    "show", "give", "list", "find", "explain", "summarize", "summarise", "summary",
+    "describe", "analyze", "analyse", "assess", "draft", "investigate", "compare",
+    "correlate", "happening", "going", "status", "alert", "alerts", "issue", "issues",
+    "event", "events", "now", "today", "latest", "recent", "new", "stay", "open",
+    "mean", "means", "doing", "need", "next", "seen", "see", "look", "check",
+}
+SEARCH_TOKEN = re.compile(r"[a-z0-9][a-z0-9._@-]*[a-z0-9]")
+SEARCH_CANDIDATES = 50
+SEARCH_RESULTS = 3
+# A result must score at least this share of the best match, so one strong
+# match is not padded with alerts that only share a common word.
+SEARCH_MIN_SHARE = 0.4
+
+
+def search_terms(message):
+    """Distinct search terms in the order they appear, stop words removed."""
+    terms = []
+    for token in SEARCH_TOKEN.findall((message or "").lower()):
+        if len(token) <= 2 or token in SEARCH_STOP_WORDS or token in terms:
+            continue
+        terms.append(token)
+    return terms
+
+
+def _is_indicator(term):
+    """Hostnames, addresses, hashes and emails pin one alert; plain words do not."""
+    return any(ch.isdigit() for ch in term) or any(ch in term for ch in "-.@_")
+
+
+def relevance(row, terms):
+    """Score one alert: title hits count double, indicators triple."""
+    title = (row.get("title") or "").lower()
+    body = f"{row.get('description') or ''} {row.get('alert_type') or ''}".lower()
+    score = 0
+    for term in terms:
+        weight = 3 if _is_indicator(term) else 1
+        if term in title:
+            score += 2 * weight
+        elif term in body:
+            score += weight
+    return score
+
+
 def related_alerts(cur, message):
-    tokens = [token for token in re.split(r"\s+", message.lower()) if len(token) > 2]
-    if not tokens:
+    """Up to three alerts for the assistant, most relevant first.
+
+    Candidates are alerts that contain any search term. They are ranked by
+    relevance(), and recency only breaks ties. Returns (rows, matched). When
+    nothing matches, the newest unresolved alerts come back with matched False.
+    """
+    terms = search_terms(message)
+    if not terms:
         cur.execute(
             """
             SELECT title, severity, status, description, alert_type, source
@@ -510,11 +565,11 @@ def related_alerts(cur, message):
         return cur.fetchall(), False
     clauses = []
     params = []
-    for token in tokens[:6]:
+    for term in terms[:12]:
         clauses.append(
             "(lower(title) LIKE %s OR lower(coalesce(description, '')) LIKE %s OR lower(alert_type) LIKE %s)"
         )
-        like = f"%{token}%"
+        like = f"%{term}%"
         params.extend([like, like, like])
     cur.execute(
         f"""
@@ -522,13 +577,16 @@ def related_alerts(cur, message):
         FROM public.alerts
         WHERE {' OR '.join(clauses)}
         ORDER BY created_at DESC
-        LIMIT 3
+        LIMIT {SEARCH_CANDIDATES}
         """,
         params,
     )
     found = cur.fetchall()
     if found:
-        return found, True
+        # sorted() is stable, so equal scores keep the newest-first order.
+        scored = sorted(((relevance(row, terms), row) for row in found), key=lambda pair: pair[0], reverse=True)
+        floor = scored[0][0] * SEARCH_MIN_SHARE
+        return [row for score, row in scored[:SEARCH_RESULTS] if score >= floor], True
     cur.execute(
         """
         SELECT title, severity, status, description, alert_type, source
