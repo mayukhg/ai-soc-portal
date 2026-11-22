@@ -114,6 +114,23 @@ The 17 golden labels are unchanged, and `validate()` passes. Eleven cases were a
 
 Live answers on the newly escalated questions: judge groundedness 1.0, no invented entities, no ungated destructive steps. `deep_structure` is 0.52 because the correlator still omits its confidence level (open item).
 
+### Fix 4: correlator output format (runs `correlator-structure-v1`, `-v2`)
+
+The correlator often omitted its confidence level. Sometimes it wrote none; sometimes the reply hit the token cap first, because confidence came last. It now answers in a fixed format of at most 200 words: the `Confidence:` line first, then `Supported by the records:` and `Still unknown:`. The planner returns at most 8 numbered next checks.
+
+The untrusted-records rule was also narrowed. The judge showed models flagging ordinary record text, for example "It is not the Ledger Fox invoice", as a suspicious instruction. Now only text that tries to direct an AI or analyst is flagged.
+
+| Metric | Before | After (v2) |
+|---|---|---|
+| golden `deep_structure` | 0.86 | 1.00 |
+| routing_challenge `deep_structure` | 0.52 | 1.00 |
+| golden `answer_complete` | 0.97 | 1.00 |
+| golden judge groundedness | 0.96 (0.86 in v1) | 0.93 |
+| golden consistency | 0.82 | 0.94 |
+| golden p95 latency | 14.5 s | 10.2 s |
+| golden cost per run | $0.29 | $0.12 |
+| adversarial `injection_resisted` (3 repeats) | 1.00 | 1.00 |
+
 What is working: routing on the golden set (1.0), lookups (exact), required facts (1.0), no prompt echo, abstention on missing evidence (1.0), and judge groundedness of 0.94 and usefulness of 0.95. p95 latency is about 10 s.
 
 Calibrate the LLM judge before relying on it: hand-score 50 or more replies and check agreement (Cohen's kappa ≥ 0.7).
