@@ -62,6 +62,28 @@ DEEP_PATTERN = re.compile(
     r")\b",
     re.IGNORECASE,
 )
+# Questions about how alerts relate to each other. They need the correlator
+# even without a DEEP_PATTERN keyword ("Is the beacon connected to the mail?").
+RELATION_PATTERN = re.compile(
+    r"\b("
+    r"connect\w*|relat(?:ed|es|ion\w*)|linked|links? (?:to|between)|tied|"
+    r"same (?:actor|attacker|host|campaign|source|threat|group)|caus\w*|"
+    r"led to|lead to|origin\w*|spread\w*|pivot\w*|moved|got from|path|"
+    r"sequence|timeline|between"
+    r")\b",
+    re.IGNORECASE,
+)
+# Questions asking for a response decision. On a high or critical alert the
+# answer is a containment plan, which is the deep path's job.
+ACTION_PATTERN = re.compile(
+    r"\b("
+    r"what (?:should|do|can|must) we do|next steps?|do next|what now|"
+    r"how (?:should|do) we (?:respond|handle)|respond to|remediat\w*|"
+    r"mitigat\w*|isolat\w*|contain\b|block (?:the|it|this)"
+    r")",
+    re.IGNORECASE,
+)
+SERIOUS_SEVERITIES = {"high", "critical"}
 LANGUAGE_PATTERN = re.compile(
     r"\b(analy[sz]e|explain|summar\w*|recommend\w*|should|draft|assess|mean)\b",
     re.IGNORECASE,
@@ -130,6 +152,12 @@ def choose_route(message, records, context_type, matched=True):
     addresses = set(re.findall(r"\b\d{1,3}(?:\.\d{1,3}){3}\b", message or ""))
     if len(addresses) >= 2:
         reasons.append("multiple addresses in the question")
+    if len(records or []) >= 2 and RELATION_PATTERN.search(message or ""):
+        reasons.append("question relates several alerts")
+    if ACTION_PATTERN.search(message or "") and any(
+        (row.get("severity") or "").lower() in SERIOUS_SEVERITIES for row in records or []
+    ):
+        reasons.append("response decision on a high-severity alert")
     if reasons:
         return "deep", reasons
     if LANGUAGE_PATTERN.search(message or ""):
