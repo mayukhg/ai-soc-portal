@@ -16,7 +16,7 @@ import time
 from contextlib import contextmanager
 
 import model_router
-from model_router import RouterError, choose_route, planned_models
+from model_router import RouterError, choose_route, planned_models  # noqa: F401
 
 _USAGE = contextvars.ContextVar("soc_eval_usage", default=None)
 _REAL_POST_CHAT = model_router._post_chat
@@ -66,25 +66,31 @@ def assistant_task(*, item, include_deep=False, **_kwargs):
     records = case_input["records"]
     context_type = case_input["context_type"]
     matched = case_input["matched"]
-    tier, reasons = choose_route(message, records, context_type, matched)
+    sink = []
+    token = _USAGE.set(sink)
+    started = time.perf_counter()
+    try:
+        route = model_router.decide_route(message, records, context_type, matched)
+    finally:
+        _USAGE.reset(token)
+    tier, reasons, checked_by = route
     reason = "; ".join(reasons)
     base = {
         "tier": tier,
         "reason": reason,
         "models": planned_models(message, tier),
+        "route_check_model": checked_by,
         "message": "",
         "executed": False,
         "latency_s": 0.0,
-        "cost_usd": 0.0,
-        "usage": [],
+        "cost_usd": round(_cost(sink), 6),
+        "usage": list(sink),
     }
     if tier == "deep" and not include_deep:
         return base
-    sink = []
     token = _USAGE.set(sink)
-    started = time.perf_counter()
     try:
-        result = model_router.answer_question(message, records, context_type, matched)
+        result = model_router.answer_question(message, records, context_type, matched, route=route)
     except RouterError as exc:
         return dict(base, error=str(exc), latency_s=time.perf_counter() - started, usage=sink)
     finally:
@@ -185,7 +191,9 @@ def offline_post_chat(model, messages, max_tokens, timeout):
     system = messages[0]["content"]
     user = messages[-1]["content"]
     rows = [m.groups() for m in map(_RECORD_LINE.match, user.splitlines()) if m]
-    if not rows:
+    if system.startswith("You decide how a SOC assistant"):
+        text = "FAST"
+    elif not rows:
         text = "The alert records do not contain information that answers this question."
     elif system.startswith("You correlate"):
         facts = " ".join(f"{t} ({s}, {st}): {d}" for t, s, st, d in rows)

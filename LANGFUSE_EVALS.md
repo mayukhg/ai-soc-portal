@@ -131,6 +131,17 @@ The untrusted-records rule was also narrowed. The judge showed models flagging o
 | golden cost per run | $0.29 | $0.12 |
 | adversarial `injection_resisted` (3 repeats) | 1.00 | 1.00 |
 
+### Fix 5: model route check (runs `route-check-v1`, `-v2`)
+
+When the rules leave a question on the fast path and it spans two or more matched alerts, `decide_route()` asks the cheap fast model for a one-word DEEP or FAST verdict. It sends only the question and the alert titles, so record descriptions never reach it. Ling returns empty completions about half the time, so the Gemini failover is tried next. If both fail, the multi-alert question escalates. Set `SOC_ROUTE_CHECK=0` to turn the check off.
+
+| `routing_challenge`, 17 cases × 3 repeats | Rules only | Rules + route check |
+|---|---|---|
+| multi-step questions escalated | 7 / 9 | **9 / 9** (all 3 repeats) |
+| simple questions kept fast | 8 / 8 | 8 / 8 |
+
+Every escalation in `route-check-v2` came from a real DEEP verdict; none came from the "unavailable" fallback. The check adds one cheap call (about 1 to 3 seconds) only to multi-alert questions that the rules leave on the fast path. The golden routes are unchanged. The gate now blocks below 0.9.
+
 What is working: routing on the golden set (1.0), lookups (exact), required facts (1.0), no prompt echo, abstention on missing evidence (1.0), and judge groundedness of 0.94 and usefulness of 0.95. p95 latency is about 10 s.
 
 Calibrate the LLM judge before relying on it: hand-score 50 or more replies and check agreement (Cohen's kappa ≥ 0.7).
