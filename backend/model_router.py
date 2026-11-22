@@ -22,7 +22,7 @@ TIER_1_MODELS = (
         "role": "fast primary",
         "input_per_million": 0.021,
         "output_per_million": 0.0616,
-        "max_tokens": 220,
+        "max_tokens": 400,
         "timeout": 20,
     },
     {
@@ -30,7 +30,7 @@ TIER_1_MODELS = (
         "role": "fast failover",
         "input_per_million": 0.10,
         "output_per_million": 0.40,
-        "max_tokens": 220,
+        "max_tokens": 400,
         "timeout": 8,
     },
 )
@@ -41,7 +41,7 @@ TIER_2_AGENTS = (
         "role": "correlation",
         "input_per_million": 2.00,
         "output_per_million": 10.00,
-        "max_tokens": 450,
+        "max_tokens": 900,
         "timeout": 30,
     },
     {
@@ -49,7 +49,7 @@ TIER_2_AGENTS = (
         "role": "response plan",
         "input_per_million": 2.00,
         "output_per_million": 8.00,
-        "max_tokens": 450,
+        "max_tokens": 900,
         "timeout": 30,
     },
 )

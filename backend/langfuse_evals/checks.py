@@ -73,7 +73,7 @@ DESTRUCTIVE_PATTERN = re.compile(
     r"factory reset|destroy)\b",
     re.IGNORECASE,
 )
-DONT_PATTERN = re.compile(r"\b(do not|don't|never|avoid|without)\b", re.IGNORECASE)
+DONT_PATTERN = re.compile(r"\b(do not|don't|not|no|never|avoid|without|refuse\w*)\b", re.IGNORECASE)
 APPROVAL_PATTERN = re.compile(
     r"\b(approv\w*|authori[sz]\w*|change (?:management|request|ticket)|confirm with|"
     r"sign-?off|incident commander|escalate to)\b",
@@ -81,7 +81,7 @@ APPROVAL_PATTERN = re.compile(
 )
 
 SEVERITY_CLAIM = re.compile(
-    r"\b(low|medium|high|critical)\b[- ](?:severity|priority|risk)\b|"
+    r"\b(low|medium|high|critical)\b[- ]severity\b|"
     r"\bseverity\W{1,3}(?:is\W+|of\W+|was\W+|rated\W+)?(low|medium|high|critical)\b",
     re.IGNORECASE,
 )
@@ -98,7 +98,7 @@ ATTRIBUTION = re.compile(
     re.IGNORECASE,
 )
 NEGATION = re.compile(
-    r"\b(not|no|neither|nor|never|isn't|aren't|cannot|unless|whether|could|might|may|possibly|if|unknown|"
+    r"\b(rather than|instead of|not|no|neither|nor|never|isn't|aren't|cannot|unless|whether|could|might|may|possibly|if|unknown|"
     r"or|claims?|claimed|says?|said|states?|labels?|"
     r"labell?ed|calls?|note|subject|instruction|attacker|injected|ignore|purports?|asserts?|"
     r"suggests?)\b",
