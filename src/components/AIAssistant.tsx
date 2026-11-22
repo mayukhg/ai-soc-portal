@@ -11,8 +11,16 @@ import { useAIAssistant } from '@/hooks/useAIAssistant';
 import { trackEvent } from '@/lib/mixpanel';
 import { PLAYBOOKS, track } from '@/lib/tracking';
 
+// Reject reasons in the UI mapped to the override categories stored in Langfuse
+// (backend/langfuse_tracing.py FEEDBACK_REASONS).
+const REJECT_REASON_TO_LANGFUSE: Record<string, string> = {
+  not_relevant: 'missing_context',
+  incorrect: 'wrong_facts',
+  incomplete: 'incomplete_answer',
+};
+
 export function AIAssistant() {
-  const { messages, loading, sendMessage, clearHistory } = useAIAssistant();
+  const { messages, loading, sendMessage, rateMessage, clearHistory } = useAIAssistant();
   const [inputMessage, setInputMessage] = useState('');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -143,7 +151,10 @@ export function AIAssistant() {
                     </div>
                     {message.message_type === 'assistant' && (
                       <div className="mt-3 flex flex-wrap gap-2">
-                        <Select onValueChange={(action) => track('ai_recommendation_accepted', { recommendation_id: message.id, action_taken: action })}>
+                        <Select onValueChange={(action) => {
+                          track('ai_recommendation_accepted', { recommendation_id: message.id, action_taken: action });
+                          rateMessage(message, true);
+                        }}>
                           <SelectTrigger aria-label="Accept recommendation" className="h-8 w-36">
                             <SelectValue placeholder="Accept" />
                           </SelectTrigger>
@@ -152,7 +163,10 @@ export function AIAssistant() {
                             <SelectItem value="open_incident">Open incident</SelectItem>
                           </SelectContent>
                         </Select>
-                        <Select onValueChange={(reason) => track('ai_recommendation_rejected', { recommendation_id: message.id, reject_reason: reason })}>
+                        <Select onValueChange={(reason) => {
+                          track('ai_recommendation_rejected', { recommendation_id: message.id, reject_reason: reason });
+                          rateMessage(message, false, REJECT_REASON_TO_LANGFUSE[reason] ?? 'other');
+                        }}>
                           <SelectTrigger aria-label="Reject recommendation" className="h-8 w-36">
                             <SelectValue placeholder="Reject" />
                           </SelectTrigger>
@@ -162,7 +176,10 @@ export function AIAssistant() {
                             <SelectItem value="incomplete">Incomplete</SelectItem>
                           </SelectContent>
                         </Select>
-                        <Select onValueChange={(feedback) => track('ai_feedback_submitted', { recommendation_id: message.id, feedback_type: feedback })}>
+                        <Select onValueChange={(feedback) => {
+                          track('ai_feedback_submitted', { recommendation_id: message.id, feedback_type: feedback });
+                          rateMessage(message, feedback === 'helpful');
+                        }}>
                           <SelectTrigger aria-label="Recommendation feedback" className="h-8 w-36">
                             <SelectValue placeholder="Feedback" />
                           </SelectTrigger>

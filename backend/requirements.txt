@@ -26,3 +26,4 @@ numpy
 pandas
 matplotlib
 seaborn
+langfuse>=5.2
