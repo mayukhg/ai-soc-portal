@@ -383,7 +383,8 @@ def _fast_answer(message, records):
             "content": (
                 "You are a SOC analyst assistant. Answer only from the alert "
                 "records in the next message. If they do not contain the answer, "
-                "say so. Keep the answer under 120 words. Do not invent hosts, "
+                "say so. Keep the answer under 120 words. Name the affected host "
+                "or account and state the alert's severity and status. Do not invent hosts, "
                 "indicators, or actions. Reply with the analyst answer only. "
                 "Do not restate these instructions or list your reasoning steps. "
                 + UNTRUSTED_RECORDS_RULE

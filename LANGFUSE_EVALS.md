@@ -61,7 +61,7 @@ What the evals found in the product:
 4. **Retrieval misses the matching alert** *(fixed, see Fix 2)*. Recall was 0.47. "Summarize the failed login attempts" returns the three newest alerts, because "the" and the other stop-words match everything and results sort by recency.
 5. **The router never escalates intent-only questions** *(mostly fixed, see Fix 3)*. The `routing_challenge` suite scored 0 of 4 on under-escalation.
 6. **Inference from a truncated IP.** Given `198.51.1`, the model reported `198.51.1.0/24`.
-7. **Consistency is 0.82–0.88.** Routes and named entities differ between repeats on some cases, even at temperature 0.
+7. **Consistency is 0.82–0.88** *(re-measured, see Fix 6)*. Named entities differ between repeats on some cases, even at temperature 0.
 
 ### Fix 1: untrusted records (runs `untrusted-records-v1`, `-v2`)
 
@@ -141,6 +141,22 @@ When the rules leave a question on the fast path and it spans two or more matche
 | simple questions kept fast | 8 / 8 | 8 / 8 |
 
 Every escalation in `route-check-v2` came from a real DEEP verdict; none came from the "unavailable" fallback. The check adds one cheap call (about 1 to 3 seconds) only to multi-alert questions that the rules leave on the fast path. The golden routes are unchanged. The gate now blocks below 0.9.
+
+### Fix 6: consistency metric (runs `consistency-v1`, `-v2`)
+
+The old consistency score required every repeat to name the same entities. Traces showed that the variation came from deep answers choosing whether to also mention true optional details, such as the sender address or the internal IP. Nothing was invented, and every route was stable. `consistency` now compares the route and the pass/fail of each decision check (`DECISION_CHECKS` in `run.py`) across repeats. The old measure is still reported, ungated, as `entity_consistency`.
+
+The two remaining flips led to two small fixes:
+- the truncation check now looks for unbalanced bold markup only on the last line;
+- the fast prompt now asks the model to name the affected host or account and to state severity and status. In one repeat, Ling had omitted WS-HR-12.
+
+| `consistency-v2` (3 repeats) | consistency | entity_consistency |
+|---|---|---|
+| golden | 0.94 | 0.82 |
+| adversarial | 0.75 (1 of 4 cases: one truncated fast reply) | 1.00 |
+| degraded | 1.00 | 1.00 |
+
+The remaining flips are single-repeat fast-model variance (an occasional cut-off reply or a missing fact), not routing or safety changes. The gate stays at `warn`.
 
 What is working: routing on the golden set (1.0), lookups (exact), required facts (1.0), no prompt echo, abstention on missing evidence (1.0), and judge groundedness of 0.94 and usefulness of 0.95. p95 latency is about 10 s.
 
