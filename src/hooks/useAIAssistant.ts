@@ -156,6 +156,25 @@ export function useAIAssistant() {
     }
   };
 
+  // Sends an analyst rating to the backend, which stores it as Langfuse scores on
+  // the trace that produced this reply. Replies without a traceId (Langfuse off,
+  // or history from before tracing) are skipped.
+  const rateMessage = async (
+    message: AIMessage,
+    helpful: boolean,
+    reason?: string,
+  ) => {
+    const traceId = message.metadata?.traceId;
+    if (!traceId) return;
+    try {
+      await supabase.functions.invoke('ai-feedback', {
+        body: { traceId, helpful, reason },
+      });
+    } catch (err) {
+      console.error('Failed to record assistant feedback:', err);
+    }
+  };
+
   const clearHistory = () => {
     setMessages([]);
     setCurrentSessionId(crypto.randomUUID());
@@ -166,6 +185,7 @@ export function useAIAssistant() {
     loading,
     error,
     sendMessage,
+    rateMessage,
     clearHistory,
     refresh: loadMessageHistory
   };

@@ -229,16 +229,30 @@ def _post_chat(model, messages, max_tokens, timeout):
     return text, body.get("usage") if isinstance(body.get("usage"), dict) else {}
 
 
-def _chat(model, messages, max_tokens, timeout):
+def _traced_post(model, messages, max_tokens, timeout, role=None):
+    """Call OpenRouter inside a Langfuse generation when Langfuse is configured."""
+    import langfuse_tracing
+
+    with langfuse_tracing.generation(model, messages, max_tokens, role) as gen:
+        try:
+            text, usage = _post_chat(model, messages, max_tokens, timeout)
+        except RouterError as exc:
+            langfuse_tracing.mark_error(gen, exc)
+            raise
+        langfuse_tracing.finish_generation(gen, model, text, usage)
+        return text, usage
+
+
+def _chat(model, messages, max_tokens, timeout, role=None):
     """Call OpenRouter and record one Phoenix LLM span when tracing is on."""
     try:
         from tracer import finish_llm_span, llm_call_span, mark_span_error
     except ImportError:
-        text, _usage = _post_chat(model, messages, max_tokens, timeout)
+        text, _usage = _traced_post(model, messages, max_tokens, timeout, role)
         return text
     with llm_call_span(model, messages, max_tokens) as span:
         try:
-            text, usage = _post_chat(model, messages, max_tokens, timeout)
+            text, usage = _traced_post(model, messages, max_tokens, timeout, role)
         except RouterError as exc:
             mark_span_error(span, exc)
             raise
@@ -266,7 +280,9 @@ def _fast_answer(message, records):
     errors = []
     for model in TIER_1_MODELS:
         try:
-            text = _chat(model["id"], messages, model["max_tokens"], model["timeout"])
+            text = _chat(
+                model["id"], messages, model["max_tokens"], model["timeout"], model["role"]
+            )
             return text, [model["id"]]
         except RouterError as exc:
             if exc.code in {"openrouter_key_required", "openrouter_key_invalid"}:
@@ -296,6 +312,7 @@ def _deep_answer(message, records):
         ],
         correlator["max_tokens"],
         correlator["timeout"],
+        correlator["role"],
     )
     plan = _chat(
         planner["id"],
@@ -318,6 +335,7 @@ def _deep_answer(message, records):
         ],
         planner["max_tokens"],
         planner["timeout"],
+        planner["role"],
     )
     text = f"{correlation}\n\nResponse plan:\n{plan}"
     return text, [correlator["id"], planner["id"]]
@@ -336,7 +354,26 @@ def _lookup_answer(records):
     return "From the alert store:\n" + "\n".join(lines)
 
 
-def answer_question(message, records, context_type, matched=True):
+def answer_question(message, records, context_type, matched=True, user_id=None, session_id=None):
+    """Answer one analyst question. The result carries the Langfuse trace id when on."""
+    import langfuse_tracing
+
+    with langfuse_tracing.question_trace(
+        message, context_type, records, matched, user_id=user_id, session_id=session_id
+    ) as root:
+        try:
+            result = _phoenix_answer(message, records, context_type, matched)
+        except RouterError as exc:
+            langfuse_tracing.mark_error(root, exc)
+            raise
+        langfuse_tracing.finish_question(root, result)
+        trace_id = getattr(root, "trace_id", None)
+        if trace_id:
+            result = dict(result, trace_id=trace_id)
+        return result
+
+
+def _phoenix_answer(message, records, context_type, matched=True):
     try:
         from tracer import chain_span, finish_chain_span, mark_span_error
     except ImportError:

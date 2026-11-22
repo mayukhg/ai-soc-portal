@@ -557,7 +557,14 @@ def function_ai_assistant(body, user_id):
             matches, matched = related_alerts(cur, message)
             matches = [dict(row) for row in matches]
             try:
-                routed = answer_question(message, matches, context_type, matched)
+                routed = answer_question(
+                    message,
+                    matches,
+                    context_type,
+                    matched,
+                    user_id=user_id,
+                    session_id=session_id,
+                )
             except RouterError as exc:
                 return {
                     "success": False,
@@ -571,6 +578,8 @@ def function_ai_assistant(body, user_id):
                 "models": routed["models"],
                 "reason": routed["reason"],
             }
+            if routed.get("trace_id"):
+                routing["traceId"] = routed["trace_id"]
             cur.execute(
                 """
                 INSERT INTO public.ai_interactions
@@ -588,6 +597,26 @@ def function_ai_assistant(body, user_id):
                 (user_id, session_id, reply, context_type, context_id, Json(routing)),
             )
     return {"success": True, "message": reply, "routing": routing}
+
+
+TRACE_ID_PATTERN = re.compile(r"^[0-9a-f]{32}$")
+
+
+def function_ai_feedback(body, user_id):
+    """Store an analyst rating of one assistant reply as Langfuse scores."""
+    import langfuse_tracing
+
+    if not user_id:
+        return {"success": False, "error": "Sign in before rating a reply"}
+    trace_id = (body.get("traceId") or "").strip().lower()
+    if not TRACE_ID_PATTERN.match(trace_id):
+        return {"success": False, "error": "traceId is required"}
+    helpful = bool(body.get("helpful"))
+    comment = (body.get("comment") or "").strip()[:1000] or None
+    stored = langfuse_tracing.record_feedback(trace_id, helpful, body.get("reason"), comment)
+    if not stored:
+        return {"success": False, "error": "Langfuse is not configured"}
+    return {"success": True}
 
 
 def function_calculate_kpis():
@@ -1121,6 +1150,8 @@ class Handler(BaseHTTPRequestHandler):
                     self._send(200, function_get_alerts(body))
                 elif name == "ai-assistant":
                     self._send(200, function_ai_assistant(body, user_id))
+                elif name == "ai-feedback":
+                    self._send(200, function_ai_feedback(body, user_id))
                 elif name == "calculate-kpis":
                     self._send(200, function_calculate_kpis())
                 elif name == "generate-report":
